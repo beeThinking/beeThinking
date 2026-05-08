@@ -1,0 +1,106 @@
+.navbar {
+  background: linear-gradient(135deg, var(--amelie-dark-brown) 0%, var(--amelie-brown) 100%);
+  color: var(--amelie-light);
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(108, 75, 13, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bee-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--amelie-orange);
+}
+
+.navbar-brand h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--amelie-light);
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--amelie-orange);
+  font-style: italic;
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  color: var(--amelie-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(207, 163, 79, 0.2);
+  color: var(--amelie-orange);
+}
+
+.nav-link.active {
+  background-color: var(--amelie-orange);
+  color: var(--amelie-dark-brown);
+}
+
+.logout-button {
+  background-color: transparent;
+  color: var(--amelie-light);
+  border: 2px solid var(--amelie-orange);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: var(--amelie-orange);
+  color: var(--amelie-dark-brown);
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar-menu {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .nav-link {
+    display: block;
+    width: 100%;
+  }
+}

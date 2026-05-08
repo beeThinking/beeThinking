@@ -1,0 +1,20 @@
+<nav class="navbar">
+  <div class="navbar-content">
+    <div class="navbar-brand">
+      <svg class="bee-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm8 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-16 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm8-2c-3.3 0-6 2.7-6 6 0 2.8 1.9 5.2 4.5 5.9V22h3v-2.1c2.6-.7 4.5-3.1 4.5-5.9 0-3.3-2.7-6-6-6zm0 10c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/>
+      </svg>
+      <h1>bee thinking</h1>
+      <span class="subtitle">think like a bee</span>
+    </div>
+    <ul class="navbar-menu">
+      @if (authService.isAuthenticated()) {
+        <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a></li>
+        <li><a routerLink="/beehives" routerLinkActive="active" class="nav-link">Bienenstöcke</a></li>
+        <li><a routerLink="/honey-harvest" routerLinkActive="active" class="nav-link">Honig-Ernte</a></li>
+        <li><a routerLink="/appointments" routerLinkActive="active" class="nav-link">Termine</a></li>
+        <li><button (click)="logout()" class="logout-button">Logout</button></li>
+      }
+    </ul>
+  </div>
+</nav>

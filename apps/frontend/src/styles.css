@@ -1,0 +1,25 @@
+/* Global Styles für bee thinking - think like a bee */
+
+/* Amélie Farbpalette */
+:root {
+  --amelie-gold: #987731;
+  --amelie-orange: #CFA34F;
+  --amelie-brown: #907737;
+  --amelie-dark-brown: #6C4B0D;
+  --amelie-light: #F5E6D3;
+  --amelie-text-dark: #3A2F1A;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--amelie-light);
+  color: var(--amelie-text-dark);
+  min-height: 100vh;
+}
+

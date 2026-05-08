@@ -1,0 +1,47 @@
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(108, 75, 13, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(108, 75, 13, 0.25);
+}
+
+.card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.card-icon svg {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.card h3 {
+  font-size: 1.2rem;
+  color: var(--amelie-dark-brown);
+  margin-bottom: 0.5rem;
+}
+
+.card-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--amelie-gold);
+  margin: 0.5rem 0;
+}
+
+.card-description {
+  color: var(--amelie-brown);
+  font-size: 0.95rem;
+}
+

@@ -1,0 +1,36 @@
+<div class="dashboard-page">
+  <header class="page-header">
+    <h2>Willkommen bei BeeHive</h2>
+    <p>Ihre digitale Lösung für professionelle Imkerei-Verwaltung</p>
+  </header>
+
+  <div class="dashboard-grid">
+    @for (card of cards(); track card.title) {
+      <app-dashboard-card
+        [title]="card.title"
+        [value]="card.value"
+        [description]="card.description"
+        [iconPath]="card.iconPath"
+        [backgroundColor]="card.backgroundColor"
+      />
+    }
+  </div>
+
+  <div class="info-section">
+    <div class="info-card">
+      <h3>🐝 Über bee thinking</h3>
+      <p>bee thinking ist Ihre umfassende Lösung zur Verwaltung Ihrer Imkerei. Behalten Sie den Überblick über Ihre Bienenvölker, planen Sie Inspektionen, dokumentieren Sie Ihre Honig-Ernten und verwalten Sie alle wichtigen Termine an einem Ort.</p>
+    </div>
+    <div class="info-card">
+      <h3>🍯 Funktionen</h3>
+      <ul>
+        <li>Verwaltung mehrerer Bienenstöcke</li>
+        <li>Dokumentation von Inspektionen</li>
+        <li>Honig-Ernte Tracking</li>
+        <li>Terminplanung und Erinnerungen</li>
+        <li>Gesundheitsüberwachung der Völker</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
