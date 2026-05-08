@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.db.database import engine, Base
-from app.api import auth, users
+from app.api import auth, users, hives
+from app.models import hive as _hive_model  # noqa: F401 — ensures Hive table is created
 
 settings = get_settings()
 
@@ -27,6 +28,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(hives.router, prefix="/api/hives", tags=["Hives"])
 
 
 @app.get("/")
