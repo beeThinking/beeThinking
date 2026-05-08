@@ -1,47 +1,66 @@
+/* ── Dashboard Card — Mobile-first ───────────────────────── */
 .card {
   background: white;
-  padding: 2rem;
+  padding: var(--space-lg);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(108, 75, 13, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(108, 75, 13, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  /* Touch feedback */
+  -webkit-tap-highlight-color: transparent;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(108, 75, 13, 0.25);
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(108, 75, 13, 0.22);
+  }
 }
 
 .card-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-sm);
 }
 
 .card-icon svg {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   color: white;
 }
 
 .card h3 {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   color: var(--amelie-dark-brown);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .card-number {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 700;
   color: var(--amelie-gold);
-  margin: 0.5rem 0;
+  margin: var(--space-xs) 0;
+  line-height: 1;
 }
 
 .card-description {
   color: var(--amelie-brown);
-  font-size: 0.95rem;
+  font-size: 0.875rem;
 }
 
+@media (min-width: 768px) {
+  .card-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .card-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+}

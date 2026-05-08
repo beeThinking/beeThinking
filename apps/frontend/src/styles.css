@@ -1,25 +1,80 @@
-/* Global Styles für bee thinking - think like a bee */
+/* Global Styles — bee thinking: think like a bee */
 
-/* Amélie Farbpalette */
+/* ─── Design Tokens ──────────────────────────────────────── */
 :root {
-  --amelie-gold: #987731;
-  --amelie-orange: #CFA34F;
-  --amelie-brown: #907737;
+  --amelie-gold:       #987731;
+  --amelie-orange:     #CFA34F;
+  --amelie-brown:      #907737;
   --amelie-dark-brown: #6C4B0D;
-  --amelie-light: #F5E6D3;
-  --amelie-text-dark: #3A2F1A;
+  --amelie-light:      #F5E6D3;
+  --amelie-text-dark:  #3A2F1A;
+
+  /* Spacing scale (fluid, mobile-first) */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  --space-2xl: 3rem;
+
+  /* Page padding — small on mobile, wider on desktop */
+  --page-px: var(--space-md);
+
+  /* Content max-width */
+  --content-max: 1200px;
+
+  /* Breakpoints (reference only — use in media queries) */
+  /* sm: 480px | md: 768px | lg: 1024px | xl: 1280px */
 }
 
-* {
+/* ─── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--amelie-light);
-  color: var(--amelie-text-dark);
-  min-height: 100vh;
+/* ─── Base ───────────────────────────────────────────────── */
+html {
+  /* Prevent font size inflation on iOS */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--amelie-light);
+  color: var(--amelie-text-dark);
+  min-height: 100dvh;
+  /* Smooth scrolling on mobile */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Responsive page padding ───────────────────────────── */
+@media (min-width: 480px) {
+  :root { --page-px: var(--space-lg); }
+}
+@media (min-width: 768px) {
+  :root { --page-px: var(--space-xl); }
+}
+
+/* ─── Tap targets ────────────────────────────────────────── */
+/* Minimum 44×44px touch target for interactive elements */
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+/* Inline links can stay smaller */
+p a, li a { min-height: unset; min-width: unset; }
+
+/* ─── Shared layout helpers ──────────────────────────────── */
+.page-container {
+  padding: var(--space-md) var(--page-px);
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    padding: var(--space-xl) var(--page-px);
+  }
+}

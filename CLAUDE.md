@@ -138,6 +138,24 @@ docker-compose up --build      # rebuild images first
 - Authentication state is managed by `AuthService` (`core/services/auth.service.ts`).
 - Always import Vitest globals explicitly (`describe`, `it`, `expect`, `vi`, `beforeEach`) in spec files — do not rely on globals config.
 
+### Frontend — Mobile-first CSS (IMPORTANT)
+The entire frontend follows a **mobile-first** CSS approach. This is a hard convention — never break it.
+
+Rules:
+- **Write base styles for the smallest screen first** (≥ 320 px). Add `@media (min-width: …)` overrides for larger screens. Never use `max-width` media queries.
+- **Breakpoints** (defined as CSS custom properties in `styles.css`):
+  - `480px` — sm (phablet)
+  - `768px` — md (tablet / small desktop)
+  - `1024px` — lg (desktop)
+- **Spacing** — use the CSS custom property scale (`--space-xs` … `--space-2xl`) and `--page-px` (fluid horizontal padding). Never hardcode `px` spacing in component CSS.
+- **Touch targets** — all interactive elements must be at least **44 × 44 px** (`min-height: 44px`). Enforced globally in `styles.css`.
+- **Font sizes** — use `clamp()` for headings so they scale fluidly. Set `font-size: 1rem` (16px) on inputs to prevent iOS auto-zoom on focus.
+- **Modals** — on mobile (< 768 px) modals render as a **bottom sheet** (`align-items: flex-end`, `border-radius: 16px 16px 0 0`). On desktop they are centered overlays.
+- **Hover effects** — wrap hover styles in `@media (hover: hover)` so they are not triggered on touch devices.
+- **Scrollable containers** — add `-webkit-overflow-scrolling: touch` and `scrollbar-width: none` for horizontal scroll areas (e.g. hive tab bar).
+- Do **not** import `CommonModule` — use Angular 17+ built-in control flow (`@if`, `@for`, `@switch`) instead.
+- `ChangeDetectionStrategy.OnPush` is mandatory on every component.
+
 ---
 
 ## Architecture Decisions
