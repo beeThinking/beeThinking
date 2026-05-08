@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "BeeThinking Backend"
     DEBUG: bool = False
 
-    # CORS
-    FRONTEND_URL: str = "http://localhost:4200"
+    # CORS — comma-separated list of allowed origins
+    CORS_ORIGINS: str = "http://localhost,http://localhost:80,http://localhost:4200,http://localhost:3000"
 
     # Email (optional)
     SMTP_HOST: str = "smtp.gmail.com"
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     EMAIL_FROM: str = "noreply@beethinking.com"
     EMAIL_CONFIRMATION_ENABLED: bool = False
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
     class Config:
         env_file = ".env"
