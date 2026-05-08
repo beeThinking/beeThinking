@@ -49,3 +49,17 @@ npm start                   # http://localhost:4200
 |-----|--------|
 | Backend | [apps/backend/README.md](apps/backend/README.md) |
 | Frontend | [apps/frontend/README.md](apps/frontend/README.md) |
+
+## Login
+
+There are no pre-seeded demo accounts. Create your account on the Register page (`/register`) with any username, email and a password of at least 8 characters.
+
+**Example:**
+
+| Field    | Value              |
+|----------|--------------------|
+| Username | `beekeeper`        |
+| Email    | `bee@example.com`  |
+| Password | `MyBees2025!`      |
+
+After registering you are redirected to the login page (`/login`) and can sign in immediately.
