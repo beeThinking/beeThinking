@@ -58,7 +58,15 @@ export class RegisterComponent {
       },
       error: (error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(error.error?.detail ?? 'Registration failed. Please try again.');
+        const detail = error.error?.detail;
+        if (typeof detail === 'string') {
+          this.errorMessage.set(detail);
+        } else if (Array.isArray(detail)) {
+          // FastAPI 422 validation errors — join all messages
+          this.errorMessage.set(detail.map((d: { msg: string }) => d.msg).join(' · '));
+        } else {
+          this.errorMessage.set('Registration failed. Please try again.');
+        }
       }
     });
   }

@@ -43,7 +43,14 @@ export class LoginComponent {
       },
       error: (error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(error.error?.detail ?? 'Login failed. Please check your credentials.');
+        const detail = error.error?.detail;
+        if (typeof detail === 'string') {
+          this.errorMessage.set(detail);
+        } else if (Array.isArray(detail)) {
+          this.errorMessage.set(detail.map((d: { msg: string }) => d.msg).join(' · '));
+        } else {
+          this.errorMessage.set('Login failed. Please check your credentials.');
+        }
       }
     });
   }
