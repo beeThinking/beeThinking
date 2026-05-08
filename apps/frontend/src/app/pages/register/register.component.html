@@ -35,6 +35,9 @@
             @if (registerForm.get('username')?.errors?.['minlength']) {
               <span>Username must be at least 3 characters</span>
             }
+            @if (registerForm.get('username')?.errors?.['serverError']) {
+              <span>{{ registerForm.get('username')?.errors?.['serverError'] }}</span>
+            }
           </div>
         }
       </div>
@@ -56,6 +59,9 @@
             @if (registerForm.get('email')?.errors?.['email']) {
               <span>Please enter a valid email address</span>
             }
+            @if (registerForm.get('email')?.errors?.['serverError']) {
+              <span>{{ registerForm.get('email')?.errors?.['serverError'] }}</span>
+            }
           </div>
         }
       </div>
@@ -76,6 +82,9 @@
             }
             @if (registerForm.get('password')?.errors?.['minlength']) {
               <span>Password must be at least 8 characters</span>
+            }
+            @if (registerForm.get('password')?.errors?.['serverError']) {
+              <span>{{ registerForm.get('password')?.errors?.['serverError'] }}</span>
             }
           </div>
         }

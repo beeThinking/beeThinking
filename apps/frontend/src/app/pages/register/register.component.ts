@@ -59,11 +59,33 @@ export class RegisterComponent {
       error: (error) => {
         this.isLoading.set(false);
         const detail = error.error?.detail;
+
         if (typeof detail === 'string') {
-          this.errorMessage.set(detail);
+          // Map backend messages to specific field errors where possible
+          const lower = detail.toLowerCase();
+          if (lower.includes('username')) {
+            this.registerForm.get('username')?.setErrors({ serverError: detail });
+            this.registerForm.get('username')?.markAsTouched();
+          } else if (lower.includes('email')) {
+            this.registerForm.get('email')?.setErrors({ serverError: detail });
+            this.registerForm.get('email')?.markAsTouched();
+          } else {
+            this.errorMessage.set(detail);
+          }
         } else if (Array.isArray(detail)) {
-          // FastAPI 422 validation errors — join all messages
-          this.errorMessage.set(detail.map((d: { msg: string }) => d.msg).join(' · '));
+          // FastAPI 422: map each error to its field if possible
+          const general: string[] = [];
+          for (const d of detail as Array<{ loc: string[]; msg: string }>) {
+            const field = d.loc?.at(-1) as string | undefined;
+            const control = field ? this.registerForm.get(field) : null;
+            if (control) {
+              control.setErrors({ serverError: d.msg });
+              control.markAsTouched();
+            } else {
+              general.push(d.msg);
+            }
+          }
+          if (general.length) this.errorMessage.set(general.join(' · '));
         } else {
           this.errorMessage.set('Registration failed. Please try again.');
         }
