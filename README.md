@@ -26,6 +26,17 @@ docker-compose up
 | Backend  | http://localhost:8000       |
 | API Docs | http://localhost:8000/docs  |
 
+### Rebuilding after code changes
+
+| Situation | Command |
+|---|---|
+| Code changed | `docker-compose up --build` |
+| Container still running | `docker-compose down && docker-compose up --build` |
+| Dependency changed (`requirements.txt` / `package.json`) | `docker-compose build --no-cache && docker-compose up` |
+| Reset database volume | `docker-compose down -v && docker-compose up --build` |
+
+> **Warning:** `-v` deletes the Postgres volume — all data will be lost.
+
 ### Backend (local)
 
 ```bash
