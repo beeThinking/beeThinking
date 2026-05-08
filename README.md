@@ -16,6 +16,14 @@ beeThinking/
 
 ### Full stack with Docker
 
+**First time only** — create the backend `.env` file:
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+```
+
+Then start the stack:
+
 ```bash
 docker-compose up
 ```

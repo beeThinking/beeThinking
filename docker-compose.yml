@@ -24,6 +24,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - ./apps/backend/.env
     environment:
       DATABASE_URL: postgresql://beethinking:beethinking@db:5432/beethinking
     ports:
