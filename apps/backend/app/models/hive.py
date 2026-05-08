@@ -32,3 +32,4 @@ class Hive(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     owner = relationship("User", back_populates="hives")
+    inspections = relationship("Inspection", back_populates="hive", cascade="all, delete-orphan")

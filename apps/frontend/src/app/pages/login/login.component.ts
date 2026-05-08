@@ -1,63 +1,50 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  errorMessage = signal<string>('');
-  isLoading = signal<boolean>(false);
-  private returnUrl: string;
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
-    });
+  private readonly returnUrl = this.route.snapshot.queryParams['returnUrl'] ?? '/dashboard';
 
-    // Get return url from route parameters or default to dashboard
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-  }
+  protected readonly errorMessage = signal('');
+  protected readonly isLoading = signal(false);
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
-      this.errorMessage.set('');
+  protected readonly loginForm = this.fb.group({
+    username: ['', [Validators.required, Validators.minLength(3)]],
+    password: ['', [Validators.required, Validators.minLength(8)]]
+  });
 
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate([this.returnUrl]);
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.detail || 'Login failed. Please check your credentials.'
-          );
-        }
-      });
-    } else {
-      this.markFormGroupTouched(this.loginForm);
+  protected onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
     }
-  }
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
+    const { username, password } = this.loginForm.value;
+    this.authService.login({ username: username!, password: password! }).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate([this.returnUrl]);
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(error.error?.detail ?? 'Login failed. Please check your credentials.');
+      }
     });
   }
 }

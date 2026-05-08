@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DashboardCardComponent } from '../../shared/components/dashboard-card.component';
 import { HiveService } from '../../core/services/hive.service';
-import { Hive } from '../../core/models/hive.models';
 
 interface DashboardCardData {
   title: string;
@@ -18,10 +18,10 @@ interface DashboardCardData {
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   private readonly hiveService = inject(HiveService);
 
-  private readonly hives = signal<Hive[]>([]);
+  private readonly hives = toSignal(this.hiveService.getHives(), { initialValue: [] });
 
   protected readonly cards = computed<DashboardCardData[]>(() => {
     const hives = this.hives();
@@ -57,11 +57,4 @@ export class DashboardComponent implements OnInit {
       }
     ];
   });
-
-  ngOnInit(): void {
-    this.hiveService.getHives().subscribe({
-      next: (hives) => this.hives.set(hives),
-      error: () => {}
-    });
-  }
 }

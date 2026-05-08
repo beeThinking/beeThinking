@@ -8,9 +8,10 @@
       <span class="subtitle">think like a bee</span>
     </div>
     <ul class="navbar-menu">
-      @if (authService.isAuthenticated()) {
+      @if (isAuthenticated()) {
         <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a></li>
         <li><a routerLink="/beehives" routerLinkActive="active" class="nav-link">Bienenstöcke</a></li>
+        <li><a routerLink="/inspections" routerLinkActive="active" class="nav-link">Inspektionen</a></li>
         <li><a routerLink="/honey-harvest" routerLinkActive="active" class="nav-link">Honig-Ernte</a></li>
         <li><a routerLink="/appointments" routerLinkActive="active" class="nav-link">Termine</a></li>
         <li><button (click)="logout()" class="logout-button">Logout</button></li>

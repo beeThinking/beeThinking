@@ -1,0 +1,144 @@
+<div class="page-container">
+  <header class="page-header">
+    <h1>Inspektionen</h1>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  <div class="hive-selector">
+    <h2>Bienenstock wählen</h2>
+    @if (hives().length === 0) {
+      <p class="hint">Noch keine Bienenstöcke vorhanden. <a href="/beehives">Bienenstock anlegen</a></p>
+    } @else {
+      <div class="hive-tabs">
+        @for (hive of hives(); track hive.id) {
+          <button
+            class="hive-tab"
+            [class.active]="selectedHiveId() === hive.id"
+            [class.inactive]="hive.status !== 'active'"
+            (click)="selectHive(hive.id)">
+            {{ hive.name }}
+            @if (hive.location) {
+              <span class="tab-location">{{ hive.location }}</span>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selectedHive()) {
+    <div class="inspections-section">
+      <div class="section-header">
+        <h2>{{ selectedHive()!.name }}</h2>
+        <button class="btn btn-primary" (click)="openCreateForm()">+ Neue Inspektion</button>
+      </div>
+
+      @if (showForm()) {
+        <div class="modal-overlay" (click)="closeForm()">
+          <div class="modal" (click)="$event.stopPropagation()">
+            <h3>{{ editingInspection() ? 'Inspektion bearbeiten' : 'Neue Inspektion' }}</h3>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="date">Datum *</label>
+                  <input id="date" type="date" formControlName="date" />
+                </div>
+                <div class="form-group checkbox-group">
+                  <label>
+                    <input type="checkbox" formControlName="queen_seen" />
+                    Königin gesehen
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="brood_strength">Brutstärke (1–10)</label>
+                  <input id="brood_strength" type="number" formControlName="brood_strength" min="1" max="10" placeholder="–" />
+                  @if (form.get('brood_strength')?.errors) {
+                    <span class="field-error">Wert zwischen 1 und 10</span>
+                  }
+                </div>
+                <div class="form-group">
+                  <label for="food_stores">Futtervorrat (1–10)</label>
+                  <input id="food_stores" type="number" formControlName="food_stores" min="1" max="10" placeholder="–" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="varroa_count">Varroa-Zahl (natürlicher Abfall/Tag)</label>
+                <input id="varroa_count" type="number" formControlName="varroa_count" min="0" step="0.1" placeholder="–" />
+              </div>
+
+              <div class="form-group">
+                <label for="notes">Notizen</label>
+                <textarea id="notes" formControlName="notes" rows="3" placeholder="Beobachtungen, Maßnahmen..."></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" (click)="closeForm()">Abbrechen</button>
+                <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+                  {{ editingInspection() ? 'Speichern' : 'Anlegen' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      @if (inspections().length === 0) {
+        <div class="empty-state">
+          <p>Noch keine Inspektionen für diesen Bienenstock.</p>
+          <button class="btn btn-primary" (click)="openCreateForm()">Erste Inspektion anlegen</button>
+        </div>
+      } @else {
+        <div class="inspection-list">
+          @for (inspection of inspections(); track inspection.id) {
+            <div class="inspection-card">
+              <div class="inspection-header">
+                <span class="inspection-date">{{ formatDate(inspection.date) }}</span>
+                <div class="inspection-badges">
+                  @if (inspection.queen_seen) {
+                    <span class="badge badge-queen">Königin gesehen</span>
+                  }
+                  @if (inspection.varroa_count !== null && inspection.varroa_count > 3) {
+                    <span class="badge badge-warning">Varroa erhöht</span>
+                  }
+                </div>
+                <div class="inspection-actions">
+                  <button class="btn btn-sm btn-secondary" (click)="openEditForm(inspection)">Bearbeiten</button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteInspection(inspection)">Löschen</button>
+                </div>
+              </div>
+              <div class="inspection-body">
+                <div class="inspection-stats">
+                  <div class="stat">
+                    <span class="stat-label">Brutstärke</span>
+                    <span class="stat-value">{{ strengthLabel(inspection.brood_strength) }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-label">Futtervorrat</span>
+                    <span class="stat-value">{{ inspection.food_stores !== null ? inspection.food_stores + '/10' : '–' }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-label">Varroa</span>
+                    <span class="stat-value" [class.varroa-high]="inspection.varroa_count !== null && inspection.varroa_count > 3">
+                      {{ inspection.varroa_count !== null ? inspection.varroa_count : '–' }}
+                    </span>
+                  </div>
+                </div>
+                @if (inspection.notes) {
+                  <p class="inspection-notes">{{ inspection.notes }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

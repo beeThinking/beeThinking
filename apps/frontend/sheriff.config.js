@@ -4,7 +4,12 @@ module.exports = {
     {
       name: 'app',
       root: 'src/app',
-      allow: ['shared', 'pages', 'layout'],
+      allow: ['shared', 'pages', 'layout', 'core'],
+    },
+    {
+      name: 'core',
+      root: 'src/app/core',
+      allow: [],
     },
     {
       name: 'shared',
@@ -14,13 +19,12 @@ module.exports = {
     {
       name: 'pages',
       root: 'src/app/pages',
-      allow: ['shared'],
+      allow: ['shared', 'core'],
     },
     {
       name: 'layout',
       root: 'src/app/layout',
-      allow: ['shared'],
+      allow: ['shared', 'core'],
     }
   ]
 };
-

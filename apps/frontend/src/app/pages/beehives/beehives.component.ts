@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HiveService } from '../../core/services/hive.service';
 import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
@@ -7,17 +7,20 @@ import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/m
 @Component({
   selector: 'app-beehives',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './beehives.component.html',
   styleUrl: './beehives.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BeehivesComponent implements OnInit {
+export class BeehivesComponent {
   private readonly hiveService = inject(HiveService);
   private readonly fb = inject(FormBuilder);
 
-  protected readonly hives = signal<Hive[]>([]);
-  protected readonly isLoading = signal(false);
+  private readonly hivesData = toSignal(this.hiveService.getHives(), { initialValue: [] });
+  private readonly localHives = signal<Hive[] | null>(null);
+
+  protected readonly hives = computed(() => this.localHives() ?? this.hivesData());
+  protected readonly isLoading = computed(() => this.localHives() === null && this.hivesData().length === 0);
   protected readonly errorMessage = signal('');
   protected readonly showForm = signal(false);
   protected readonly editingHive = signal<Hive | null>(null);
@@ -32,25 +35,6 @@ export class BeehivesComponent implements OnInit {
     status: ['active' as HiveStatus],
     notes: ['']
   });
-
-  ngOnInit(): void {
-    this.loadHives();
-  }
-
-  private loadHives(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    this.hiveService.getHives().subscribe({
-      next: (hives) => {
-        this.hives.set(hives);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('Failed to load hives.');
-        this.isLoading.set(false);
-      }
-    });
-  }
 
   protected openCreateForm(): void {
     this.editingHive.set(null);
@@ -92,7 +76,7 @@ export class BeehivesComponent implements OnInit {
       };
       this.hiveService.updateHive(editing.id, update).subscribe({
         next: (updated) => {
-          this.hives.update(list => list.map(h => h.id === updated.id ? updated : h));
+          this.localHives.update(list => (list ?? this.hivesData()).map(h => h.id === updated.id ? updated : h));
           this.closeForm();
         },
         error: () => this.errorMessage.set('Failed to update hive.')
@@ -107,7 +91,7 @@ export class BeehivesComponent implements OnInit {
       };
       this.hiveService.createHive(create).subscribe({
         next: (hive) => {
-          this.hives.update(list => [...list, hive]);
+          this.localHives.update(list => [...(list ?? this.hivesData()), hive]);
           this.closeForm();
         },
         error: () => this.errorMessage.set('Failed to create hive.')
@@ -118,7 +102,7 @@ export class BeehivesComponent implements OnInit {
   protected deleteHive(hive: Hive): void {
     if (!confirm(`Delete "${hive.name}"?`)) return;
     this.hiveService.deleteHive(hive.id).subscribe({
-      next: () => this.hives.update(list => list.filter(h => h.id !== hive.id)),
+      next: () => this.localHives.update(list => (list ?? this.hivesData()).filter(h => h.id !== hive.id)),
       error: () => this.errorMessage.set('Failed to delete hive.')
     });
   }

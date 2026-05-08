@@ -1,18 +1,39 @@
-import {Routes} from '@angular/router';
-import {DashboardComponent} from './pages/dashboard/dashboard.component';
-import {BeehivesComponent} from './pages/beehives/beehives.component';
-import {HoneyHarvestComponent} from './pages/honey-harvest/honey-harvest.component';
-import {AppointmentsComponent} from './pages/appointments/appointments.component';
-import {LoginComponent} from './pages/login/login.component';
-import {RegisterComponent} from './pages/register/register.component';
-import {authGuard} from './core/guards/auth.guard';
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'beehives', component: BeehivesComponent, canActivate: [authGuard] },
-  { path: 'honey-harvest', component: HoneyHarvestComponent, canActivate: [authGuard] },
-  { path: 'appointments', component: AppointmentsComponent, canActivate: [authGuard] }
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'beehives',
+    loadComponent: () => import('./pages/beehives/beehives.component').then(m => m.BeehivesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'honey-harvest',
+    loadComponent: () => import('./pages/honey-harvest/honey-harvest.component').then(m => m.HoneyHarvestComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'appointments',
+    loadComponent: () => import('./pages/appointments/appointments.component').then(m => m.AppointmentsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inspections',
+    loadComponent: () => import('./pages/inspections/inspections.component').then(m => m.InspectionsComponent),
+    canActivate: [authGuard]
+  }
 ];

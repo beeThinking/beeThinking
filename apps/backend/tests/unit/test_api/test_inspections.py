@@ -1,0 +1,143 @@
+import pytest
+from datetime import date
+
+
+@pytest.fixture
+def hive(authenticated_client):
+    client, _ = authenticated_client
+    response = client.post("/api/hives", json={"name": "Test Hive"})
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.mark.unit
+class TestListInspections:
+    def test_list_empty(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.get(f"/api/hives/{hive['id']}/inspections")
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_list_requires_auth(self, authenticated_client):
+        client, _ = authenticated_client
+        # Create a fresh client without auth header
+        from fastapi.testclient import TestClient
+        from app.main import app
+        unauth_client = TestClient(app)
+        hive_id = client.post("/api/hives", json={"name": "Auth Test Hive"}).json()["id"]
+        response = unauth_client.get(f"/api/hives/{hive_id}/inspections")
+        assert response.status_code == 401
+
+    def test_list_unknown_hive_returns_404(self, authenticated_client):
+        client, _ = authenticated_client
+        response = client.get("/api/hives/99999/inspections")
+        assert response.status_code == 404
+
+
+@pytest.mark.unit
+class TestCreateInspection:
+    def test_create_minimal(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today()), "queen_seen": True}
+        )
+        assert response.status_code == 201
+        data = response.json()
+        assert data["queen_seen"] is True
+        assert data["hive_id"] == hive["id"]
+        assert "id" in data
+
+    def test_create_full(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        payload = {
+            "date": str(date.today()),
+            "queen_seen": False,
+            "brood_strength": 7,
+            "varroa_count": 2.5,
+            "food_stores": 8,
+            "notes": "Looks healthy"
+        }
+        response = client.post(f"/api/hives/{hive['id']}/inspections", json=payload)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["brood_strength"] == 7
+        assert data["varroa_count"] == 2.5
+        assert data["food_stores"] == 8
+
+    def test_create_invalid_brood_strength(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today()), "brood_strength": 11}
+        )
+        assert response.status_code == 422
+
+    def test_create_unknown_hive_returns_404(self, authenticated_client):
+        client, _ = authenticated_client
+        response = client.post(
+            "/api/hives/99999/inspections",
+            json={"date": str(date.today())}
+        )
+        assert response.status_code == 404
+
+
+@pytest.mark.unit
+class TestGetInspection:
+    def test_get_inspection(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        created = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today()), "queen_seen": True}
+        ).json()
+        response = client.get(f"/api/hives/{hive['id']}/inspections/{created['id']}")
+        assert response.status_code == 200
+        assert response.json()["id"] == created["id"]
+
+    def test_get_not_found(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.get(f"/api/hives/{hive['id']}/inspections/99999")
+        assert response.status_code == 404
+
+
+@pytest.mark.unit
+class TestUpdateInspection:
+    def test_update(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        created = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today()), "queen_seen": False}
+        ).json()
+        response = client.put(
+            f"/api/hives/{hive['id']}/inspections/{created['id']}",
+            json={"queen_seen": True, "notes": "Updated"}
+        )
+        assert response.status_code == 200
+        assert response.json()["queen_seen"] is True
+        assert response.json()["notes"] == "Updated"
+
+    def test_update_not_found(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.put(
+            f"/api/hives/{hive['id']}/inspections/99999",
+            json={"queen_seen": True}
+        )
+        assert response.status_code == 404
+
+
+@pytest.mark.unit
+class TestDeleteInspection:
+    def test_delete(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        created = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today())}
+        ).json()
+        response = client.delete(f"/api/hives/{hive['id']}/inspections/{created['id']}")
+        assert response.status_code == 204
+        assert client.get(f"/api/hives/{hive['id']}/inspections/{created['id']}").status_code == 404
+
+    def test_delete_not_found(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.delete(f"/api/hives/{hive['id']}/inspections/99999")
+        assert response.status_code == 404
