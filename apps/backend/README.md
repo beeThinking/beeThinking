@@ -37,7 +37,7 @@ Modern REST API backend for BeeThinking built with FastAPI, SQLAlchemy, and JWT 
 ### Option 1: Quick Start Script (Recommended)
 
 ```bash
-cd /Users/migi/PycharmProjects/BeeThinking
+cd apps/backend
 ./start.sh
 ```
 
@@ -198,8 +198,10 @@ pip install psycopg2-binary
 
 ### Build and Run with Docker Compose
 
+Run from the **repository root**:
+
 ```bash
-# Build and start all services
+# Build and start all services (DB + Backend + Frontend)
 docker-compose up -d
 
 # Check status
@@ -214,7 +216,8 @@ docker-compose down
 
 ### Docker Compose Configuration
 
-The `docker-compose.yml` includes:
+The root `docker-compose.yml` includes:
+- **Frontend**: Angular app served via Nginx
 - **Backend**: FastAPI application
 - **PostgreSQL**: Database service
 - **Health checks**: Automatic monitoring
@@ -415,11 +418,11 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```bash
 # 1. Clone repository on Raspberry Pi
 git clone <your-repository-url>
-cd BeeThinking
+cd beeThinking
 
 # 2. Copy and edit environment file
-cp .env.example .env
-nano .env  # Update SECRET_KEY and DATABASE_URL
+cp apps/backend/.env.example apps/backend/.env
+nano apps/backend/.env  # Update SECRET_KEY and DATABASE_URL
 
 # 3. Install Docker (if not installed)
 curl -sSL https://get.docker.com | sh
