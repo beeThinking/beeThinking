@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import Optional
 from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
@@ -11,10 +12,11 @@ router = APIRouter()
 
 @router.get("", response_model=list[HiveResponse])
 def list_hives(
+    apiary_id: Optional[int] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    return hive_crud.get_hives(db, owner_id=current_user.id)
+    return hive_crud.get_hives(db, owner_id=current_user.id, apiary_id=apiary_id)
 
 
 @router.post("", response_model=HiveResponse, status_code=status.HTTP_201_CREATED)
@@ -23,7 +25,10 @@ def create_hive(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    return hive_crud.create_hive(db, hive=hive, owner_id=current_user.id)
+    db_hive = hive_crud.create_hive(db, hive=hive, owner_id=current_user.id)
+    if not db_hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    return db_hive
 
 
 @router.get("/{hive_id}", response_model=HiveResponse)
@@ -45,7 +50,9 @@ def update_hive(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    db_hive = hive_crud.update_hive(db, hive_id=hive_id, owner_id=current_user.id, hive_update=hive_update)
+    db_hive = hive_crud.update_hive(
+        db, hive_id=hive_id, owner_id=current_user.id, hive_update=hive_update
+    )
     if not db_hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return db_hive

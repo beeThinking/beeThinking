@@ -17,6 +17,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'apiaries',
+    loadComponent: () => import('./pages/apiaries/apiaries.component').then(m => m.ApiariesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'beehives',
     loadComponent: () => import('./pages/beehives/beehives.component').then(m => m.BeehivesComponent),
     canActivate: [authGuard]

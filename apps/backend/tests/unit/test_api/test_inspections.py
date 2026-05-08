@@ -3,9 +3,17 @@ from datetime import date
 
 
 @pytest.fixture
-def hive(authenticated_client):
+def apiary(authenticated_client):
     client, _ = authenticated_client
-    response = client.post("/api/hives", json={"name": "Test Hive"})
+    response = client.post("/api/apiaries", json={"name": "Test Apiary"})
+    assert response.status_code == 201
+    return response.json()
+
+
+@pytest.fixture
+def hive(authenticated_client, apiary):
+    client, _ = authenticated_client
+    response = client.post("/api/hives", json={"name": "Test Hive", "apiary_id": apiary["id"]})
     assert response.status_code == 201
     return response.json()
 
@@ -18,13 +26,13 @@ class TestListInspections:
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_list_requires_auth(self, authenticated_client):
+    def test_list_requires_auth(self, authenticated_client, apiary):
         client, _ = authenticated_client
         # Create a fresh client without auth header
         from fastapi.testclient import TestClient
         from app.main import app
         unauth_client = TestClient(app)
-        hive_id = client.post("/api/hives", json={"name": "Auth Test Hive"}).json()["id"]
+        hive_id = client.post("/api/hives", json={"name": "Auth Test Hive", "apiary_id": apiary["id"]}).json()["id"]
         response = unauth_client.get(f"/api/hives/{hive_id}/inspections")
         assert response.status_code == 401
 

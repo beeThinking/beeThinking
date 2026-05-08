@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HiveService } from '../../core/services/hive.service';
+import { ApiaryService } from '../../core/services/apiary.service';
 import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
 
 @Component({
@@ -14,11 +15,13 @@ import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/m
 })
 export class BeehivesComponent {
   private readonly hiveService = inject(HiveService);
+  private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
 
   private readonly hivesData = toSignal(this.hiveService.getHives(), { initialValue: [] });
   private readonly localHives = signal<Hive[] | null>(null);
 
+  protected readonly apiaries = toSignal(this.apiaryService.getApiaries(), { initialValue: [] });
   protected readonly hives = computed(() => this.localHives() ?? this.hivesData());
   protected readonly isLoading = computed(() => this.localHives() === null && this.hivesData().length === 0);
   protected readonly errorMessage = signal('');
@@ -30,7 +33,7 @@ export class BeehivesComponent {
 
   protected readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
-    location: [''],
+    apiary_id: [null as number | null, [Validators.required]],
     type: ['langstroth' as HiveType],
     status: ['active' as HiveStatus],
     notes: ['']
@@ -46,7 +49,7 @@ export class BeehivesComponent {
     this.editingHive.set(hive);
     this.form.setValue({
       name: hive.name,
-      location: hive.location ?? '',
+      apiary_id: hive.apiary_id,
       type: hive.type,
       status: hive.status,
       notes: hive.notes ?? ''
@@ -69,7 +72,7 @@ export class BeehivesComponent {
     if (editing) {
       const update: HiveUpdate = {
         name: values.name ?? undefined,
-        location: values.location || undefined,
+        apiary_id: values.apiary_id ?? undefined,
         type: values.type as HiveType,
         status: values.status as HiveStatus,
         notes: values.notes || undefined
@@ -84,7 +87,7 @@ export class BeehivesComponent {
     } else {
       const create: HiveCreate = {
         name: values.name!,
-        location: values.location || undefined,
+        apiary_id: values.apiary_id!,
         type: values.type as HiveType,
         status: values.status as HiveStatus,
         notes: values.notes || undefined
@@ -105,6 +108,10 @@ export class BeehivesComponent {
       next: () => this.localHives.update(list => (list ?? this.hivesData()).filter(h => h.id !== hive.id)),
       error: () => this.errorMessage.set('Failed to delete hive.')
     });
+  }
+
+  protected apiaryName(apiaryId: number): string {
+    return this.apiaries().find(a => a.id === apiaryId)?.name ?? `Stand #${apiaryId}`;
   }
 
   protected statusLabel(status: HiveStatus): string {

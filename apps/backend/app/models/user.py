@@ -17,4 +17,5 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     hives = relationship("Hive", back_populates="owner", cascade="all, delete-orphan")
+    apiaries = relationship("Apiary", back_populates="owner", cascade="all, delete-orphan")
 

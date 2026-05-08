@@ -4,18 +4,18 @@ export type HiveType = 'langstroth' | 'dadant' | 'zander' | 'other';
 export interface Hive {
   id: number;
   name: string;
-  location: string | null;
   type: HiveType;
   status: HiveStatus;
   notes: string | null;
   owner_id: number;
+  apiary_id: number;
   created_at: string;
   updated_at: string | null;
 }
 
 export interface HiveCreate {
   name: string;
-  location?: string;
+  apiary_id: number;
   type?: HiveType;
   status?: HiveStatus;
   notes?: string;
@@ -23,7 +23,7 @@ export interface HiveCreate {
 
 export interface HiveUpdate {
   name?: string;
-  location?: string;
+  apiary_id?: number;
   type?: HiveType;
   status?: HiveStatus;
   notes?: string;

@@ -25,8 +25,16 @@
           </div>
 
           <div class="form-group">
-            <label for="location">Standort</label>
-            <input id="location" type="text" formControlName="location" placeholder="z.B. Garten Nordseite" />
+            <label for="apiary_id">Stand *</label>
+            <select id="apiary_id" formControlName="apiary_id">
+              <option [value]="null">-- Stand wählen --</option>
+              @for (apiary of apiaries(); track apiary.id) {
+                <option [value]="apiary.id">{{ apiary.name }}</option>
+              }
+            </select>
+            @if (form.get('apiary_id')?.invalid && form.get('apiary_id')?.touched) {
+              <span class="field-error">Stand ist erforderlich.</span>
+            }
           </div>
 
           <div class="form-row">
@@ -81,9 +89,7 @@
             <span class="status-badge status-{{ hive.status }}">{{ statusLabel(hive.status) }}</span>
           </div>
           <div class="hive-card-body">
-            @if (hive.location) {
-              <p class="hive-meta"><span class="label">Standort</span> {{ hive.location }}</p>
-            }
+            <p class="hive-meta"><span class="label">Stand</span> {{ apiaryName(hive.apiary_id) }}</p>
             <p class="hive-meta"><span class="label">Typ</span> {{ typeLabel(hive.type) }}</p>
             @if (hive.notes) {
               <p class="hive-notes">{{ hive.notes }}</p>

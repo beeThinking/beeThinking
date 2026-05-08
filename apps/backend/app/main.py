@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.db.database import engine, Base
-from app.api import auth, users, hives, inspections
+from app.api import auth, users, hives, inspections, apiaries
 from app.models import hive as _hive_model  # noqa: F401
 from app.models import inspection as _inspection_model  # noqa: F401
+from app.models import apiary as _apiary_model  # noqa: F401
 
 settings = get_settings()
 
@@ -29,6 +30,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(apiaries.router, prefix="/api/apiaries", tags=["Apiaries"])
 app.include_router(hives.router, prefix="/api/hives", tags=["Hives"])
 app.include_router(inspections.router, prefix="/api/hives/{hive_id}/inspections", tags=["Inspections"])
 

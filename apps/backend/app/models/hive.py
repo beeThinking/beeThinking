@@ -28,8 +28,10 @@ class Hive(Base):
     status = Column(Enum(HiveStatus), default=HiveStatus.active, nullable=False)
     notes = Column(String, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    apiary_id = Column(Integer, ForeignKey("apiaries.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     owner = relationship("User", back_populates="hives")
+    apiary = relationship("Apiary", back_populates="hives")
     inspections = relationship("Inspection", back_populates="hive", cascade="all, delete-orphan")

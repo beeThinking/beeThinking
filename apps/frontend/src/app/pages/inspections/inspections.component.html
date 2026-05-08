@@ -20,9 +20,6 @@
             [class.inactive]="hive.status !== 'active'"
             (click)="selectHive(hive.id)">
             {{ hive.name }}
-            @if (hive.location) {
-              <span class="tab-location">{{ hive.location }}</span>
-            }
           </button>
         }
       </div>
