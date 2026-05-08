@@ -1,0 +1,52 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "apps/backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "apps/backend/**"
+      - ".github/workflows/backend.yml"
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: beethinking
+          POSTGRES_PASSWORD: beethinking
+          POSTGRES_DB: beethinking
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U beethinking"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: apps/backend/requirements.txt
+
+      - name: Install dependencies
+        working-directory: apps/backend
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        working-directory: apps/backend
+        env:
+          DATABASE_URL: postgresql://beethinking:beethinking@localhost:5432/beethinking
+          SECRET_KEY: ci-test-secret-key-not-used-in-production
+        run: pytest --cov=app --cov-report=term-missing
