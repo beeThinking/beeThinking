@@ -115,6 +115,25 @@ class TestUpdateHive:
         response = client.put("/api/hives/99999", json={"name": "X"})
         assert response.status_code == 404
 
+    def test_update_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        from app.models.hive import Hive
+        from app.models.apiary import Apiary
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+
+        response = client.put(f"/api/hives/{other_hive.id}", json={"name": "Changed"})
+        db.refresh(other_hive)
+
+        assert response.status_code == 404
+        assert other_hive.name == "Other Hive"
+
     def test_partial_update_preserves_fields(self, authenticated_client, apiary):
         client, _ = authenticated_client
         created = client.post("/api/hives", json={"name": "Epsilon", "notes": "Forest notes", "apiary_id": apiary["id"]}).json()
@@ -138,3 +157,21 @@ class TestDeleteHive:
         client, _ = authenticated_client
         response = client.delete("/api/hives/99999")
         assert response.status_code == 404
+
+    def test_delete_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        from app.models.hive import Hive
+        from app.models.apiary import Apiary
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+
+        response = client.delete(f"/api/hives/{other_hive.id}")
+
+        assert response.status_code == 404
+        assert db.get(Hive, other_hive.id) is not None

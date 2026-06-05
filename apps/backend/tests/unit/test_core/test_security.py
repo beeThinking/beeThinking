@@ -10,6 +10,7 @@ from app.core.security import (
     create_access_token,
     decode_access_token
 )
+from app.core.config import Settings
 
 
 @pytest.mark.unit
@@ -156,3 +157,35 @@ class TestJWTTokens:
         # Tokens sollten unterschiedlich sein wegen exp timestamp
         assert token1 != token2
 
+
+@pytest.mark.unit
+@pytest.mark.security
+class TestSecurityConfig:
+    def test_development_allows_example_secret(self):
+        settings = Settings(
+            _env_file=None,
+            DATABASE_URL="sqlite:///./test.db",
+            SECRET_KEY="your-secret-key-here-change-in-production",
+            APP_ENV="development",
+        )
+
+        assert settings.SECRET_KEY == "your-secret-key-here-change-in-production"
+
+    def test_production_rejects_example_secret(self):
+        with pytest.raises(ValueError, match="SECRET_KEY"):
+            Settings(
+                _env_file=None,
+                DATABASE_URL="sqlite:///./test.db",
+                SECRET_KEY="your-secret-key-here-change-in-production",
+                APP_ENV="production",
+            )
+
+    def test_production_accepts_random_secret(self):
+        settings = Settings(
+            _env_file=None,
+            DATABASE_URL="sqlite:///./test.db",
+            SECRET_KEY="a-secure-random-secret-with-at-least-32-chars",
+            APP_ENV="production",
+        )
+
+        assert settings.APP_ENV == "production"

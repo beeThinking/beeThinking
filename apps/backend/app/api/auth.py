@@ -52,8 +52,9 @@ def login(
 
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     # Create access token
@@ -63,4 +64,3 @@ def login(
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
-

@@ -1,4 +1,5 @@
 import pytest
+from app.models.apiary import Apiary
 
 
 @pytest.fixture
@@ -19,6 +20,16 @@ class TestListApiaries:
 
     def test_requires_auth(self, client):
         assert client.get("/api/apiaries").status_code == 401
+
+    def test_list_returns_only_own_apiaries(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        db.add(Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id))
+        db.commit()
+
+        response = client.get("/api/apiaries")
+
+        assert response.status_code == 200
+        assert response.json() == []
 
 
 @pytest.mark.unit
@@ -67,6 +78,17 @@ class TestGetApiary:
         client, _ = authenticated_client
         assert client.get("/api/apiaries/99999").status_code == 404
 
+    def test_get_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+
+        response = client.get(f"/api/apiaries/{other_apiary.id}")
+
+        assert response.status_code == 404
+
 
 @pytest.mark.unit
 class TestUpdateApiary:
@@ -80,6 +102,19 @@ class TestUpdateApiary:
         client, _ = authenticated_client
         assert client.put("/api/apiaries/99999", json={"name": "X"}).status_code == 404
 
+    def test_update_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+
+        response = client.put(f"/api/apiaries/{other_apiary.id}", json={"name": "Changed"})
+        db.refresh(other_apiary)
+
+        assert response.status_code == 404
+        assert other_apiary.name == "Other Apiary"
+
 
 @pytest.mark.unit
 class TestDeleteApiary:
@@ -91,6 +126,18 @@ class TestDeleteApiary:
     def test_delete_not_found(self, authenticated_client):
         client, _ = authenticated_client
         assert client.delete("/api/apiaries/99999").status_code == 404
+
+    def test_delete_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+
+        response = client.delete(f"/api/apiaries/{other_apiary.id}")
+
+        assert response.status_code == 404
+        assert db.get(Apiary, other_apiary.id) is not None
 
 
 @pytest.mark.unit

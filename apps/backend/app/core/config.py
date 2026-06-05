@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "BeeThinking Backend"
+    APP_ENV: str = "development"
     DEBUG: bool = False
 
     # CORS — comma-separated list of allowed origins
@@ -25,6 +27,18 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     EMAIL_FROM: str = "noreply@beethinking.com"
     EMAIL_CONFIRMATION_ENABLED: bool = False
+
+    @model_validator(mode="after")
+    def validate_production_security(self):
+        insecure_secrets = {
+            "",
+            "your-secret-key-here-change-in-production",
+            "change-me",
+            "secret",
+        }
+        if self.APP_ENV.lower() == "production" and self.SECRET_KEY in insecure_secrets:
+            raise ValueError("SECRET_KEY must be set to a secure random value in production")
+        return self
 
     @property
     def cors_origins_list(self) -> list[str]:

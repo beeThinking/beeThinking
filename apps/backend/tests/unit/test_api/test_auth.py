@@ -190,8 +190,8 @@ class TestLoginEndpoint:
 
         response = client.post("/api/auth/login", data=login_data)
 
-        assert response.status_code == 400
-        assert "inactive" in response.json()["detail"].lower()
+        assert response.status_code == 401
+        assert "incorrect" in response.json()["detail"].lower()
 
     def test_login_returns_valid_jwt(self, client: TestClient, test_user: User, test_user_data: dict):
         """Test: Login gibt einen gültigen JWT Token zurück"""
@@ -265,4 +265,3 @@ class TestAuthenticationFlow:
         me_response = client.get("/api/users/me", headers=headers)
         assert me_response.status_code == 200
         assert me_response.json()["username"] == user_data["username"]
-

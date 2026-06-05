@@ -1,5 +1,8 @@
 import pytest
 from datetime import date
+from app.models.apiary import Apiary
+from app.models.hive import Hive
+from app.models.inspection import Inspection
 
 
 @pytest.fixture
@@ -39,6 +42,21 @@ class TestListInspections:
     def test_list_unknown_hive_returns_404(self, authenticated_client):
         client, _ = authenticated_client
         response = client.get("/api/hives/99999/inspections")
+        assert response.status_code == 404
+
+    def test_list_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+
+        response = client.get(f"/api/hives/{other_hive.id}/inspections")
+
         assert response.status_code == 404
 
 
@@ -89,6 +107,24 @@ class TestCreateInspection:
         )
         assert response.status_code == 404
 
+    def test_create_on_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+
+        response = client.post(
+            f"/api/hives/{other_hive.id}/inspections",
+            json={"date": str(date.today()), "queen_seen": True},
+        )
+
+        assert response.status_code == 404
+
 
 @pytest.mark.unit
 class TestGetInspection:
@@ -105,6 +141,25 @@ class TestGetInspection:
     def test_get_not_found(self, authenticated_client, hive):
         client, _ = authenticated_client
         response = client.get(f"/api/hives/{hive['id']}/inspections/99999")
+        assert response.status_code == 404
+
+    def test_get_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+        other_inspection = Inspection(hive_id=other_hive.id, date=date.today(), queen_seen=True)
+        db.add(other_inspection)
+        db.commit()
+        db.refresh(other_inspection)
+
+        response = client.get(f"/api/hives/{other_hive.id}/inspections/{other_inspection.id}")
+
         assert response.status_code == 404
 
 
@@ -132,6 +187,30 @@ class TestUpdateInspection:
         )
         assert response.status_code == 404
 
+    def test_update_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+        other_inspection = Inspection(hive_id=other_hive.id, date=date.today(), queen_seen=False)
+        db.add(other_inspection)
+        db.commit()
+        db.refresh(other_inspection)
+
+        response = client.put(
+            f"/api/hives/{other_hive.id}/inspections/{other_inspection.id}",
+            json={"queen_seen": True},
+        )
+        db.refresh(other_inspection)
+
+        assert response.status_code == 404
+        assert other_inspection.queen_seen is False
+
 
 @pytest.mark.unit
 class TestDeleteInspection:
@@ -149,3 +228,23 @@ class TestDeleteInspection:
         client, _ = authenticated_client
         response = client.delete(f"/api/hives/{hive['id']}/inspections/99999")
         assert response.status_code == 404
+
+    def test_delete_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
+        client, _ = authenticated_client
+        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        db.add(other_apiary)
+        db.commit()
+        db.refresh(other_apiary)
+        other_hive = Hive(name="Other Hive", owner_id=multiple_test_users[0].id, apiary_id=other_apiary.id)
+        db.add(other_hive)
+        db.commit()
+        db.refresh(other_hive)
+        other_inspection = Inspection(hive_id=other_hive.id, date=date.today(), queen_seen=True)
+        db.add(other_inspection)
+        db.commit()
+        db.refresh(other_inspection)
+
+        response = client.delete(f"/api/hives/{other_hive.id}/inspections/{other_inspection.id}")
+
+        assert response.status_code == 404
+        assert db.get(Inspection, other_inspection.id) is not None
