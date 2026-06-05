@@ -119,12 +119,22 @@ Stand: 2026-06-05
   - [x] Entwurf wird beim erneuten Öffnen geladen.
   - [x] Entwurf wird nach erfolgreichem Speichern gelöscht.
   - [x] Nutzer sieht Online-/Offline- und Entwurfsstatus.
+- [x] Phase 17: Varroawetter-Provider und wetterbasierte Behandlungsfenster
+  - [x] Backend-Provider-System angelegt.
+  - [x] Open-Meteo als normale Wetter-API integriert.
+  - [x] Eigene gepflegte Regelmatrix je Behandlungsmethode umgesetzt.
+  - [x] Offizieller Varroawetter-Provider als Stub ohne HTML-Scraping vorbereitet.
+  - [x] Wetterfenster gecacht in PostgreSQL gespeichert.
+  - [x] API-Endpunkte für Standort und Volk-Assistent ergänzt.
+  - [x] Standortdetail zeigt Ampel je Behandlungstyp.
+  - [x] Behandlungsvorgänge speichern Wetterbewertung, Quelle und Abrufzeit.
+  - [x] Behandlungsjournal-Export enthält Wetterfelder.
+  - [x] Sicherheitshinweis als Planungshilfe sichtbar.
+  - [x] Unit- und API-Tests ergänzt.
 
 ### Noch offen
 
-- [ ] Phase 17: Varroawetter-Provider und wetterbasierte Behandlungsfenster.
 - [ ] Phase 29: Volk-Lebenszyklus, Historie, Archivierung und Löschen.
-- [ ] PDF-Export-Felder für Behandlungsjournal aus Phase 17.
 - [ ] Reports/Jahresberichte mit archivierten Völkern aus Phase 29.
 
 ---

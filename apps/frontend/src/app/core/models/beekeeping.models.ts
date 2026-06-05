@@ -1,6 +1,41 @@
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'open' | 'done' | 'cancelled';
 export type TaskSource = 'manual' | 'inspection' | 'system';
+export type VarroaTreatmentType =
+  | 'formic_acid_short'
+  | 'formic_acid_long'
+  | 'thymol'
+  | 'oxalic_acid_dribble'
+  | 'oxalic_acid_sublimation'
+  | 'lactic_acid'
+  | 'biotechnical'
+  | 'other';
+export type VarroaWeatherRating = 'suitable' | 'caution' | 'unsuitable' | 'unknown';
+
+export interface VarroaWeatherWindow {
+  id: number;
+  apiary_id: number;
+  source: string;
+  provider_version: string;
+  treatment_type: VarroaTreatmentType;
+  date: string;
+  rating: VarroaWeatherRating;
+  reason: string;
+  min_temperature: number | null;
+  max_temperature: number | null;
+  avg_humidity: number | null;
+  precipitation_probability: number | null;
+  wind_speed: number | null;
+  fetched_at: string;
+  created_at: string | null;
+}
+
+export interface VarroaAssistant {
+  hive_id: number;
+  apiary_id: number;
+  source_note: string;
+  windows: VarroaWeatherWindow[];
+}
 
 export interface Photo {
   id: number;
@@ -63,6 +98,10 @@ export interface Treatment {
   dosage: string | null;
   reason: string | null;
   notes: string | null;
+  weather_window_id: number | null;
+  weather_rating: string | null;
+  weather_source: string | null;
+  weather_fetched_at: string | null;
   created_at: string;
   updated_at: string | null;
 }
@@ -76,6 +115,7 @@ export interface TreatmentCreate {
   dosage?: string;
   reason?: string;
   notes?: string;
+  weather_window_id?: number | null;
 }
 
 export type TreatmentUpdate = Partial<TreatmentCreate>;

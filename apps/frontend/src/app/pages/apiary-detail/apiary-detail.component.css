@@ -4,13 +4,27 @@
 h1 { font-size: 2rem; line-height: 1.05; }
 .detail-header p:not(.eyebrow) { color: #6b604f; margin-top: 0.25rem; }
 .primary-action { display: inline-flex; align-items: center; justify-content: center; background: #2f6f5e; color: #fff; border-radius: 8px; padding: 0.8rem 1rem; font-weight: 900; text-decoration: none; }
+.secondary-action { border: 0; border-radius: 8px; background: #e0d5c5; color: var(--amelie-text-dark); cursor: pointer; font-weight: 900; padding: 0.75rem 1rem; }
 .facts { display: grid; grid-template-columns: 1fr; gap: var(--space-sm); margin-bottom: var(--space-md); }
 .facts div, .note-panel, .empty-panel, .hive-row { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); }
 .facts span { display: block; color: #6b604f; font-size: 0.85rem; }
 .note-panel { margin-bottom: var(--space-md); color: #5f5444; }
 .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); }
+.section-title p { color: #6b604f; max-width: 48rem; }
 .section-title a, .hive-row { color: var(--amelie-text-dark); text-decoration: none; }
 .section-title a { color: #2f6f5e; font-weight: 900; }
+.weather-panel { display: grid; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+.treatment-tabs { display: flex; gap: var(--space-sm); overflow-x: auto; padding-bottom: 0.25rem; }
+.treatment-tabs button { flex: 0 0 auto; border: 1px solid #d9c9ae; border-radius: 999px; background: #fff; color: var(--amelie-text-dark); cursor: pointer; font-weight: 800; padding: 0.6rem 0.9rem; }
+.treatment-tabs button.active { background: #2f6f5e; border-color: #2f6f5e; color: #fff; }
+.weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-sm); }
+.weather-card { display: grid; gap: 0.25rem; background: #fff; border: 1px solid #e5dac8; border-left: 6px solid #8b8b8b; border-radius: 8px; padding: var(--space-md); }
+.weather-card span { font-weight: 900; text-transform: uppercase; }
+.weather-card small { color: #6b604f; }
+.rating-suitable { border-left-color: #2f6f5e; }
+.rating-caution { border-left-color: #c99b2e; }
+.rating-unsuitable { border-left-color: #b13a32; }
+.rating-unknown { border-left-color: #8b8b8b; }
 .hive-list { display: grid; gap: var(--space-sm); }
 .hive-row { display: flex; justify-content: space-between; gap: var(--space-md); align-items: center; }
 .hive-row span { font-weight: 900; }

@@ -23,3 +23,4 @@ class User(Base):
     treatments = relationship("Treatment", back_populates="owner", cascade="all, delete-orphan")
     harvests = relationship("Harvest", back_populates="owner", cascade="all, delete-orphan")
     photos = relationship("Photo", back_populates="owner", cascade="all, delete-orphan")
+    varroa_weather_windows = relationship("VarroaWeatherWindow", back_populates="owner", cascade="all, delete-orphan")

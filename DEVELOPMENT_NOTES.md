@@ -63,6 +63,19 @@ alembic revision --autogenerate -m "describe change"
 
 FastAPI no longer creates tables on import. Docker runs migrations before Uvicorn starts.
 
+## Varroa Weather
+
+Varroa weather windows use a normal weather provider plus maintained treatment rules. Default production provider is Open-Meteo:
+
+```bash
+VARROA_WEATHER_PROVIDER=open_meteo
+VARROA_WEATHER_CACHE_TTL_HOURS=6
+```
+
+Allowed providers: `open_meteo`, `internal_rules`, `official_varroawetter`, `disabled`.
+
+No HTML scraping is used. `official_varroawetter` is a stub until an official API endpoint is configured and documented.
+
 ## Known Issues
 
 - `npm run build` may need to run outside restricted sandboxes because Angular's build process can be terminated without diagnostics there.

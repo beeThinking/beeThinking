@@ -117,6 +117,42 @@ class TestTreatmentsApi:
 
         assert client.delete(f"/api/treatments/{treatment['id']}").status_code == 204
 
+    def test_treatment_stores_weather_context(self, authenticated_client, hive, apiary):
+        client, _ = authenticated_client
+        windows = client.post(f"/api/apiaries/{apiary['id']}/varroa-weather/refresh").json()
+
+        response = client.post(
+            "/api/treatments",
+            json={
+                "hive_id": hive["id"],
+                "started_at": str(date.today()),
+                "product": "Formic acid",
+                "weather_window_id": windows[0]["id"],
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json()["weather_rating"] == windows[0]["rating"]
+
+        journal = client.get("/api/treatments/journal/export")
+        assert journal.status_code == 200
+        assert journal.json()["items"][0]["weather_source"] == windows[0]["source"]
+
+
+@pytest.mark.unit
+class TestVarroaWeatherApi:
+    def test_apiary_varroa_weather_and_hive_assistant(self, authenticated_client, hive, apiary):
+        client, _ = authenticated_client
+
+        response = client.get(f"/api/apiaries/{apiary['id']}/varroa-weather")
+        assert response.status_code == 200
+        assert len(response.json()) == 5
+        assert response.json()[0]["treatment_type"] == "formic_acid_short"
+
+        assistant = client.get(f"/api/hives/{hive['id']}/varroa-assistant")
+        assert assistant.status_code == 200
+        assert "Planungshilfe" in assistant.json()["disclaimer"]
+
 
 @pytest.mark.unit
 class TestHarvestsApi:

@@ -1,10 +1,15 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
+from app.models.varroa_weather import VarroaTreatmentType
 from app.schemas.apiary import ApiaryCreate, ApiaryUpdate, ApiaryResponse
+from app.schemas.varroa_weather import VarroaWeatherWindowResponse
 from app.crud import apiary as apiary_crud
+from app.services.varroa_weather import get_varroa_weather_window, refresh_varroa_weather_windows
 
 router = APIRouter()
 
@@ -72,3 +77,43 @@ def delete_apiary(
     success = apiary_crud.delete_apiary(db, apiary_id=apiary_id, owner_id=current_user.id)
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+
+
+@router.get("/{apiary_id}/varroa-weather", response_model=list[VarroaWeatherWindowResponse])
+def list_varroa_weather(
+    apiary_id: int,
+    treatment_type: VarroaTreatmentType = VarroaTreatmentType.formic_acid_short,
+    start_date: date | None = None,
+    days: int = 5,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    windows = get_varroa_weather_window(
+        db,
+        apiary_id=apiary_id,
+        owner_id=current_user.id,
+        treatment_type=treatment_type,
+        start_date=start_date or date.today(),
+        days=days,
+    )
+    if not windows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    return windows
+
+
+@router.post("/{apiary_id}/varroa-weather/refresh", response_model=list[VarroaWeatherWindowResponse])
+def refresh_varroa_weather(
+    apiary_id: int,
+    days: int = 5,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    windows = refresh_varroa_weather_windows(
+        db,
+        apiary_id=apiary_id,
+        owner_id=current_user.id,
+        days=days,
+    )
+    if not windows:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    return windows

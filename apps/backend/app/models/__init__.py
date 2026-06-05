@@ -7,6 +7,7 @@ from app.models.queen import Queen
 from app.models.task import Task, TaskPriority, TaskSource, TaskStatus
 from app.models.treatment import Treatment
 from app.models.user import User
+from app.models.varroa_weather import VarroaTreatmentType, VarroaWeatherRating, VarroaWeatherWindow
 
 __all__ = [
     "Apiary",
@@ -24,6 +25,9 @@ __all__ = [
     "TaskSource",
     "TaskStatus",
     "Treatment",
+    "VarroaTreatmentType",
+    "VarroaWeatherRating",
+    "VarroaWeatherWindow",
     "SwarmCells",
     "User",
 ]

@@ -11,6 +11,10 @@ button, .primary-action, .secondary { border: 0; border-radius: 8px; font-weight
 label { display: grid; gap: 0.3rem; font-weight: 800; color: #5c4d35; }
 input, select, textarea { border: 1px solid #cdbfaa; border-radius: 8px; padding: 0.7rem; font: inherit; background: #fff; color: var(--amelie-text-dark); }
 .form-actions { display: flex; gap: var(--space-sm); justify-content: end; }
+.weather-context { background: #f7f1df; border: 1px solid #e1d2b9; border-radius: 8px; padding: var(--space-sm); }
+.weather-context p { color: #6b604f; margin-bottom: var(--space-sm); }
+.method-row { display: flex; gap: var(--space-sm); overflow-x: auto; margin-bottom: var(--space-sm); }
+.method-row button { flex: 0 0 auto; background: #fff; border: 1px solid #d3c3aa; color: var(--amelie-text-dark); padding: 0.55rem 0.75rem; }
 .record-list { display: grid; gap: var(--space-sm); }
 .record { display: grid; gap: var(--space-sm); background: #fff; border: 1px solid #e5dac8; border-left: 5px solid #2f6f5e; border-radius: 8px; padding: var(--space-md); }
 .record h2 { font-size: 1rem; }

@@ -19,6 +19,46 @@
       <section class="note-panel">{{ apiary.notes }}</section>
     }
 
+    <section class="weather-panel">
+      <div class="section-title">
+        <div>
+          <h2>Varroa-Wetter</h2>
+          <p>Planungshilfe. Zulassung, Packungsbeilage, regionale Empfehlungen und Volkzustand prüfen.</p>
+        </div>
+        <button type="button" class="secondary-action" [disabled]="weatherLoading()" (click)="refreshWeather()">Aktualisieren</button>
+      </div>
+      <div class="treatment-tabs">
+        @for (option of treatmentOptions; track option.value) {
+          <button
+            type="button"
+            [class.active]="selectedTreatment() === option.value"
+            (click)="loadTreatment(option.value)">
+            {{ option.label }}
+          </button>
+        }
+      </div>
+      @if (weatherError()) { <div class="empty-panel">{{ weatherError() }}</div> }
+      <div class="weather-grid">
+        @for (window of weatherWindows(); track window.id) {
+          <article class="weather-card rating-{{ window.rating }}">
+            <strong>{{ formatDate(window.date) }}</strong>
+            <span>{{ ratingLabel(window.rating) }}</span>
+            <small>{{ window.reason }}</small>
+            <small>
+              @if (window.min_temperature !== null && window.max_temperature !== null) {
+                {{ window.min_temperature | number:'1.0-0' }}-{{ window.max_temperature | number:'1.0-0' }} °C
+              }
+              @if (window.precipitation_probability !== null) {
+                · Regen {{ window.precipitation_probability | number:'1.0-0' }} %
+              }
+            </small>
+          </article>
+        } @empty {
+          <div class="empty-panel">Keine Wetterfenster verfügbar. Standortkoordinaten prüfen.</div>
+        }
+      </div>
+    </section>
+
     <section>
       <div class="section-title">
         <h2>Völker am Stand</h2>

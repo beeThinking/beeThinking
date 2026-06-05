@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
-import { Treatment } from '../../core/models/beekeeping.models';
+import { Treatment, VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
 
 @Component({
   selector: 'app-treatments',
@@ -25,6 +25,9 @@ export class TreatmentsComponent {
   protected readonly hives = toSignal(this.hiveService.getHives(), { initialValue: [] });
   protected readonly showForm = signal(false);
   protected readonly errorMessage = signal('');
+  protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
+  protected readonly weatherNote = signal('');
+  protected readonly selectedTreatmentType = signal<VarroaTreatmentType>('formic_acid_short');
 
   protected readonly form = this.fb.group({
     hive_id: [null as number | null, Validators.required],
@@ -34,8 +37,19 @@ export class TreatmentsComponent {
     method: [''],
     dosage: [''],
     reason: [''],
+    weather_window_id: [null as number | null],
     notes: ['']
   });
+
+  constructor() {
+    this.form.controls.hive_id.valueChanges.subscribe(hiveId => {
+      if (hiveId) {
+        this.loadWeather(Number(hiveId), this.selectedTreatmentType());
+      } else {
+        this.weatherWindows.set([]);
+      }
+    });
+  }
 
   protected createTreatment(): void {
     if (this.form.invalid) return;
@@ -48,6 +62,7 @@ export class TreatmentsComponent {
       method: value.method || undefined,
       dosage: value.dosage || undefined,
       reason: value.reason || undefined,
+      weather_window_id: value.weather_window_id ?? undefined,
       notes: value.notes || undefined
     }).subscribe({
       next: treatment => {
@@ -69,5 +84,25 @@ export class TreatmentsComponent {
 
   protected hiveName(id: number): string {
     return this.hives().find(h => h.id === id)?.name ?? `Volk #${id}`;
+  }
+
+  protected loadWeather(hiveId: number, treatmentType: VarroaTreatmentType): void {
+    this.selectedTreatmentType.set(treatmentType);
+    this.weatherNote.set('');
+    this.form.patchValue({ weather_window_id: null }, { emitEvent: false });
+    this.hiveService.getVarroaAssistant(hiveId, treatmentType).subscribe({
+      next: assistant => {
+        this.weatherWindows.set(assistant.windows);
+        this.weatherNote.set(assistant.source_note);
+      },
+      error: () => {
+        this.weatherWindows.set([]);
+        this.weatherNote.set('Wetterfenster nicht verfügbar.');
+      }
+    });
+  }
+
+  protected ratingLabel(rating: string): string {
+    return ({ suitable: 'geeignet', caution: 'kritisch', unsuitable: 'ungeeignet', unknown: 'keine Daten' } as Record<string, string>)[rating] ?? rating;
   }
 }

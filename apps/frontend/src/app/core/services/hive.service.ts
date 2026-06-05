@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Hive, HiveCreate, HiveUpdate } from '../models/hive.models';
-import { TimelineEvent } from '../models/beekeeping.models';
+import { TimelineEvent, VarroaAssistant, VarroaTreatmentType } from '../models/beekeeping.models';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,10 @@ export class HiveService {
 
   getHiveTimeline(id: number): Observable<TimelineEvent[]> {
     return this.api.get<TimelineEvent[]>(`/api/hives/${id}/timeline`);
+  }
+
+  getVarroaAssistant(id: number, treatmentType: VarroaTreatmentType = 'formic_acid_short'): Observable<VarroaAssistant> {
+    return this.api.get<VarroaAssistant>(`/api/hives/${id}/varroa-assistant?treatment_type=${treatmentType}`);
   }
 
   createHive(hive: HiveCreate): Observable<Hive> {

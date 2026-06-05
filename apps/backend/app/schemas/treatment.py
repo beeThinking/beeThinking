@@ -12,6 +12,7 @@ class TreatmentBase(BaseModel):
     method: Optional[str] = Field(None, max_length=200)
     dosage: Optional[str] = Field(None, max_length=200)
     reason: Optional[str] = Field(None, max_length=300)
+    weather_window_id: Optional[int] = None
     notes: Optional[str] = Field(None, max_length=1000)
 
 
@@ -27,12 +28,16 @@ class TreatmentUpdate(BaseModel):
     method: Optional[str] = Field(None, max_length=200)
     dosage: Optional[str] = Field(None, max_length=200)
     reason: Optional[str] = Field(None, max_length=300)
+    weather_window_id: Optional[int] = None
     notes: Optional[str] = Field(None, max_length=1000)
 
 
 class TreatmentResponse(TreatmentBase):
     id: int
     owner_id: int
+    weather_rating: Optional[str] = None
+    weather_source: Optional[str] = None
+    weather_fetched_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

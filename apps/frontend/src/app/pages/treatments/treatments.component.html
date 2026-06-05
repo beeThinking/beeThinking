@@ -23,6 +23,24 @@
       <label>Methode <input formControlName="method" placeholder="Träufeln" /></label>
       <label>Dosierung <input formControlName="dosage" placeholder="30 ml" /></label>
       <label class="wide">Grund <input formControlName="reason" placeholder="Varroa-Kontrolle" /></label>
+      @if (form.value.hive_id) {
+        <div class="wide weather-context">
+          <p>{{ weatherNote() || 'Wetterfenster ist Planungshilfe. Packungsbeilage und Volkzustand prüfen.' }}</p>
+          <div class="method-row">
+            <button type="button" (click)="loadWeather(form.value.hive_id!, 'formic_acid_short')">Ameisensäure</button>
+            <button type="button" (click)="loadWeather(form.value.hive_id!, 'thymol')">Thymol</button>
+            <button type="button" (click)="loadWeather(form.value.hive_id!, 'oxalic_acid_dribble')">Oxalsäure</button>
+          </div>
+          <label>Wetterfenster
+            <select formControlName="weather_window_id">
+              <option [ngValue]="null">Nicht verknüpfen</option>
+              @for (window of weatherWindows(); track window.id) {
+                <option [ngValue]="window.id">{{ window.date | date:'dd.MM.' }} · {{ ratingLabel(window.rating) }} · {{ window.reason }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      }
       <label class="wide">Notizen <textarea rows="3" formControlName="notes"></textarea></label>
       <div class="form-actions">
         <button type="button" class="secondary" (click)="showForm.set(false)">Abbrechen</button>
@@ -38,6 +56,7 @@
           <h2>{{ treatment.product }}</h2>
           <p>{{ hiveName(treatment.hive_id) }} · {{ treatment.started_at | date:'dd.MM.yyyy' }}</p>
           @if (treatment.reason) { <small>{{ treatment.reason }}</small> }
+          @if (treatment.weather_rating) { <small>Wetter: {{ ratingLabel(treatment.weather_rating) }} · {{ treatment.weather_source }}</small> }
         </div>
         <button class="danger" (click)="deleteTreatment(treatment)">Löschen</button>
       </article>

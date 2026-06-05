@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Apiary, ApiaryCreate, ApiaryUpdate } from '../models/apiary.models';
+import { VarroaTreatmentType, VarroaWeatherWindow } from '../models/beekeeping.models';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +28,13 @@ export class ApiaryService {
 
   deleteApiary(id: number): Observable<void> {
     return this.api.delete<void>(`/api/apiaries/${id}`);
+  }
+
+  getVarroaWeather(id: number, treatmentType: VarroaTreatmentType = 'formic_acid_short'): Observable<VarroaWeatherWindow[]> {
+    return this.api.get<VarroaWeatherWindow[]>(`/api/apiaries/${id}/varroa-weather?treatment_type=${treatmentType}`);
+  }
+
+  refreshVarroaWeather(id: number): Observable<VarroaWeatherWindow[]> {
+    return this.api.post<VarroaWeatherWindow[]>(`/api/apiaries/${id}/varroa-weather/refresh`, {});
   }
 }

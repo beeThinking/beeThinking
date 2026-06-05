@@ -35,6 +35,18 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = "beethinking-photos"
     MINIO_SECURE: bool = False
 
+    # Varroa weather planning
+    VARROA_WEATHER_PROVIDER: str = "open_meteo"
+    VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
+    VARROA_WEATHER_OFFICIAL_ENDPOINT: str = ""
+    VARROA_WEATHER_OFFICIAL_API_KEY: str = ""
+
+    # Varroa weather planning
+    VARROA_WEATHER_PROVIDER: str = "internal_rules"
+    VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
+    VARROA_WEATHER_OFFICIAL_ENDPOINT: str = ""
+    VARROA_WEATHER_OFFICIAL_API_KEY: str = ""
+
     @model_validator(mode="after")
     def validate_production_security(self):
         insecure_secrets = {

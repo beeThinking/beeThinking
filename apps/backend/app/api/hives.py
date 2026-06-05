@@ -9,9 +9,13 @@ from app.models.inspection import Inspection
 from app.models.photo import Photo
 from app.models.task import Task
 from app.models.treatment import Treatment
+from app.models.varroa_weather import VarroaTreatmentType
+from app.schemas.varroa_weather import VarroaAssistantResponse
 from app.services.beekeeping_rules import get_inspection_warnings
+from app.services.varroa_weather import get_varroa_weather_window
 from app.schemas.hive import HiveCreate, HiveUpdate, HiveResponse
 from app.crud import hive as hive_crud
+from datetime import date
 
 router = APIRouter()
 
@@ -103,6 +107,34 @@ def get_hive_timeline(
         })
 
     return sorted(events, key=lambda event: event["date"], reverse=True)
+
+
+@router.get("/{hive_id}/varroa-assistant", response_model=VarroaAssistantResponse)
+def get_varroa_assistant(
+    hive_id: int,
+    treatment_type: VarroaTreatmentType = VarroaTreatmentType.formic_acid_short,
+    days: int = 5,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not db_hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    windows = get_varroa_weather_window(
+        db,
+        apiary_id=db_hive.apiary_id,
+        owner_id=current_user.id,
+        treatment_type=treatment_type,
+        start_date=date.today(),
+        days=days,
+    )
+    return {
+        "hive_id": db_hive.id,
+        "apiary_id": db_hive.apiary_id,
+        "disclaimer": "Diese Anzeige ist eine Planungshilfe. Bitte Zulassung, Packungsbeilage, regionale Empfehlungen und Volkzustand prüfen.",
+        "source_note": "Planungshilfe. Zulassung, Packungsbeilage, regionale Empfehlungen und Volkzustand prüfen.",
+        "windows": windows,
+    }
 
 
 @router.put("/{hive_id}", response_model=HiveResponse)
