@@ -4,6 +4,51 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   {
+    path: 'about',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'about' }
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'contact' }
+  },
+  {
+    path: 'docs',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'docs' }
+  },
+  {
+    path: 'tips',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'tips' }
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'faq' }
+  },
+  {
+    path: 'support',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'support' }
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'privacy' }
+  },
+  {
+    path: 'imprint',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'imprint' }
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./pages/info-page/info-page.component').then(m => m.InfoPageComponent),
+    data: { page: 'terms' }
+  },
+  {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
   },
