@@ -44,6 +44,18 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  handleUnauthorized(returnUrl: string): void {
+    this.storage?.removeItem(this.TOKEN_KEY);
+    this.isAuthenticated.set(false);
+    this.currentUser.set(null);
+
+    if (this.router.url.startsWith('/login')) return;
+
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: returnUrl || '/dashboard' }
+    });
+  }
+
   getToken(): string | null {
     return this.storage?.getItem(this.TOKEN_KEY) ?? null;
   }
