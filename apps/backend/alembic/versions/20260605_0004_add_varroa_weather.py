@@ -14,25 +14,7 @@ down_revision: Union[str, None] = "20260605_0003"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-treatment_type = sa.Enum(
-    "formic_acid_short",
-    "formic_acid_long",
-    "thymol",
-    "oxalic_acid_dribble",
-    "oxalic_acid_sublimation",
-    "lactic_acid",
-    "biotechnical",
-    "other",
-    name="varroatreatmenttype",
-)
-weather_rating = sa.Enum("suitable", "caution", "unsuitable", "unknown", name="varroaweatherrating")
-
-
 def upgrade() -> None:
-    if op.get_context().dialect.name != "sqlite":
-        treatment_type.create(op.get_bind(), checkfirst=True)
-        weather_rating.create(op.get_bind(), checkfirst=True)
-
     op.create_table(
         "varroa_weather_windows",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -40,9 +22,9 @@ def upgrade() -> None:
         sa.Column("apiary_id", sa.Integer(), nullable=False),
         sa.Column("source", sa.String(), nullable=False),
         sa.Column("provider_version", sa.String(), nullable=False),
-        sa.Column("treatment_type", treatment_type, nullable=False),
+        sa.Column("treatment_type", sa.String(), nullable=False),
         sa.Column("date", sa.Date(), nullable=False),
-        sa.Column("rating", weather_rating, nullable=False),
+        sa.Column("rating", sa.String(), nullable=False),
         sa.Column("reason", sa.String(), nullable=False),
         sa.Column("min_temperature", sa.Float(), nullable=True),
         sa.Column("max_temperature", sa.Float(), nullable=True),
@@ -88,6 +70,3 @@ def downgrade() -> None:
     op.drop_index("ix_varroa_weather_lookup", table_name="varroa_weather_windows")
     op.drop_index(op.f("ix_varroa_weather_windows_id"), table_name="varroa_weather_windows")
     op.drop_table("varroa_weather_windows")
-    if op.get_context().dialect.name != "sqlite":
-        weather_rating.drop(op.get_bind(), checkfirst=True)
-        treatment_type.drop(op.get_bind(), checkfirst=True)
