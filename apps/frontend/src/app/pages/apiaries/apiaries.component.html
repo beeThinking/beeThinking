@@ -29,10 +29,17 @@
             <input id="address" type="text" formControlName="address" placeholder="z.B. Waldweg 1, 12345 Musterstadt" />
           </div>
 
+          <div class="form-group">
+            <app-apiary-map-picker
+              [latitude]="form.controls.latitude.value"
+              [longitude]="form.controls.longitude.value"
+              (positionChange)="setPosition($event)" />
+          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label for="latitude">Breitengrad</label>
-              <input id="latitude" type="number" formControlName="latitude" placeholder="z.B. 48.1374" step="0.0001" />
+              <input id="latitude" type="number" formControlName="latitude" placeholder="z.B. 48.1374" step="0.000001" />
               @if (form.get('latitude')?.invalid && form.get('latitude')?.touched) {
                 <span class="field-error">Ungültiger Wert (−90 bis 90).</span>
               }
@@ -40,7 +47,7 @@
 
             <div class="form-group">
               <label for="longitude">Längengrad</label>
-              <input id="longitude" type="number" formControlName="longitude" placeholder="z.B. 11.5755" step="0.0001" />
+              <input id="longitude" type="number" formControlName="longitude" placeholder="z.B. 11.5755" step="0.000001" />
               @if (form.get('longitude')?.invalid && form.get('longitude')?.touched) {
                 <span class="field-error">Ungültiger Wert (−180 bis 180).</span>
               }

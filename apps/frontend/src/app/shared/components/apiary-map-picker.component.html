@@ -1,0 +1,12 @@
+<div class="map-shell">
+  <div class="map-toolbar">
+    <strong>{{ label }}</strong>
+    @if (selectable) {
+      <button type="button" class="map-action" (click)="useBrowserPosition()">GPS übernehmen</button>
+    }
+  </div>
+  <div #mapContainer class="apiary-map" [class.is-readonly]="!selectable"></div>
+  @if (selectable) {
+    <p class="map-help">Karte anklicken, um den Bienenstand zu markieren.</p>
+  }
+</div>

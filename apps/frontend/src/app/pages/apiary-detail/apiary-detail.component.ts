@@ -6,11 +6,12 @@ import { map, switchMap } from 'rxjs';
 import { VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { HiveService } from '../../core/services/hive.service';
+import { ApiaryMapPickerComponent } from '../../shared/components/apiary-map-picker.component';
 
 @Component({
   selector: 'app-apiary-detail',
   standalone: true,
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, ApiaryMapPickerComponent],
   templateUrl: './apiary-detail.component.html',
   styleUrl: './apiary-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

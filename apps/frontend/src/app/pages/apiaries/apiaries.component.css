@@ -97,6 +97,7 @@
   border-radius: 16px 16px 0 0;
   padding: var(--space-lg) var(--page-px) max(var(--space-lg), env(safe-area-inset-bottom));
   width: 100%;
+  max-width: 760px;
   max-height: 92dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -134,7 +135,7 @@
   .apiary-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
 
   .modal-overlay { align-items: center; padding: var(--space-lg); }
-  .modal { border-radius: 12px; max-width: 480px; padding: var(--space-xl); }
+  .modal { border-radius: 12px; padding: var(--space-xl); }
 
   .form-row   { grid-template-columns: 1fr 1fr; }
   .form-actions { flex-direction: row; justify-content: flex-end; }

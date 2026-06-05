@@ -19,6 +19,18 @@
       <section class="note-panel">{{ apiary.notes }}</section>
     }
 
+    @if (apiary.latitude !== null && apiary.longitude !== null) {
+      <section class="map-panel">
+        <app-apiary-map-picker
+          label="Standort auf OpenStreetMap"
+          [selectable]="false"
+          [latitude]="apiary.latitude"
+          [longitude]="apiary.longitude" />
+      </section>
+    } @else {
+      <section class="empty-panel">Noch keine Kartenposition hinterlegt. Stand bearbeiten und Position auf der Karte setzen.</section>
+    }
+
     <section class="weather-panel">
       <div class="section-title">
         <div>

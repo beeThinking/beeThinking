@@ -5,11 +5,12 @@ import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Apiary, ApiaryCreate, ApiaryUpdate } from '../../core/models/apiary.models';
+import { ApiaryMapPickerComponent, ApiaryPosition } from '../../shared/components/apiary-map-picker.component';
 
 @Component({
   selector: 'app-apiaries',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe, RouterLink],
+  imports: [ReactiveFormsModule, DecimalPipe, RouterLink, ApiaryMapPickerComponent],
   templateUrl: './apiaries.component.html',
   styleUrl: './apiaries.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -96,6 +97,15 @@ export class ApiariesComponent {
         error: () => this.errorMessage.set('Failed to create apiary.')
       });
     }
+  }
+
+  protected setPosition(position: ApiaryPosition): void {
+    this.form.patchValue({
+      latitude: position.latitude,
+      longitude: position.longitude
+    });
+    this.form.controls.latitude.markAsDirty();
+    this.form.controls.longitude.markAsDirty();
   }
 
   protected deleteApiary(apiary: Apiary): void {
