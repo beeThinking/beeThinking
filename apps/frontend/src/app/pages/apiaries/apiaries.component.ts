@@ -2,13 +2,14 @@ import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Apiary, ApiaryCreate, ApiaryUpdate } from '../../core/models/apiary.models';
 
 @Component({
   selector: 'app-apiaries',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe],
+  imports: [ReactiveFormsModule, DecimalPipe, RouterLink],
   templateUrl: './apiaries.component.html',
   styleUrl: './apiaries.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

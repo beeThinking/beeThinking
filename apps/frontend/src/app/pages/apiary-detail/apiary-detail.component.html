@@ -1,0 +1,41 @@
+<div class="detail-page">
+  @if (apiary(); as apiary) {
+    <header class="detail-header">
+      <div>
+        <p class="eyebrow">Standort</p>
+        <h1>{{ apiary.name }}</h1>
+        @if (apiary.address) { <p>{{ apiary.address }}</p> }
+      </div>
+      <a class="primary-action" routerLink="/beehives">Volk anlegen</a>
+    </header>
+
+    <section class="facts">
+      <div><span>Völker</span><strong>{{ apiaryHives().length }}</strong></div>
+      <div><span>Breitengrad</span><strong>{{ apiary.latitude ?? 0 | number:'1.4-4' }}</strong></div>
+      <div><span>Längengrad</span><strong>{{ apiary.longitude ?? 0 | number:'1.4-4' }}</strong></div>
+    </section>
+
+    @if (apiary.notes) {
+      <section class="note-panel">{{ apiary.notes }}</section>
+    }
+
+    <section>
+      <div class="section-title">
+        <h2>Völker am Stand</h2>
+        <a routerLink="/beehives">Alle Völker</a>
+      </div>
+      <div class="hive-list">
+        @for (hive of apiaryHives(); track hive.id) {
+          <a class="hive-row" [routerLink]="['/beehives', hive.id]">
+            <span>{{ hive.name }}</span>
+            <small>{{ hive.type }} · {{ hive.status }}</small>
+          </a>
+        } @empty {
+          <div class="empty-panel">Noch keine Völker an diesem Standort.</div>
+        }
+      </div>
+    </section>
+  } @else {
+    <div class="empty-panel">Standort wird geladen...</div>
+  }
+</div>
