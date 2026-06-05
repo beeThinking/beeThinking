@@ -19,3 +19,5 @@ class Apiary(Base):
 
     owner = relationship("User", back_populates="apiaries")
     hives = relationship("Hive", back_populates="apiary")
+    tasks = relationship("Task", back_populates="apiary")
+    harvests = relationship("Harvest", back_populates="apiary")

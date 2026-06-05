@@ -35,3 +35,8 @@ class Hive(Base):
     owner = relationship("User", back_populates="hives")
     apiary = relationship("Apiary", back_populates="hives")
     inspections = relationship("Inspection", back_populates="hive", cascade="all, delete-orphan")
+    queens = relationship("Queen", back_populates="hive")
+    tasks = relationship("Task", back_populates="hive")
+    treatments = relationship("Treatment", back_populates="hive", cascade="all, delete-orphan")
+    harvests = relationship("Harvest", back_populates="hive")
+    photos = relationship("Photo", back_populates="hive")

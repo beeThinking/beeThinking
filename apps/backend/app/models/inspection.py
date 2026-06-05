@@ -18,3 +18,4 @@ class Inspection(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     hive = relationship("Hive", back_populates="inspections")
+    photos = relationship("Photo", back_populates="inspection")

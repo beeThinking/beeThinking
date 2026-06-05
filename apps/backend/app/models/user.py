@@ -18,4 +18,8 @@ class User(Base):
 
     hives = relationship("Hive", back_populates="owner", cascade="all, delete-orphan")
     apiaries = relationship("Apiary", back_populates="owner", cascade="all, delete-orphan")
-
+    queens = relationship("Queen", back_populates="owner", cascade="all, delete-orphan")
+    tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
+    treatments = relationship("Treatment", back_populates="owner", cascade="all, delete-orphan")
+    harvests = relationship("Harvest", back_populates="owner", cascade="all, delete-orphan")
+    photos = relationship("Photo", back_populates="owner", cascade="all, delete-orphan")
