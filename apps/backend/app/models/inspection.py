@@ -1,7 +1,27 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, Date, ForeignKey, DateTime
+import enum
+
+from sqlalchemy import Column, Integer, String, Boolean, Float, Date, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
+
+
+class SwarmCells(str, enum.Enum):
+    none = "none"
+    play_cups = "play_cups"
+    queen_cells = "queen_cells"
+
+
+class HiveMood(str, enum.Enum):
+    calm = "calm"
+    normal = "normal"
+    aggressive = "aggressive"
+
+
+class HiveStrength(str, enum.Enum):
+    weak = "weak"
+    medium = "medium"
+    strong = "strong"
 
 
 class Inspection(Base):
@@ -14,6 +34,11 @@ class Inspection(Base):
     brood_strength = Column(Integer, nullable=True)
     varroa_count = Column(Float, nullable=True)
     food_stores = Column(Integer, nullable=True)
+    swarm_cells = Column(Enum(SwarmCells), default=SwarmCells.none, nullable=False)
+    mood = Column(Enum(HiveMood), default=HiveMood.normal, nullable=False)
+    strength = Column(Enum(HiveStrength), default=HiveStrength.medium, nullable=False)
+    weather = Column(String, nullable=True)
+    next_steps = Column(String, nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

@@ -82,6 +82,11 @@ class TestCreateInspection:
             "brood_strength": 7,
             "varroa_count": 2.5,
             "food_stores": 8,
+            "swarm_cells": "play_cups",
+            "mood": "calm",
+            "strength": "strong",
+            "weather": "Sunny",
+            "next_steps": "Check again next week",
             "notes": "Looks healthy"
         }
         response = client.post(f"/api/hives/{hive['id']}/inspections", json=payload)
@@ -90,6 +95,34 @@ class TestCreateInspection:
         assert data["brood_strength"] == 7
         assert data["varroa_count"] == 2.5
         assert data["food_stores"] == 8
+        assert data["swarm_cells"] == "play_cups"
+        assert data["mood"] == "calm"
+        assert data["strength"] == "strong"
+        assert data["weather"] == "Sunny"
+        assert data["next_steps"] == "Check again next week"
+
+    def test_create_critical_inspection_creates_tasks(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        response = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={
+                "date": str(date.today()),
+                "queen_seen": False,
+                "food_stores": 2,
+                "varroa_count": 12,
+                "swarm_cells": "queen_cells",
+                "strength": "weak",
+            },
+        )
+        assert response.status_code == 201
+
+        tasks = client.get("/api/tasks").json()
+        assert {task["title"] for task in tasks} == {
+            "Check food stores",
+            "Review varroa treatment",
+            "Check queen status",
+            "Perform swarm control",
+        }
 
     def test_create_invalid_brood_strength(self, authenticated_client, hive):
         client, _ = authenticated_client

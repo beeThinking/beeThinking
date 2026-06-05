@@ -9,6 +9,7 @@ from app.models.inspection import Inspection
 from app.models.photo import Photo
 from app.models.task import Task
 from app.models.treatment import Treatment
+from app.services.beekeeping_rules import get_inspection_warnings
 from app.schemas.hive import HiveCreate, HiveUpdate, HiveResponse
 from app.crud import hive as hive_crud
 
@@ -66,6 +67,7 @@ def get_hive_timeline(
             "date": inspection.date,
             "title": "Inspection",
             "notes": inspection.notes,
+            "warnings": get_inspection_warnings(inspection),
         })
     for task in db.query(Task).filter(Task.owner_id == current_user.id, Task.hive_id == hive_id).all():
         events.append({

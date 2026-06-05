@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.inspection import Inspection
+from app.models.task import Task
 from app.schemas.inspection import InspectionCreate, InspectionUpdate
+from app.services.beekeeping_rules import suggest_tasks_after_inspection
 
 
 def get_inspections(db: Session, hive_id: int) -> list[Inspection]:
@@ -18,6 +20,9 @@ def get_inspection(db: Session, inspection_id: int, hive_id: int) -> Optional[In
 def create_inspection(db: Session, inspection: InspectionCreate, hive_id: int) -> Inspection:
     db_inspection = Inspection(**inspection.model_dump(), hive_id=hive_id)
     db.add(db_inspection)
+    db.flush()
+    for task in suggest_tasks_after_inspection(db_inspection.hive, db_inspection):
+        db.add(Task(**task.model_dump(), owner_id=db_inspection.hive.owner_id))
     db.commit()
     db.refresh(db_inspection)
     return db_inspection

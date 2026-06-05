@@ -1,7 +1,7 @@
 from app.models.apiary import Apiary
 from app.models.harvest import Harvest
 from app.models.hive import Hive, HiveStatus, HiveType
-from app.models.inspection import Inspection
+from app.models.inspection import HiveMood, HiveStrength, Inspection, SwarmCells
 from app.models.photo import Photo
 from app.models.queen import Queen
 from app.models.task import Task, TaskPriority, TaskSource, TaskStatus
@@ -14,6 +14,8 @@ __all__ = [
     "Hive",
     "HiveStatus",
     "HiveType",
+    "HiveMood",
+    "HiveStrength",
     "Inspection",
     "Photo",
     "Queen",
@@ -22,5 +24,6 @@ __all__ = [
     "TaskSource",
     "TaskStatus",
     "Treatment",
+    "SwarmCells",
     "User",
 ]
