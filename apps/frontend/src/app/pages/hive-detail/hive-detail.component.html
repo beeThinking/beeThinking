@@ -13,6 +13,61 @@
       <section class="notes">{{ hive.notes }}</section>
     }
 
+    <section class="photo-panel">
+      <div class="section-heading">
+        <div>
+          <h2>Fotos</h2>
+          <p>Aufnahmen zu Volk, Durchsicht und Zustand.</p>
+        </div>
+      </div>
+
+      <div class="upload-row">
+        <label class="file-picker">
+          <span>Foto auswählen</span>
+          <input type="file" accept="image/*" (change)="selectPhoto($event)">
+        </label>
+        <input
+          class="caption-input"
+          type="text"
+          placeholder="Kurze Notiz"
+          [ngModel]="caption()"
+          (ngModelChange)="caption.set($event)"
+        >
+        <button type="button" class="upload-button" [disabled]="!selectedFile() || uploadPending()" (click)="uploadPhoto()">
+          {{ uploadPending() ? 'Lädt hoch ...' : 'Hochladen' }}
+        </button>
+      </div>
+
+      @if (selectedFile(); as file) {
+        <p class="selected-file">{{ file.name }} · {{ formatBytes(file.size) }}</p>
+      }
+
+      @if (uploadError()) {
+        <p class="form-error">{{ uploadError() }}</p>
+      }
+
+      <div class="photo-grid">
+        @for (photo of photos(); track photo.id) {
+          <article class="photo-card">
+            @if (photo.preview_url) {
+              <img [src]="photo.preview_url" [alt]="photo.caption || photo.filename">
+            } @else {
+              <div class="photo-placeholder">Keine Vorschau</div>
+            }
+            <div class="photo-meta">
+              <div>
+                <h3>{{ photo.caption || photo.filename }}</h3>
+                <p>{{ formatDate(photo.created_at) }} · {{ formatBytes(photo.size_bytes) }}</p>
+              </div>
+              <button type="button" (click)="deletePhoto(photo)">Löschen</button>
+            </div>
+          </article>
+        } @empty {
+          <div class="empty">Noch keine Fotos für dieses Volk.</div>
+        }
+      </div>
+    </section>
+
     <section class="timeline">
       <h2>Timeline</h2>
       @for (event of timeline(); track event.type + event.id) {

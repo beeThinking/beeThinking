@@ -47,6 +47,140 @@
   padding: var(--space-md);
 }
 
+.photo-panel {
+  display: grid;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.section-heading h2,
+.timeline h2 {
+  margin: 0;
+}
+
+.section-heading p {
+  color: #6a604d;
+}
+
+.upload-row {
+  display: grid;
+  grid-template-columns: minmax(10rem, auto) 1fr auto;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.file-picker,
+.upload-button,
+.photo-meta button {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.file-picker {
+  background: #f0e3b2;
+  color: #3a2f1a;
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
+
+.file-picker input {
+  display: none;
+}
+
+.caption-input {
+  border: 1px solid rgba(58, 47, 26, 0.16);
+  border-radius: 8px;
+  min-height: 2.9rem;
+  padding: 0 1rem;
+}
+
+.upload-button {
+  background: #2f6f5e;
+  color: white;
+  min-height: 2.9rem;
+  padding: 0 1rem;
+}
+
+.upload-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.selected-file,
+.form-error {
+  font-weight: 800;
+}
+
+.selected-file {
+  color: #2f6f5e;
+}
+
+.form-error {
+  color: #9f2f2f;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.photo-card {
+  overflow: hidden;
+  background: white;
+  border: 1px solid rgba(58, 47, 26, 0.12);
+  border-radius: 8px;
+}
+
+.photo-card img,
+.photo-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.photo-card img {
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  display: grid;
+  place-items: center;
+  background: #f7f1df;
+  color: #6a604d;
+  font-weight: 900;
+}
+
+.photo-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+}
+
+.photo-meta h3 {
+  font-size: 1rem;
+}
+
+.photo-meta p {
+  color: #6a604d;
+}
+
+.photo-meta button {
+  align-self: flex-start;
+  background: #f7d8d8;
+  color: #7b2424;
+  padding: 0.55rem 0.7rem;
+}
+
 .timeline {
   display: grid;
   gap: var(--space-sm);
@@ -78,8 +212,15 @@
 
 @media (max-width: 640px) {
   .detail-header,
-  .event {
+  .event,
+  .upload-row,
+  .photo-meta {
     grid-template-columns: 1fr;
     display: grid;
+  }
+
+  .upload-button,
+  .file-picker {
+    width: 100%;
   }
 }

@@ -2,6 +2,27 @@ export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'open' | 'done' | 'cancelled';
 export type TaskSource = 'manual' | 'inspection' | 'system';
 
+export interface Photo {
+  id: number;
+  owner_id: number;
+  hive_id: number | null;
+  inspection_id: number | null;
+  object_key: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  caption: string | null;
+  created_at: string;
+}
+
+export interface PhotoPreview {
+  url: string;
+}
+
+export interface PhotoWithPreview extends Photo {
+  preview_url: string | null;
+}
+
 export interface Task {
   id: number;
   owner_id: number;
