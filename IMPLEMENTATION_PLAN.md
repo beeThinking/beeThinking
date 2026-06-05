@@ -96,6 +96,7 @@ Stand: 2026-06-05
   - [x] Photo-Datensatz in PostgreSQL gespeichert.
   - [x] Fotozugriff per Owner geschützt.
   - [x] Frontend-Galerie auf Volkdetail gebaut.
+  - [x] Frontend-Galerie auf Durchsichten gebaut.
 - [x] Phase 10: Production Deployment auf Linuxserver
   - [x] `docker-compose.prod.yml` ergänzt.
   - [x] `Caddyfile` ergänzt.
@@ -114,7 +115,6 @@ Stand: 2026-06-05
 
 ### Noch offen
 
-- [ ] Phase 9: Frontend-Galerie für Fotos auf Durchsichtdetail.
 - [ ] Phase 12: PWA und Offline-Entwürfe.
 - [ ] Phase 17: Varroawetter-Provider und wetterbasierte Behandlungsfenster.
 - [ ] Phase 29: Volk-Lebenszyklus, Historie, Archivierung und Löschen.

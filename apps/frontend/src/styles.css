@@ -59,6 +59,36 @@ body {
   :root { --page-px: var(--space-xl); }
 }
 
+/* ─── Shared photo strips ────────────────────────────────── */
+.inspection-photos { display: grid; gap: var(--space-sm); margin-top: var(--space-md); padding-top: var(--space-sm); border-top: 1px solid #f0e8dc; }
+.photo-upload-row { display: grid; grid-template-columns: minmax(8rem, auto) 1fr auto; gap: var(--space-sm); }
+.photo-picker {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 36px; padding: 0.375rem 0.75rem; background: #e0d5c5;
+  border-radius: 8px; color: var(--amelie-text-dark); cursor: pointer;
+  font-size: 0.8rem; font-weight: 700;
+}
+.photo-picker input { display: none; }
+.photo-caption { min-height: 36px; border: 1px solid #d4c4a8; border-radius: 8px; padding: 0 0.75rem; }
+.selected-photo { color: var(--amelie-dark-brown); font-size: 0.8rem; font-weight: 700; }
+.photo-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-sm); }
+.photo-thumb { overflow: hidden; border: 1px solid #f0e8dc; border-radius: 8px; background: #fff; }
+.photo-thumb img,
+.photo-fallback { display: block; width: 100%; aspect-ratio: 4 / 3; }
+.photo-thumb img { object-fit: cover; }
+.photo-fallback { display: grid; place-items: center; background: #fdf8f2; color: #888; font-size: 0.8rem; font-weight: 700; }
+.photo-thumb div { display: grid; gap: 0.1rem; padding: 0.5rem; }
+.photo-thumb strong,
+.photo-thumb span { overflow-wrap: anywhere; font-size: 0.78rem; }
+.photo-thumb span { color: #888; }
+.photo-thumb button { width: calc(100% - 1rem); margin: 0 0.5rem 0.5rem; }
+
+@media (max-width: 640px) {
+  .photo-upload-row { grid-template-columns: 1fr; }
+  .photo-upload-row .btn,
+  .photo-picker { width: 100%; }
+}
+
 /* ─── Tap targets ────────────────────────────────────────── */
 /* Minimum 44×44px touch target for interactive elements */
 button, a, [role="button"] {

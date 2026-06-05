@@ -1,11 +1,13 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { of } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { HiveService } from '../../core/services/hive.service';
 import { InspectionService } from '../../core/services/inspection.service';
 import { Hive } from '../../core/models/hive.models';
+import { PhotoWithPreview } from '../../core/models/beekeeping.models';
 import { Inspection, InspectionCreate, InspectionUpdate } from '../../core/models/inspection.models';
+import { BeekeepingService } from '../../core/services/beekeeping.service';
 
 @Component({
   selector: 'app-inspections',
@@ -16,6 +18,7 @@ import { Inspection, InspectionCreate, InspectionUpdate } from '../../core/model
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InspectionsComponent {
+  private readonly beekeepingService = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
   private readonly inspectionService = inject(InspectionService);
   private readonly fb = inject(FormBuilder);
@@ -39,8 +42,14 @@ export class InspectionsComponent {
   );
 
   protected readonly errorMessage = signal('');
+  protected readonly photoErrorMessage = signal('');
   protected readonly showForm = signal(false);
   protected readonly editingInspection = signal<Inspection | null>(null);
+  protected readonly inspectionPhotos = signal<PhotoWithPreview[]>([]);
+  protected readonly selectedPhotoInspectionId = signal<number | null>(null);
+  protected readonly selectedPhotoFile = signal<File | null>(null);
+  protected readonly photoCaption = signal('');
+  protected readonly photoUploadPending = signal(false);
 
   protected readonly today = new Date().toISOString().split('T')[0];
 
@@ -57,12 +66,15 @@ export class InspectionsComponent {
     this.selectedHiveId.set(hiveId);
     this.localInspections.set(null);
     this.errorMessage.set('');
+    this.photoErrorMessage.set('');
+    this.inspectionPhotos.set([]);
     this.closeForm();
 
     this.inspectionService.getInspections(hiveId).subscribe({
       next: (list) => this.localInspections.set(list),
       error: () => this.errorMessage.set('Failed to load inspections.')
     });
+    this.loadInspectionPhotos(hiveId);
   }
 
   protected openCreateForm(): void {
@@ -142,6 +154,58 @@ export class InspectionsComponent {
     });
   }
 
+  protected photosForInspection(inspectionId: number): PhotoWithPreview[] {
+    return this.inspectionPhotos().filter(photo => photo.inspection_id === inspectionId);
+  }
+
+  protected selectPhoto(inspection: Inspection, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedPhotoInspectionId.set(inspection.id);
+    this.selectedPhotoFile.set(input.files?.[0] ?? null);
+    this.photoErrorMessage.set('');
+  }
+
+  protected uploadPhoto(inspection: Inspection): void {
+    const hiveId = this.selectedHiveId();
+    const file = this.selectedPhotoFile();
+    if (!hiveId || !file || this.photoUploadPending()) {
+      return;
+    }
+
+    this.photoUploadPending.set(true);
+    this.photoErrorMessage.set('');
+    this.beekeepingService.uploadPhoto({
+      file,
+      hive_id: hiveId,
+      inspection_id: inspection.id,
+      caption: this.photoCaption()
+    }).pipe(
+      switchMap(photo => this.beekeepingService.getPhotoPreview(photo.id).pipe(
+        map(preview => ({ ...photo, preview_url: preview.url })),
+        catchError(() => of({ ...photo, preview_url: null }))
+      ))
+    ).subscribe({
+      next: (photo) => {
+        this.inspectionPhotos.update(photos => [photo, ...photos]);
+        this.selectedPhotoInspectionId.set(null);
+        this.selectedPhotoFile.set(null);
+        this.photoCaption.set('');
+        this.photoUploadPending.set(false);
+      },
+      error: () => {
+        this.photoErrorMessage.set('Foto konnte nicht hochgeladen werden.');
+        this.photoUploadPending.set(false);
+      }
+    });
+  }
+
+  protected deletePhoto(photo: PhotoWithPreview): void {
+    this.beekeepingService.deletePhoto(photo.id).subscribe({
+      next: () => this.inspectionPhotos.update(photos => photos.filter(item => item.id !== photo.id)),
+      error: () => this.photoErrorMessage.set('Foto konnte nicht gelöscht werden.')
+    });
+  }
+
   protected formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
@@ -150,5 +214,31 @@ export class InspectionsComponent {
     if (value === null) return '–';
     const labels = ['', 'Sehr schwach', 'Schwach', 'Schwach-mittel', 'Mittel', 'Mittel', 'Mittel-stark', 'Stark', 'Sehr stark', 'Sehr stark', 'Maximal'];
     return `${value}/10 ${labels[value] ?? ''}`;
+  }
+
+  protected formatBytes(value: number): string {
+    if (value < 1024) {
+      return `${value} B`;
+    }
+    if (value < 1024 * 1024) {
+      return `${(value / 1024).toFixed(1)} KB`;
+    }
+    return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  private loadInspectionPhotos(hiveId: number): void {
+    this.beekeepingService.getPhotos().pipe(
+      map(photos => photos.filter(photo => photo.hive_id === hiveId && photo.inspection_id !== null)),
+      switchMap(photos => photos.length
+        ? forkJoin(photos.map(photo => this.beekeepingService.getPhotoPreview(photo.id).pipe(
+            map(preview => ({ ...photo, preview_url: preview.url })),
+            catchError(() => of({ ...photo, preview_url: null }))
+          )))
+        : of([] as PhotoWithPreview[])
+      )
+    ).subscribe({
+      next: photos => this.inspectionPhotos.set(photos),
+      error: () => this.photoErrorMessage.set('Fotos konnten nicht geladen werden.')
+    });
   }
 }

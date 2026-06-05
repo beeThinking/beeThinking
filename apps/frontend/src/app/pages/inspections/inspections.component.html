@@ -6,6 +6,9 @@
   @if (errorMessage()) {
     <div class="alert alert-error">{{ errorMessage() }}</div>
   }
+  @if (photoErrorMessage()) {
+    <div class="alert alert-error">{{ photoErrorMessage() }}</div>
+  }
 
   <div class="hive-selector">
     <h2>Bienenstock wählen</h2>
@@ -131,6 +134,52 @@
                 @if (inspection.notes) {
                   <p class="inspection-notes">{{ inspection.notes }}</p>
                 }
+
+                <div class="inspection-photos">
+                  <div class="photo-upload-row">
+                    <label class="photo-picker">
+                      <span>Foto wählen</span>
+                      <input type="file" accept="image/*" (change)="selectPhoto(inspection, $event)">
+                    </label>
+                    <input
+                      type="text"
+                      class="photo-caption"
+                      placeholder="Fotonotiz"
+                      [value]="selectedPhotoInspectionId() === inspection.id ? photoCaption() : ''"
+                      (input)="photoCaption.set($any($event.target).value)"
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="selectedPhotoInspectionId() !== inspection.id || !selectedPhotoFile() || photoUploadPending()"
+                      (click)="uploadPhoto(inspection)">
+                      {{ photoUploadPending() && selectedPhotoInspectionId() === inspection.id ? 'Lädt ...' : 'Hochladen' }}
+                    </button>
+                  </div>
+
+                  @if (selectedPhotoInspectionId() === inspection.id && selectedPhotoFile(); as file) {
+                    <p class="selected-photo">{{ file.name }} · {{ formatBytes(file.size) }}</p>
+                  }
+
+                  @if (photosForInspection(inspection.id).length) {
+                    <div class="photo-strip">
+                      @for (photo of photosForInspection(inspection.id); track photo.id) {
+                        <article class="photo-thumb">
+                          @if (photo.preview_url) {
+                            <img [src]="photo.preview_url" [alt]="photo.caption || photo.filename">
+                          } @else {
+                            <div class="photo-fallback">Keine Vorschau</div>
+                          }
+                          <div>
+                            <strong>{{ photo.caption || photo.filename }}</strong>
+                            <span>{{ formatBytes(photo.size_bytes) }}</span>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-secondary" (click)="deletePhoto(photo)">Löschen</button>
+                        </article>
+                      }
+                    </div>
+                  }
+                </div>
               </div>
             </div>
           }
