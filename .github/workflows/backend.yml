@@ -44,9 +44,37 @@ jobs:
         working-directory: apps/backend
         run: pip install -r requirements.txt
 
+      - name: Run migrations
+        working-directory: apps/backend
+        env:
+          DATABASE_URL: postgresql://beethinking:beethinking@localhost:5432/beethinking
+          SECRET_KEY: ci-test-secret-key-not-used-in-production
+        run: alembic upgrade head
+
       - name: Run tests
         working-directory: apps/backend
         env:
           DATABASE_URL: postgresql://beethinking:beethinking@localhost:5432/beethinking
           SECRET_KEY: ci-test-secret-key-not-used-in-production
         run: pytest --cov=app --cov-report=term-missing
+
+      - name: Validate compose files
+        env:
+          DOMAIN: example.com
+          APP_NAME: BeeThinking Backend
+          APP_ENV: production
+          DEBUG: "False"
+          SECRET_KEY: ci-test-secret-key-not-used-in-production
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+          CORS_ORIGINS: https://example.com
+          POSTGRES_USER: beethinking
+          POSTGRES_PASSWORD: beethinking
+          POSTGRES_DB: beethinking
+          MINIO_ACCESS_KEY: beethinking
+          MINIO_SECRET_KEY: beethinking-minio-password
+          MINIO_BUCKET: beethinking-photos
+          EMAIL_CONFIRMATION_ENABLED: "False"
+        run: |
+          docker compose config
+          docker compose -f docker-compose.prod.yml config

@@ -48,7 +48,7 @@ Frontend:
 ```bash
 cd apps/frontend
 npm run lint
-npm run test -- --run
+npm run test
 npm run build
 ```
 
@@ -65,4 +65,4 @@ FastAPI no longer creates tables on import. Docker runs migrations before Uvicor
 
 ## Known Issues
 
-- Full Docker startup and manual register/login have not been rechecked in this pass.
+- `npm run build` may need to run outside restricted sandboxes because Angular's build process can be terminated without diagnostics there.
