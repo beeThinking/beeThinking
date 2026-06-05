@@ -1,0 +1,57 @@
+<div class="work-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Honig</p>
+      <h1>Ernten und Chargen</h1>
+    </div>
+    <button class="primary-action" (click)="showForm.set(!showForm())">+ Ernte</button>
+  </header>
+
+  <section class="summary-band">
+    <strong>{{ totalKg() | number:'1.0-1' }} kg</strong>
+    <span>{{ harvests().length }} Ernten erfasst</span>
+  </section>
+
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  @if (showForm()) {
+    <form class="editor" [formGroup]="form" (ngSubmit)="createHarvest()">
+      <label>Datum <input type="date" formControlName="harvest_date" /></label>
+      <label>Menge kg <input type="number" step="0.1" formControlName="amount_kg" /></label>
+      <label>Tracht <input formControlName="crop_type" placeholder="Frühtracht" /></label>
+      <label>Charge <input formControlName="batch_code" placeholder="2026-FR-01" /></label>
+      <label>Volk
+        <select formControlName="hive_id">
+          <option [ngValue]="null">Alle Völker</option>
+          @for (hive of hives(); track hive.id) { <option [ngValue]="hive.id">{{ hive.name }}</option> }
+        </select>
+      </label>
+      <label>Stand
+        <select formControlName="apiary_id">
+          <option [ngValue]="null">Ohne Standort</option>
+          @for (apiary of apiaries(); track apiary.id) { <option [ngValue]="apiary.id">{{ apiary.name }}</option> }
+        </select>
+      </label>
+      <label class="wide">Notizen <textarea rows="3" formControlName="notes"></textarea></label>
+      <div class="form-actions">
+        <button type="button" class="secondary" (click)="showForm.set(false)">Abbrechen</button>
+        <button type="submit" class="primary-action" [disabled]="form.invalid">Speichern</button>
+      </div>
+    </form>
+  }
+
+  <section class="record-list">
+    @for (harvest of harvests(); track harvest.id) {
+      <article class="record">
+        <div>
+          <h2>{{ harvest.amount_kg | number:'1.0-1' }} kg {{ harvest.crop_type || 'Honig' }}</h2>
+          <p>{{ harvest.harvest_date | date:'dd.MM.yyyy' }} · {{ hiveName(harvest.hive_id) }} · {{ apiaryName(harvest.apiary_id) }}</p>
+          @if (harvest.batch_code) { <small>Charge {{ harvest.batch_code }}</small> }
+        </div>
+        <button class="danger" (click)="deleteHarvest(harvest)">Löschen</button>
+      </article>
+    } @empty {
+      <div class="empty-panel">Noch keine Ernte erfasst.</div>
+    }
+  </section>
+</div>

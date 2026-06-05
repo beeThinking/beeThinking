@@ -1,36 +1,56 @@
 <div class="dashboard-page">
-  <header class="page-header">
-    <h2>Willkommen bei BeeHive</h2>
-    <p>Ihre digitale Lösung für professionelle Imkerei-Verwaltung</p>
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Heute wichtig</p>
+      <h1>Bienenstand im Blick</h1>
+    </div>
+    <a class="primary-action" routerLink="/beehives">Durchsicht starten</a>
   </header>
 
-  <div class="dashboard-grid">
-    @for (card of cards(); track card.title) {
-      <app-dashboard-card
-        [title]="card.title"
-        [value]="card.value"
-        [description]="card.description"
-        [iconPath]="card.iconPath"
-        [backgroundColor]="card.backgroundColor"
-      />
+  <section class="metric-grid" aria-label="Zusammenfassung">
+    <a class="metric danger" routerLink="/tasks">
+      <span class="metric-value">{{ summary().overdue_task_count }}</span>
+      <span class="metric-label">Überfällig</span>
+    </a>
+    <a class="metric" routerLink="/tasks">
+      <span class="metric-value">{{ summary().open_task_count }}</span>
+      <span class="metric-label">Offene Aufgaben</span>
+    </a>
+    <a class="metric" routerLink="/beehives">
+      <span class="metric-value">{{ summary().hive_count }}</span>
+      <span class="metric-label">Völker</span>
+    </a>
+    <a class="metric" routerLink="/harvests">
+      <span class="metric-value">{{ summary().harvest_kg_total | number:'1.0-1' }}</span>
+      <span class="metric-label">kg Honig</span>
+    </a>
+  </section>
+
+  <section class="action-strip">
+    <a routerLink="/tasks">Aufgaben</a>
+    <a routerLink="/beehives">Völker</a>
+    <a routerLink="/treatments">Behandlungen</a>
+    <a routerLink="/harvests">Ernten</a>
+  </section>
+
+  <section class="status-section">
+    <div class="section-title">
+      <h2>Völker mit Aufmerksamkeit</h2>
+      <span>{{ formatDate(summary().latest_inspection_date) }} zuletzt geprüft</span>
+    </div>
+
+    @if (attentionHives().length === 0) {
+      <div class="empty-panel">Keine akuten Warnungen aus den letzten Durchsichten.</div>
+    } @else {
+      <div class="hive-status-list">
+        @for (hive of attentionHives(); track hive.hive_id) {
+          <a class="hive-status" [routerLink]="['/beehives', hive.hive_id]">
+            <strong>{{ hive.name }}</strong>
+            <span>Status {{ hive.status }}</span>
+            <span>Schwarmrisiko {{ hive.swarm_risk }}</span>
+          </a>
+        }
+      </div>
     }
-  </div>
-
-  <div class="info-section">
-    <div class="info-card">
-      <h3>🐝 Über bee thinking</h3>
-      <p>bee thinking ist Ihre umfassende Lösung zur Verwaltung Ihrer Imkerei. Behalten Sie den Überblick über Ihre Bienenvölker, planen Sie Inspektionen, dokumentieren Sie Ihre Honig-Ernten und verwalten Sie alle wichtigen Termine an einem Ort.</p>
-    </div>
-    <div class="info-card">
-      <h3>🍯 Funktionen</h3>
-      <ul>
-        <li>Verwaltung mehrerer Bienenstöcke</li>
-        <li>Dokumentation von Inspektionen</li>
-        <li>Honig-Ernte Tracking</li>
-        <li>Terminplanung und Erinnerungen</li>
-        <li>Gesundheitsüberwachung der Völker</li>
-      </ul>
-    </div>
-  </div>
+  </section>
 </div>
-

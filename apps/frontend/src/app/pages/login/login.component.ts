@@ -22,12 +22,12 @@ export class LoginComponent {
   protected readonly errorMessage = signal('');
   protected readonly isLoading = signal(false);
 
-  protected readonly loginForm = this.fb.group({
+  readonly loginForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
-  protected onSubmit(): void {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;

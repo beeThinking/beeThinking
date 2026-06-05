@@ -11,6 +11,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'access_token';
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly storage = this.getStorage();
 
   readonly isAuthenticated = signal<boolean>(this.hasToken());
   readonly currentUser = signal<UserResponse | null>(null);
@@ -26,7 +27,7 @@ export class AuthService {
 
     return this.apiService.post<Token>('/api/auth/login', body.toString()).pipe(
       tap(response => {
-        localStorage.setItem(this.TOKEN_KEY, response.access_token);
+        this.storage?.setItem(this.TOKEN_KEY, response.access_token);
         this.isAuthenticated.set(true);
       })
     );
@@ -37,17 +38,21 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+    this.storage?.removeItem(this.TOKEN_KEY);
     this.isAuthenticated.set(false);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.storage?.getItem(this.TOKEN_KEY) ?? null;
   }
 
   private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    return !!this.getToken();
+  }
+
+  private getStorage(): Storage | null {
+    return typeof localStorage === 'undefined' ? null : localStorage;
   }
 }

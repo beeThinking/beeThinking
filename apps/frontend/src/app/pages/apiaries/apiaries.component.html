@@ -11,8 +11,8 @@
   }
 
   @if (showForm()) {
-    <div class="modal-overlay" (click)="closeForm()">
-      <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-overlay" role="button" tabindex="0" aria-label="Formular schließen" (click)="closeForm()" (keydown.enter)="closeForm()">
+      <div class="modal" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
         <h2>{{ editingApiary() ? 'Stand bearbeiten' : 'Neuer Stand' }}</h2>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">

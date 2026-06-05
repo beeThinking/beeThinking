@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
@@ -8,7 +9,7 @@ import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/m
 @Component({
   selector: 'app-beehives',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './beehives.component.html',
   styleUrl: './beehives.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

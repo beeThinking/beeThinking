@@ -1,0 +1,48 @@
+<div class="work-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Gesundheit</p>
+      <h1>Behandlungen</h1>
+    </div>
+    <button class="primary-action" (click)="showForm.set(!showForm())">+ Behandlung</button>
+  </header>
+
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  @if (showForm()) {
+    <form class="editor" [formGroup]="form" (ngSubmit)="createTreatment()">
+      <label>Volk
+        <select formControlName="hive_id">
+          <option [ngValue]="null">Volk wählen</option>
+          @for (hive of hives(); track hive.id) { <option [ngValue]="hive.id">{{ hive.name }}</option> }
+        </select>
+      </label>
+      <label>Start <input type="date" formControlName="started_at" /></label>
+      <label>Ende <input type="date" formControlName="ended_at" /></label>
+      <label>Produkt <input formControlName="product" placeholder="Oxalsäure" /></label>
+      <label>Methode <input formControlName="method" placeholder="Träufeln" /></label>
+      <label>Dosierung <input formControlName="dosage" placeholder="30 ml" /></label>
+      <label class="wide">Grund <input formControlName="reason" placeholder="Varroa-Kontrolle" /></label>
+      <label class="wide">Notizen <textarea rows="3" formControlName="notes"></textarea></label>
+      <div class="form-actions">
+        <button type="button" class="secondary" (click)="showForm.set(false)">Abbrechen</button>
+        <button type="submit" class="primary-action" [disabled]="form.invalid">Speichern</button>
+      </div>
+    </form>
+  }
+
+  <section class="record-list">
+    @for (treatment of treatments(); track treatment.id) {
+      <article class="record">
+        <div>
+          <h2>{{ treatment.product }}</h2>
+          <p>{{ hiveName(treatment.hive_id) }} · {{ treatment.started_at | date:'dd.MM.yyyy' }}</p>
+          @if (treatment.reason) { <small>{{ treatment.reason }}</small> }
+        </div>
+        <button class="danger" (click)="deleteTreatment(treatment)">Löschen</button>
+      </article>
+    } @empty {
+      <div class="empty-panel">Noch keine Behandlung dokumentiert.</div>
+    }
+  </section>
+</div>

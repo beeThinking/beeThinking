@@ -1,0 +1,38 @@
+<div class="page-container detail-page">
+  @if (hive(); as hive) {
+    <header class="detail-header">
+      <div>
+        <a routerLink="/beehives" class="back-link">Zurück</a>
+        <h1>{{ hive.name }}</h1>
+        <p>{{ hive.type }} · {{ hive.status }}</p>
+      </div>
+      <a class="inspect-action" [routerLink]="inspectLink()">Durchsicht starten</a>
+    </header>
+
+    @if (hive.notes) {
+      <section class="notes">{{ hive.notes }}</section>
+    }
+
+    <section class="timeline">
+      <h2>Timeline</h2>
+      @for (event of timeline(); track event.type + event.id) {
+        <article class="event event-{{ event.type }}">
+          <span class="event-date">{{ formatDate(event.date) }}</span>
+          <div>
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.type }}</p>
+            @if (event.warnings?.length) {
+              <ul>
+                @for (warning of event.warnings; track warning) {
+                  <li>{{ warning }}</li>
+                }
+              </ul>
+            }
+          </div>
+        </article>
+      } @empty {
+        <div class="empty">Noch keine Ereignisse für dieses Volk.</div>
+      }
+    </section>
+  }
+</div>

@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { switchMap, of } from 'rxjs';
+import { of } from 'rxjs';
 import { HiveService } from '../../core/services/hive.service';
 import { InspectionService } from '../../core/services/inspection.service';
 import { Hive } from '../../core/models/hive.models';

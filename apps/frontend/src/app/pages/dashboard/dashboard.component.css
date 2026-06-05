@@ -1,101 +1,142 @@
-/* ── Dashboard — Mobile-first ────────────────────────────── */
 .dashboard-page {
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--space-md) var(--page-px);
+  padding: var(--space-lg) var(--page-px) var(--space-2xl);
 }
 
-.page-header {
+.work-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.eyebrow {
+  color: #2f6f5e;
+  font-weight: 800;
+  margin-bottom: var(--space-xs);
+  text-transform: uppercase;
+}
+
+.work-header h1 {
+  color: var(--amelie-text-dark);
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.primary-action,
+.action-strip a,
+.metric,
+.hive-status {
+  text-decoration: none;
+}
+
+.primary-action {
+  background: #2f6f5e;
+  color: white;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.metric {
+  background: #fffaf0;
+  border: 1px solid rgba(58, 47, 26, 0.12);
+  border-radius: 8px;
+  padding: var(--space-md);
+  color: var(--amelie-text-dark);
+}
+
+.metric.danger {
+  border-color: rgba(172, 48, 43, 0.28);
+  background: #fff3f0;
+}
+
+.metric-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.metric-label {
+  color: #6a604d;
+  font-weight: 700;
+}
+
+.action-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin: var(--space-lg) 0;
+}
+
+.action-strip a {
+  background: #233b4a;
+  color: white;
+  border-radius: 8px;
+  padding: 0.9rem;
   text-align: center;
-  margin-bottom: var(--space-xl);
+  font-weight: 800;
 }
 
-.page-header h2 {
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-  color: var(--amelie-dark-brown);
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  align-items: baseline;
   margin-bottom: var(--space-sm);
 }
 
-.page-header p {
-  font-size: clamp(0.95rem, 3vw, 1.2rem);
-  color: var(--amelie-brown);
-}
-
-/* Cards — single column on mobile */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
-}
-
-/* Info section — stacked on mobile */
-.info-section {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-md);
-  margin-top: var(--space-xl);
-}
-
-.info-card {
-  background: white;
-  padding: var(--space-lg);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(108, 75, 13, 0.12);
-  border-left: 4px solid var(--amelie-orange);
-}
-
-.info-card h3 {
+.section-title h2 {
   font-size: 1.15rem;
-  color: var(--amelie-dark-brown);
-  margin-bottom: var(--space-sm);
 }
 
-.info-card p {
+.section-title span {
+  color: #6a604d;
+  font-size: 0.9rem;
+}
+
+.empty-panel,
+.hive-status {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(58, 47, 26, 0.12);
+  padding: var(--space-md);
+}
+
+.hive-status-list {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.hive-status {
+  display: grid;
+  grid-template-columns: 1fr;
   color: var(--amelie-text-dark);
-  line-height: 1.6;
-  font-size: 0.95rem;
 }
 
-.info-card ul {
-  list-style: none;
-  padding: 0;
+.hive-status span {
+  color: #6a604d;
 }
 
-.info-card li {
-  color: var(--amelie-text-dark);
-  padding: 0.4rem 0 0.4rem 1.5rem;
-  position: relative;
-  font-size: 0.95rem;
-}
-
-.info-card li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--amelie-orange);
-  font-weight: bold;
-}
-
-/* ── md: 2-column grid ──────────────────────────────────── */
-@media (min-width: 480px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .dashboard-page {
-    padding: var(--space-xl) var(--page-px);
+@media (min-width: 720px) {
+  .work-header h1 {
+    font-size: 3rem;
   }
 
-  .dashboard-grid {
+  .metric-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-xl);
   }
 
-  .info-section {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-xl);
+  .action-strip {
+    grid-template-columns: repeat(4, 1fr);
   }
 }

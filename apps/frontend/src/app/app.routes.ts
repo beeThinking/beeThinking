@@ -22,8 +22,33 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'beehives/:id/inspect',
+    loadComponent: () => import('./pages/hive-inspect/hive-inspect.component').then(m => m.HiveInspectComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'beehives/:id',
+    loadComponent: () => import('./pages/hive-detail/hive-detail.component').then(m => m.HiveDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'beehives',
     loadComponent: () => import('./pages/beehives/beehives.component').then(m => m.BeehivesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tasks',
+    loadComponent: () => import('./pages/tasks/tasks.component').then(m => m.TasksComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'harvests',
+    loadComponent: () => import('./pages/harvests/harvests.component').then(m => m.HarvestsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'treatments',
+    loadComponent: () => import('./pages/treatments/treatments.component').then(m => m.TreatmentsComponent),
     canActivate: [authGuard]
   },
   {
