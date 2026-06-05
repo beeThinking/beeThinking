@@ -101,6 +101,54 @@ class TestCreateInspection:
         assert data["weather"] == "Sunny"
         assert data["next_steps"] == "Check again next week"
 
+    def test_create_stores_weather_snapshot(self, authenticated_client, monkeypatch):
+        client, _ = authenticated_client
+        apiary = client.post(
+            "/api/apiaries",
+            json={"name": "Weather Apiary", "latitude": 48.1374, "longitude": 11.5755},
+        ).json()
+        hive = client.post("/api/hives", json={"name": "Weather Hive", "apiary_id": apiary["id"]}).json()
+
+        class Response:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {
+                    "current": {
+                        "temperature_2m": 21.4,
+                        "relative_humidity_2m": 58,
+                        "precipitation": 0,
+                        "weather_code": 2,
+                        "wind_speed_10m": 8.5,
+                    }
+                }
+
+        def fake_get(url, params, timeout):
+            assert url == "https://api.open-meteo.com/v1/forecast"
+            assert params["latitude"] == 48.1374
+            assert params["longitude"] == 11.5755
+            assert "temperature_2m" in params["current"]
+            return Response()
+
+        monkeypatch.setattr("app.services.inspection_weather.requests.get", fake_get)
+
+        response = client.post(
+            f"/api/hives/{hive['id']}/inspections",
+            json={"date": str(date.today()), "queen_seen": True},
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["weather"] == "Teilweise bewölkt · 21.4 °C · 58 % rF · Wind 8.5 km/h"
+        assert data["weather_temperature"] == 21.4
+        assert data["weather_humidity"] == 58
+        assert data["weather_wind_speed"] == 8.5
+        assert data["weather_precipitation"] == 0
+        assert data["weather_code"] == 2
+        assert data["weather_source"] == "open-meteo"
+        assert data["weather_fetched_at"] is not None
+
     def test_create_critical_inspection_creates_tasks(self, authenticated_client, hive):
         client, _ = authenticated_client
         response = client.post(

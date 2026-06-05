@@ -59,6 +59,7 @@ export class InspectionsComponent {
     brood_strength: [null as number | null, [Validators.min(1), Validators.max(10)]],
     varroa_count: [null as number | null, Validators.min(0)],
     food_stores: [null as number | null, [Validators.min(1), Validators.max(10)]],
+    weather: [''],
     notes: ['']
   });
 
@@ -91,6 +92,7 @@ export class InspectionsComponent {
       brood_strength: inspection.brood_strength,
       varroa_count: inspection.varroa_count,
       food_stores: inspection.food_stores,
+      weather: inspection.weather ?? '',
       notes: inspection.notes ?? ''
     });
     this.showForm.set(true);
@@ -116,6 +118,7 @@ export class InspectionsComponent {
         brood_strength: v.brood_strength ?? undefined,
         varroa_count: v.varroa_count ?? undefined,
         food_stores: v.food_stores ?? undefined,
+        weather: v.weather || undefined,
         notes: v.notes || undefined
       };
       this.inspectionService.updateInspection(hiveId, editing.id, update).subscribe({
@@ -134,6 +137,7 @@ export class InspectionsComponent {
         brood_strength: v.brood_strength ?? undefined,
         varroa_count: v.varroa_count ?? undefined,
         food_stores: v.food_stores ?? undefined,
+        weather: v.weather || undefined,
         notes: v.notes || undefined
       };
       this.inspectionService.createInspection(hiveId, create).subscribe({
@@ -214,6 +218,19 @@ export class InspectionsComponent {
     if (value === null) return '–';
     const labels = ['', 'Sehr schwach', 'Schwach', 'Schwach-mittel', 'Mittel', 'Mittel', 'Mittel-stark', 'Stark', 'Sehr stark', 'Sehr stark', 'Maximal'];
     return `${value}/10 ${labels[value] ?? ''}`;
+  }
+
+  protected weatherSummary(inspection: Inspection): string {
+    if (inspection.weather) return inspection.weather;
+    if (inspection.weather_temperature === null && inspection.weather_code === null) return '–';
+    const parts: string[] = [];
+    if (inspection.weather_temperature !== null) parts.push(`${inspection.weather_temperature.toFixed(1)} °C`);
+    if (inspection.weather_humidity !== null) parts.push(`${Math.round(inspection.weather_humidity)} % rF`);
+    if (inspection.weather_wind_speed !== null) parts.push(`Wind ${inspection.weather_wind_speed.toFixed(1)} km/h`);
+    if (inspection.weather_precipitation !== null && inspection.weather_precipitation > 0) {
+      parts.push(`Regen ${inspection.weather_precipitation.toFixed(1)} mm`);
+    }
+    return parts.join(' · ') || 'Wetter gespeichert';
   }
 
   protected formatBytes(value: number): string {

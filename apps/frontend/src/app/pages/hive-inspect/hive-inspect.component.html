@@ -34,7 +34,8 @@
       <label><input type="radio" value="strong" formControlName="strength" /> Stark</label>
     </div>
 
-    <label>Wetter <input formControlName="weather" /></label>
+    <label>Wetter-Notiz <input formControlName="weather" placeholder="Optional, wird sonst automatisch vom Standort ergänzt" /></label>
+    <p class="weather-hint">Beim Speichern wird das aktuelle Wetter vom Bienenstand gespeichert, wenn Koordinaten am Stand hinterlegt sind.</p>
     <label>Nächste Schritte <textarea formControlName="next_steps"></textarea></label>
     <label>Notizen <textarea formControlName="notes"></textarea></label>
 

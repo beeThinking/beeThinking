@@ -75,6 +75,12 @@
               </div>
 
               <div class="form-group">
+                <label for="weather">Wetter-Notiz</label>
+                <input id="weather" type="text" formControlName="weather" placeholder="Optional, sonst automatisch vom Standort" />
+                <span class="field-hint">Aktuelles Wetter wird beim Anlegen gespeichert, wenn der Bienenstand Koordinaten hat.</span>
+              </div>
+
+              <div class="form-group">
                 <label for="notes">Notizen</label>
                 <textarea id="notes" formControlName="notes" rows="3" placeholder="Beobachtungen, Maßnahmen..."></textarea>
               </div>
@@ -129,6 +135,13 @@
                     <span class="stat-value" [class.varroa-high]="inspection.varroa_count !== null && inspection.varroa_count > 3">
                       {{ inspection.varroa_count !== null ? inspection.varroa_count : '–' }}
                     </span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-label">Wetter</span>
+                    <span class="stat-value">{{ weatherSummary(inspection) }}</span>
+                    @if (inspection.weather_source) {
+                      <small>{{ inspection.weather_source }}</small>
+                    }
                   </div>
                 </div>
                 @if (inspection.notes) {

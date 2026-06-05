@@ -14,6 +14,13 @@ class InspectionBase(BaseModel):
     mood: HiveMood = HiveMood.normal
     strength: HiveStrength = HiveStrength.medium
     weather: Optional[str] = Field(None, max_length=200)
+    weather_temperature: Optional[float] = None
+    weather_humidity: Optional[float] = None
+    weather_wind_speed: Optional[float] = None
+    weather_precipitation: Optional[float] = None
+    weather_code: Optional[int] = None
+    weather_source: Optional[str] = Field(None, max_length=100)
+    weather_fetched_at: Optional[datetime] = None
     next_steps: Optional[str] = Field(None, max_length=2000)
     notes: Optional[str] = Field(None, max_length=2000)
 
@@ -32,6 +39,13 @@ class InspectionUpdate(BaseModel):
     mood: Optional[HiveMood] = None
     strength: Optional[HiveStrength] = None
     weather: Optional[str] = Field(None, max_length=200)
+    weather_temperature: Optional[float] = None
+    weather_humidity: Optional[float] = None
+    weather_wind_speed: Optional[float] = None
+    weather_precipitation: Optional[float] = None
+    weather_code: Optional[int] = None
+    weather_source: Optional[str] = Field(None, max_length=100)
+    weather_fetched_at: Optional[datetime] = None
     next_steps: Optional[str] = Field(None, max_length=2000)
     notes: Optional[str] = Field(None, max_length=2000)
 

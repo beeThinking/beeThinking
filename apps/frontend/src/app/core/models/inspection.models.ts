@@ -10,6 +10,13 @@ export interface Inspection {
   mood: 'calm' | 'normal' | 'aggressive';
   strength: 'weak' | 'medium' | 'strong';
   weather: string | null;
+  weather_temperature: number | null;
+  weather_humidity: number | null;
+  weather_wind_speed: number | null;
+  weather_precipitation: number | null;
+  weather_code: number | null;
+  weather_source: string | null;
+  weather_fetched_at: string | null;
   next_steps: string | null;
   notes: string | null;
   created_at: string;
@@ -25,6 +32,13 @@ export interface InspectionCreate {
   mood?: 'calm' | 'normal' | 'aggressive';
   strength?: 'weak' | 'medium' | 'strong';
   weather?: string;
+  weather_temperature?: number;
+  weather_humidity?: number;
+  weather_wind_speed?: number;
+  weather_precipitation?: number;
+  weather_code?: number;
+  weather_source?: string;
+  weather_fetched_at?: string;
   next_steps?: string;
   notes?: string;
 }
@@ -39,6 +53,13 @@ export interface InspectionUpdate {
   mood?: 'calm' | 'normal' | 'aggressive';
   strength?: 'weak' | 'medium' | 'strong';
   weather?: string;
+  weather_temperature?: number;
+  weather_humidity?: number;
+  weather_wind_speed?: number;
+  weather_precipitation?: number;
+  weather_code?: number;
+  weather_source?: string;
+  weather_fetched_at?: string;
   next_steps?: string;
   notes?: string;
 }

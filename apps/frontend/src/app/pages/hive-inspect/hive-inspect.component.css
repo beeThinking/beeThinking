@@ -90,3 +90,10 @@ button {
   border-color: rgba(133, 100, 4, 0.25);
   color: #856404;
 }
+
+.weather-hint {
+  color: #6b604f;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin-top: calc(var(--space-sm) * -1);
+}

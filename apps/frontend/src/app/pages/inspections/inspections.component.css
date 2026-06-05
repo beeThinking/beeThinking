@@ -133,6 +133,7 @@
 }
 .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--amelie-gold); box-shadow: 0 0 0 3px rgba(152,119,49,0.15); }
 .field-error  { font-size: 0.8rem; color: #c0392b; }
+.field-hint { color: #777; font-size: 0.78rem; line-height: 1.35; }
 .form-actions { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-lg); }
 .form-actions .btn { width: 100%; }
 
