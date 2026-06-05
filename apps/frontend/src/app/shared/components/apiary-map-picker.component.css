@@ -38,8 +38,11 @@
 }
 
 .apiary-map {
+  position: relative;
+  display: block;
   width: 100%;
-  min-height: 280px;
+  height: clamp(220px, 34vh, 320px);
+  min-height: 220px;
   overflow: hidden;
   border: 1px solid #d4c4a8;
   border-radius: 8px;
@@ -48,7 +51,19 @@
 }
 
 .apiary-map.is-readonly {
-  min-height: 320px;
+  height: clamp(260px, 38vh, 380px);
+  min-height: 260px;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #6f6148;
+  font-size: 0.9rem;
+  font-weight: 800;
+  z-index: 1;
 }
 
 .map-help {

@@ -9,7 +9,9 @@ import {
   OnDestroy,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  ChangeDetectorRef,
+  inject
 } from '@angular/core';
 
 import type * as Leaflet from 'leaflet';
@@ -26,6 +28,8 @@ export interface ApiaryPosition {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApiaryMapPickerComponent implements AfterViewInit, OnChanges, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   @Input() latitude: number | string | null | undefined = null;
   @Input() longitude: number | string | null | undefined = null;
   @Input() selectable = true;
@@ -38,37 +42,51 @@ export class ApiaryMapPickerComponent implements AfterViewInit, OnChanges, OnDes
   private leaflet?: typeof Leaflet;
   private map?: Leaflet.Map;
   private marker?: Leaflet.Marker;
+  private resizeObserver?: ResizeObserver;
+
+  protected isReady = false;
+  protected loadError = '';
 
   async ngAfterViewInit(): Promise<void> {
-    this.leaflet = await import('leaflet');
+    try {
+      const leafletModule = await import('leaflet');
+      this.leaflet = (leafletModule.default ?? leafletModule) as typeof Leaflet;
 
-    const position = this.currentPosition();
-    const center: Leaflet.LatLngExpression = position ?? [51.1657, 10.4515];
-    const zoom = position ? 14 : 6;
+      const position = this.currentPosition();
+      const center: Leaflet.LatLngExpression = position ?? [51.1657, 10.4515];
+      const zoom = position ? 14 : 6;
 
-    this.map = this.leaflet.map(this.mapContainer!.nativeElement, {
-      center,
-      zoom,
-      scrollWheelZoom: false,
-      zoomControl: true
-    });
+      this.map = this.leaflet.map(this.mapContainer!.nativeElement, {
+        center,
+        zoom,
+        scrollWheelZoom: false,
+        zoomControl: true
+      });
 
-    this.leaflet
-      .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap-Mitwirkende'
-      })
-      .addTo(this.map);
+      this.leaflet
+        .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap-Mitwirkende'
+        })
+        .addTo(this.map);
 
-    if (this.selectable) {
-      this.map.on('click', event => this.setPosition(event.latlng.lat, event.latlng.lng, true));
+      if (this.selectable) {
+        this.map.on('click', event => this.setPosition(event.latlng.lat, event.latlng.lng, true));
+      }
+
+      if (position) {
+        this.setPosition(position[0], position[1], false);
+      }
+
+      this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
+      this.resizeObserver.observe(this.mapContainer!.nativeElement);
+      this.isReady = true;
+      this.cdr.markForCheck();
+      [0, 100, 350].forEach(delay => setTimeout(() => this.map?.invalidateSize(), delay));
+    } catch {
+      this.loadError = 'Karte konnte nicht geladen werden.';
+      this.cdr.markForCheck();
     }
-
-    if (position) {
-      this.setPosition(position[0], position[1], false);
-    }
-
-    setTimeout(() => this.map?.invalidateSize(), 0);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -81,6 +99,7 @@ export class ApiaryMapPickerComponent implements AfterViewInit, OnChanges, OnDes
   }
 
   ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
     this.map?.remove();
   }
 

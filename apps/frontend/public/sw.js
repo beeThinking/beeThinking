@@ -1,4 +1,4 @@
-const CACHE_NAME = 'beethinking-app-v1';
+const CACHE_NAME = 'beethinking-app-v3';
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icons/icon.svg'];
 
 self.addEventListener('install', (event) => {

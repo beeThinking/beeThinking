@@ -5,7 +5,14 @@
       <button type="button" class="map-action" (click)="useBrowserPosition()">GPS übernehmen</button>
     }
   </div>
-  <div #mapContainer class="apiary-map" [class.is-readonly]="!selectable"></div>
+  <div #mapContainer class="apiary-map" [class.is-readonly]="!selectable">
+    @if (!isReady && !loadError) {
+      <span class="map-loading">Karte wird geladen...</span>
+    }
+    @if (loadError) {
+      <span class="map-loading">{{ loadError }}</span>
+    }
+  </div>
   @if (selectable) {
     <p class="map-help">Karte anklicken, um den Bienenstand zu markieren.</p>
   }

@@ -95,7 +95,7 @@
 .modal {
   background: #fff;
   border-radius: 16px 16px 0 0;
-  padding: var(--space-lg) var(--page-px) max(var(--space-lg), env(safe-area-inset-bottom));
+  padding: var(--space-lg) var(--page-px) 0;
   width: 100%;
   max-width: 760px;
   max-height: 92dvh;
@@ -124,7 +124,18 @@
 .form-group select:focus,
 .form-group textarea:focus { outline: none; border-color: var(--amelie-gold); box-shadow: 0 0 0 3px rgba(152,119,49,0.15); }
 .field-error  { font-size: 0.8rem; color: #c0392b; }
-.form-actions { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-lg); }
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-lg) calc(var(--page-px) * -1) 0;
+  padding: var(--space-md) var(--page-px) max(var(--space-md), env(safe-area-inset-bottom));
+  border-top: 1px solid #f0e8dc;
+  background: rgba(255, 250, 242, 0.96);
+  backdrop-filter: blur(10px);
+}
 .form-actions .btn { width: 100%; }
 
 @media (min-width: 480px) {
@@ -135,9 +146,16 @@
   .apiary-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
 
   .modal-overlay { align-items: center; padding: var(--space-lg); }
-  .modal { border-radius: 12px; padding: var(--space-xl); }
+  .modal { border-radius: 12px; padding: var(--space-xl) var(--space-xl) 0; }
 
   .form-row   { grid-template-columns: 1fr 1fr; }
-  .form-actions { flex-direction: row; justify-content: flex-end; }
+  .form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-right: calc(var(--space-xl) * -1);
+    margin-left: calc(var(--space-xl) * -1);
+    padding-right: var(--space-xl);
+    padding-left: var(--space-xl);
+  }
   .form-actions .btn { width: auto; }
 }
