@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "noreply@beethinking.com"
     EMAIL_CONFIRMATION_ENABLED: bool = False
 
+    # Object storage
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "beethinking"
+    MINIO_SECRET_KEY: str = "beethinking-minio-password"
+    MINIO_BUCKET: str = "beethinking-photos"
+    MINIO_SECURE: bool = False
+
     @model_validator(mode="after")
     def validate_production_security(self):
         insecure_secrets = {

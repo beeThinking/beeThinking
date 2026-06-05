@@ -10,6 +10,7 @@ alembic>=1.14.0
 sqlalchemy>=2.0.36
 uvicorn[standard]>=0.32.0
 requests>=2.31.0
+minio>=7.2.0
 
 # Testing Dependencies
 pytest>=7.4.0
@@ -18,4 +19,3 @@ pytest-cov>=4.1.0
 httpx>=0.24.0
 
 psycopg2-binary>=2.9.9
-
