@@ -7,6 +7,9 @@
   @if (errorMessage()) {
     <div class="alert">{{ errorMessage() }}</div>
   }
+  @if (draftMessage()) {
+    <div class="sync-state" [class.offline]="!isOnline()">{{ draftMessage() }}</div>
+  }
 
   <form [formGroup]="form" (ngSubmit)="save()">
     <label>Datum <input type="date" formControlName="date" /></label>
@@ -35,6 +38,6 @@
     <label>Nächste Schritte <textarea formControlName="next_steps"></textarea></label>
     <label>Notizen <textarea formControlName="notes"></textarea></label>
 
-    <button type="submit" [disabled]="saving()">Speichern</button>
+    <button type="submit" [disabled]="saving()">{{ isOnline() ? 'Speichern' : 'Entwurf behalten' }}</button>
   </form>
 </div>

@@ -112,10 +112,16 @@ Stand: 2026-06-05
   - [x] Frontend-Tests geprüft.
   - [x] Frontend-Build geprüft.
   - [x] CI um Migrationen und Compose-Config-Prüfungen erweitert.
+- [x] Phase 12: PWA und Offline-Entwürfe
+  - [x] Manifest und App-Icon ergänzt.
+  - [x] Service Worker für App-Shell und Navigations-Fallback ergänzt.
+  - [x] Mobile Durchsicht speichert Entwürfe lokal.
+  - [x] Entwurf wird beim erneuten Öffnen geladen.
+  - [x] Entwurf wird nach erfolgreichem Speichern gelöscht.
+  - [x] Nutzer sieht Online-/Offline- und Entwurfsstatus.
 
 ### Noch offen
 
-- [ ] Phase 12: PWA und Offline-Entwürfe.
 - [ ] Phase 17: Varroawetter-Provider und wetterbasierte Behandlungsfenster.
 - [ ] Phase 29: Volk-Lebenszyklus, Historie, Archivierung und Löschen.
 - [ ] PDF-Export-Felder für Behandlungsjournal aus Phase 17.

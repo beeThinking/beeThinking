@@ -74,3 +74,19 @@ button {
   padding: var(--space-md);
   margin-bottom: var(--space-md);
 }
+
+.sync-state {
+  background: #edf7f2;
+  border: 1px solid rgba(47, 111, 94, 0.2);
+  border-radius: 8px;
+  color: #2f6f5e;
+  font-weight: 800;
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+}
+
+.sync-state.offline {
+  background: #fff3cd;
+  border-color: rgba(133, 100, 4, 0.25);
+  color: #856404;
+}
