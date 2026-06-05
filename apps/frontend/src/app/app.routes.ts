@@ -27,6 +27,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'hives/archive',
+    loadComponent: () => import('./pages/hive-archive/hive-archive.component').then(m => m.HiveArchiveComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'beehives/:id/inspect',
     loadComponent: () => import('./pages/hive-inspect/hive-inspect.component').then(m => m.HiveInspectComponent),
     canActivate: [authGuard]

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, combineLatest, forkJoin, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { PhotoWithPreview } from '../../core/models/beekeeping.models';
+import { HiveEvent } from '../../core/models/hive.models';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 
@@ -28,6 +29,9 @@ export class HiveDetailComponent {
   protected readonly timeline = toSignal(this.route.paramMap.pipe(
     switchMap(params => this.hiveService.getHiveTimeline(Number(params.get('id'))))
   ), { initialValue: [] });
+  protected readonly history = toSignal(this.route.paramMap.pipe(
+    switchMap(params => this.hiveService.getHiveHistory(Number(params.get('id'))))
+  ), { initialValue: [] as HiveEvent[] });
   protected readonly photos = toSignal(combineLatest([
     this.route.paramMap,
     this.photoRefresh$.pipe(startWith(undefined))
@@ -52,6 +56,10 @@ export class HiveDetailComponent {
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly uploadError = signal('');
   protected readonly uploadPending = signal(false);
+  protected readonly lifecycleError = signal('');
+  protected readonly lifecycleDate = signal(new Date().toISOString().slice(0, 10));
+  protected readonly lifecycleNote = signal('');
+  protected readonly mergeTargetId = signal<number | null>(null);
 
   protected formatDate(value: string): string {
     return new Date(value).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -103,6 +111,45 @@ export class HiveDetailComponent {
     this.beekeepingService.deletePhoto(photo.id).subscribe({
       next: () => this.photoRefresh$.next(),
       error: () => this.uploadError.set('Foto konnte nicht gelöscht werden.')
+    });
+  }
+
+  protected archiveHive(): void {
+    this.hiveService.archiveHive(this.hiveId(), {
+      reason: 'archived',
+      date: this.lifecycleDate(),
+      note: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: () => window.location.reload(),
+      error: () => this.lifecycleError.set('Volk konnte nicht archiviert werden.')
+    });
+  }
+
+  protected dissolveHive(reason: string): void {
+    this.hiveService.dissolveHive(this.hiveId(), {
+      reason,
+      date: this.lifecycleDate(),
+      note: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: () => window.location.reload(),
+      error: () => this.lifecycleError.set('Volk konnte nicht aufgelöst werden.')
+    });
+  }
+
+  protected mergeHive(): void {
+    const target = this.mergeTargetId();
+    if (!target) {
+      this.lifecycleError.set('Zielvolk fehlt.');
+      return;
+    }
+    this.hiveService.mergeHive(this.hiveId(), {
+      reason: 'merged',
+      date: this.lifecycleDate(),
+      note: this.lifecycleNote() || undefined,
+      target_hive_id: target
+    }).subscribe({
+      next: () => window.location.reload(),
+      error: () => this.lifecycleError.set('Völker konnten nicht vereinigt werden.')
     });
   }
 }

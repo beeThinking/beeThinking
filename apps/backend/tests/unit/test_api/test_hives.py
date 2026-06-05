@@ -175,3 +175,58 @@ class TestDeleteHive:
 
         assert response.status_code == 404
         assert db.get(Hive, other_hive.id) is not None
+
+    def test_hard_delete_rejects_hive_with_history(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        created = client.post("/api/hives", json={"name": "History Hive", "apiary_id": apiary["id"]}).json()
+        client.post(f"/api/hives/{created['id']}/inspections", json={"date": "2026-06-05", "queen_seen": True})
+
+        response = client.delete(f"/api/hives/{created['id']}")
+
+        assert response.status_code == 409
+
+
+@pytest.mark.unit
+class TestHiveLifecycle:
+    def test_archive_hive_moves_it_out_of_active_list(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        created = client.post("/api/hives", json={"name": "Archive Hive", "apiary_id": apiary["id"]}).json()
+
+        response = client.post(
+            f"/api/hives/{created['id']}/archive",
+            json={"reason": "season done", "date": "2026-06-05", "note": "archive"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["is_active"] is False
+        assert response.json()["status"] == "archived"
+        assert all(item["id"] != created["id"] for item in client.get("/api/hives").json())
+        assert any(item["id"] == created["id"] for item in client.get("/api/hives?status=archived").json())
+        history = client.get(f"/api/hives/{created['id']}/history").json()
+        assert any(event["event_type"] == "archived" for event in history)
+
+    def test_merge_hive_links_source_and_target(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        source = client.post("/api/hives", json={"name": "Source", "apiary_id": apiary["id"]}).json()
+        target = client.post("/api/hives", json={"name": "Target", "apiary_id": apiary["id"]}).json()
+
+        response = client.post(
+            f"/api/hives/{source['id']}/merge",
+            json={"reason": "merged", "date": "2026-06-05", "target_hive_id": target["id"]},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "merged"
+        assert response.json()["merged_into_hive_id"] == target["id"]
+        target_history = client.get(f"/api/hives/{target['id']}/history").json()
+        assert any(event["event_type"] == "merge_received" for event in target_history)
+
+    def test_yearly_report_can_include_archived_losses(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        created = client.post("/api/hives", json={"name": "Loss Hive", "apiary_id": apiary["id"]}).json()
+        client.post(f"/api/hives/{created['id']}/dissolve", json={"reason": "dead", "date": "2026-06-05"})
+
+        report = client.get("/api/reports/yearly?year=2026&include_archived=true")
+
+        assert report.status_code == 200
+        assert report.json()["losses"] == 1

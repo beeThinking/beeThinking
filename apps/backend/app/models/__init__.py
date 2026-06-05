@@ -1,6 +1,7 @@
 from app.models.apiary import Apiary
 from app.models.harvest import Harvest
 from app.models.hive import Hive, HiveStatus, HiveType
+from app.models.hive_event import HiveEvent
 from app.models.inspection import HiveMood, HiveStrength, Inspection, SwarmCells
 from app.models.photo import Photo
 from app.models.queen import Queen
@@ -15,6 +16,7 @@ __all__ = [
     "Hive",
     "HiveStatus",
     "HiveType",
+    "HiveEvent",
     "HiveMood",
     "HiveStrength",
     "Inspection",

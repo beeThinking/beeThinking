@@ -2,7 +2,10 @@
   <header class="page-header">
     <div class="header-row">
       <h1>Bienenstöcke</h1>
-      <button class="btn btn-primary" (click)="openCreateForm()">+ Neuer Bienenstock</button>
+      <div class="header-actions">
+        <a class="btn btn-secondary" routerLink="/hives/archive">Archiv</a>
+        <button class="btn btn-primary" (click)="openCreateForm()">+ Neuer Bienenstock</button>
+      </div>
     </div>
   </header>
 

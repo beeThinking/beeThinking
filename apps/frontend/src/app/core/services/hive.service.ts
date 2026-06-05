@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Hive, HiveCreate, HiveUpdate } from '../models/hive.models';
+import { Hive, HiveCreate, HiveEvent, HiveLifecycleRequest, HiveStatus, HiveUpdate } from '../models/hive.models';
 import { TimelineEvent, VarroaAssistant, VarroaTreatmentType } from '../models/beekeeping.models';
 
 @Injectable({
@@ -10,8 +10,8 @@ import { TimelineEvent, VarroaAssistant, VarroaTreatmentType } from '../models/b
 export class HiveService {
   private readonly api = inject(ApiService);
 
-  getHives(): Observable<Hive[]> {
-    return this.api.get<Hive[]>('/api/hives');
+  getHives(status: HiveStatus = 'active'): Observable<Hive[]> {
+    return this.api.get<Hive[]>(`/api/hives?status=${status}`);
   }
 
   getHive(id: number): Observable<Hive> {
@@ -20,6 +20,10 @@ export class HiveService {
 
   getHiveTimeline(id: number): Observable<TimelineEvent[]> {
     return this.api.get<TimelineEvent[]>(`/api/hives/${id}/timeline`);
+  }
+
+  getHiveHistory(id: number): Observable<HiveEvent[]> {
+    return this.api.get<HiveEvent[]>(`/api/hives/${id}/history`);
   }
 
   getVarroaAssistant(id: number, treatmentType: VarroaTreatmentType = 'formic_acid_short'): Observable<VarroaAssistant> {
@@ -36,5 +40,17 @@ export class HiveService {
 
   deleteHive(id: number): Observable<void> {
     return this.api.delete<void>(`/api/hives/${id}`);
+  }
+
+  archiveHive(id: number, payload: HiveLifecycleRequest): Observable<Hive> {
+    return this.api.post<Hive>(`/api/hives/${id}/archive`, payload);
+  }
+
+  dissolveHive(id: number, payload: HiveLifecycleRequest): Observable<Hive> {
+    return this.api.post<Hive>(`/api/hives/${id}/dissolve`, payload);
+  }
+
+  mergeHive(id: number, payload: HiveLifecycleRequest): Observable<Hive> {
+    return this.api.post<Hive>(`/api/hives/${id}/merge`, payload);
   }
 }

@@ -13,6 +13,33 @@
       <section class="notes">{{ hive.notes }}</section>
     }
 
+    <section class="lifecycle-panel">
+      <div class="section-heading">
+        <div>
+          <h2>Lebenszyklus</h2>
+          <p>Archivieren ist Standard. Endgültiges Löschen nur für Fehleingaben ohne Historie.</p>
+        </div>
+      </div>
+      @if (lifecycleError()) { <p class="form-error">{{ lifecycleError() }}</p> }
+      <div class="lifecycle-grid">
+        <label>Datum
+          <input type="date" [ngModel]="lifecycleDate()" (ngModelChange)="lifecycleDate.set($event)">
+        </label>
+        <label>Notiz
+          <input [ngModel]="lifecycleNote()" (ngModelChange)="lifecycleNote.set($event)" placeholder="Grund oder Kontext">
+        </label>
+        <label>Zielvolk ID
+          <input type="number" [ngModel]="mergeTargetId()" (ngModelChange)="mergeTargetId.set($event ? +$event : null)">
+        </label>
+      </div>
+      <div class="lifecycle-actions">
+        <button type="button" (click)="archiveHive()">Archivieren</button>
+        <button type="button" (click)="dissolveHive('dead')">Tot melden</button>
+        <button type="button" (click)="dissolveHive('sold')">Verkauft</button>
+        <button type="button" (click)="mergeHive()">Vereinigen</button>
+      </div>
+    </section>
+
     <section class="photo-panel">
       <div class="section-heading">
         <div>
@@ -70,6 +97,15 @@
 
     <section class="timeline">
       <h2>Timeline</h2>
+      @for (event of history(); track event.id) {
+        <article class="event event-history">
+          <span class="event-date">{{ formatDate(event.event_date) }}</span>
+          <div>
+            <h3>{{ event.title }}</h3>
+            @if (event.description) { <p>{{ event.description }}</p> }
+          </div>
+        </article>
+      }
       @for (event of timeline(); track event.type + event.id) {
         <article class="event event-{{ event.type }}">
           <span class="event-date">{{ formatDate(event.date) }}</span>

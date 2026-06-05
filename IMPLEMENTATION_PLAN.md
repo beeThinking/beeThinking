@@ -131,11 +131,22 @@ Stand: 2026-06-05
   - [x] Behandlungsjournal-Export enthält Wetterfelder.
   - [x] Sicherheitshinweis als Planungshilfe sichtbar.
   - [x] Unit- und API-Tests ergänzt.
+- [x] Phase 29: Volk-Lebenszyklus, Historie, Archivierung und Löschen
+  - [x] Hive-Status um Archiv-, Auflösungs-, Verkaufs-, Verlust- und Fehleingabe-Zustände erweitert.
+  - [x] Archivfelder `is_active`, `archived_at` und `merged_into_hive_id` ergänzt.
+  - [x] `hive_events` als zentrale Timeline/Historie ergänzt.
+  - [x] Backend-Services für Archivieren, Auflösen, Vereinigen und sicheres Löschen gebaut.
+  - [x] Standardlisten zeigen nur aktive Völker.
+  - [x] Archivierte Völker über Archivansicht abrufbar.
+  - [x] Auflösen und Vereinigen archivieren Quellvölker automatisch.
+  - [x] Hartes Löschen blockiert Völker mit Fachhistorie.
+  - [x] Frontend-Archivansicht und Historie auf Volkdetail ergänzt.
+  - [x] Jahresreport kann archivierte Völker einbeziehen.
+  - [x] API-Tests für Archivieren, Vereinigen, Löschschutz und Jahresreport ergänzt.
 
 ### Noch offen
 
-- [ ] Phase 29: Volk-Lebenszyklus, Historie, Archivierung und Löschen.
-- [ ] Reports/Jahresberichte mit archivierten Völkern aus Phase 29.
+Keine offenen Planpunkte.
 
 ---
 

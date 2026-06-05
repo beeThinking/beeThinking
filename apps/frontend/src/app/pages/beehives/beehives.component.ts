@@ -30,7 +30,7 @@ export class BeehivesComponent {
   protected readonly editingHive = signal<Hive | null>(null);
 
   protected readonly hiveTypes: HiveType[] = ['langstroth', 'dadant', 'zander', 'other'];
-  protected readonly hiveStatuses: HiveStatus[] = ['active', 'inactive', 'lost'];
+  protected readonly hiveStatuses: HiveStatus[] = ['active', 'inactive', 'lost', 'created_by_mistake'];
 
   protected readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
@@ -116,7 +116,17 @@ export class BeehivesComponent {
   }
 
   protected statusLabel(status: HiveStatus): string {
-    return { active: 'Active', inactive: 'Inactive', lost: 'Lost' }[status];
+    return {
+      active: 'Aktiv',
+      archived: 'Archiviert',
+      dissolved: 'Aufgelöst',
+      merged: 'Vereinigt',
+      sold: 'Verkauft',
+      dead: 'Tot',
+      inactive: 'Inaktiv',
+      lost: 'Verloren',
+      created_by_mistake: 'Fehleingabe'
+    }[status];
   }
 
   protected typeLabel(type: HiveType): string {
