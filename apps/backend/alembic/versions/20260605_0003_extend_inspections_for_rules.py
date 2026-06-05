@@ -20,6 +20,10 @@ hive_strength = sa.Enum("weak", "medium", "strong", name="hivestrength")
 
 
 def upgrade() -> None:
+    if op.get_context().dialect.name != "sqlite":
+        swarm_cells.create(op.get_bind(), checkfirst=True)
+        hive_mood.create(op.get_bind(), checkfirst=True)
+        hive_strength.create(op.get_bind(), checkfirst=True)
     op.add_column("inspections", sa.Column("swarm_cells", swarm_cells, nullable=False, server_default="none"))
     op.add_column("inspections", sa.Column("mood", hive_mood, nullable=False, server_default="normal"))
     op.add_column("inspections", sa.Column("strength", hive_strength, nullable=False, server_default="medium"))
