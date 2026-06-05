@@ -55,7 +55,10 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and set your SECRET_KEY
 
-# 4. Start server
+# 4. Apply database migrations
+alembic upgrade head
+
+# 5. Start server
 uvicorn app.main:app --reload
 ```
 
@@ -150,6 +153,23 @@ curl http://localhost:8000/api/users/me \
 ```
 
 ## 🗄️ Database Setup
+
+### Migrations
+
+BeeThinking uses Alembic for database schema migrations. Run these commands from `apps/backend`:
+
+```bash
+# Apply all pending migrations
+alembic upgrade head
+
+# Create a new migration after model changes
+alembic revision --autogenerate -m "describe change"
+
+# Show the current database revision
+alembic current
+```
+
+The Docker backend startup runs `alembic upgrade head` before FastAPI starts. The application does not create tables at import time.
 
 ### SQLite (Development - Default)
 
@@ -648,4 +668,3 @@ Developed with ☕ and 🐝 for the BeeThinking project.
 ---
 
 **Happy coding! 🐝✨**
-

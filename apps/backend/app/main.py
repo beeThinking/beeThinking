@@ -1,16 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.db.database import engine, Base
 from app.api import auth, users, hives, inspections, apiaries
-from app.models import hive as _hive_model  # noqa: F401
-from app.models import inspection as _inspection_model  # noqa: F401
-from app.models import apiary as _apiary_model  # noqa: F401
 
 settings = get_settings()
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(

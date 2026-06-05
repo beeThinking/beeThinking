@@ -40,6 +40,10 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
+# Run database migrations
+echo "Running database migrations..."
+alembic upgrade head
+echo ""
+
 # Start the server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-

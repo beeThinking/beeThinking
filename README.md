@@ -51,6 +51,7 @@ docker-compose up
 cd apps/backend
 cp .env.example .env        # configure SECRET_KEY and DATABASE_URL
 pip install -r requirements.txt
+alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
@@ -82,3 +83,14 @@ There are no pre-seeded demo accounts. Create your account on the Register page 
 | Password | `MyBees2025!`      |
 
 After registering you are redirected to the login page (`/login`) and can sign in immediately.
+
+## Database Migrations
+
+The backend uses Alembic for schema migrations. Run migration commands from `apps/backend`:
+
+```bash
+alembic upgrade head
+alembic revision --autogenerate -m "describe change"
+```
+
+The Docker backend container runs `alembic upgrade head` before starting FastAPI.
