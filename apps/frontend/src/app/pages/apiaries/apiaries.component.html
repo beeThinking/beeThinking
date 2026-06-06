@@ -1,8 +1,8 @@
 <div class="page-container">
   <header class="page-header">
     <div class="header-row">
-      <h1>Bienenstände</h1>
-      <button class="btn btn-primary" (click)="openCreateForm()">+ Neuer Stand</button>
+      <h1>{{ 'apiaries.title' | translate }}</h1>
+      <button class="btn btn-primary" (click)="openCreateForm()">{{ 'apiaries.add' | translate }}</button>
     </div>
   </header>
 
@@ -11,22 +11,22 @@
   }
 
   @if (showForm()) {
-    <div class="modal-overlay" role="button" tabindex="0" aria-label="Formular schließen" (click)="closeForm()" (keydown.enter)="closeForm()">
+    <div class="modal-overlay" role="button" tabindex="0" [attr.aria-label]="'common.modalClose' | translate" (click)="closeForm()" (keydown.enter)="closeForm()">
       <div class="modal" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-        <h2>{{ editingApiary() ? 'Stand bearbeiten' : 'Neuer Stand' }}</h2>
+        <h2>{{ (editingApiary() ? 'apiaries.form.edit' : 'apiaries.form.create') | translate }}</h2>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="name">Name *</label>
-            <input id="name" type="text" formControlName="name" placeholder="z.B. Garten-Stand" />
+            <label for="name">{{ 'apiaries.form.name' | translate }}</label>
+            <input id="name" type="text" formControlName="name" [placeholder]="'apiaries.form.namePlaceholder' | translate" />
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
-              <span class="field-error">Name ist erforderlich.</span>
+              <span class="field-error">{{ 'apiaries.form.nameRequired' | translate }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label for="address">Adresse</label>
-            <input id="address" type="text" formControlName="address" placeholder="z.B. Waldweg 1, 12345 Musterstadt" />
+            <label for="address">{{ 'apiaries.form.address' | translate }}</label>
+            <input id="address" type="text" formControlName="address" [placeholder]="'apiaries.form.addressPlaceholder' | translate" />
           </div>
 
           <div class="form-group">
@@ -38,31 +38,31 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="latitude">Breitengrad</label>
-              <input id="latitude" type="number" formControlName="latitude" placeholder="z.B. 48.1374" step="0.000001" />
+              <label for="latitude">{{ 'apiaries.form.latitude' | translate }}</label>
+              <input id="latitude" type="number" formControlName="latitude" [placeholder]="'apiaries.form.latitudePlaceholder' | translate" step="0.000001" />
               @if (form.get('latitude')?.invalid && form.get('latitude')?.touched) {
-                <span class="field-error">Ungültiger Wert (−90 bis 90).</span>
+                <span class="field-error">{{ 'apiaries.form.latitudeError' | translate }}</span>
               }
             </div>
 
             <div class="form-group">
-              <label for="longitude">Längengrad</label>
-              <input id="longitude" type="number" formControlName="longitude" placeholder="z.B. 11.5755" step="0.000001" />
+              <label for="longitude">{{ 'apiaries.form.longitude' | translate }}</label>
+              <input id="longitude" type="number" formControlName="longitude" [placeholder]="'apiaries.form.longitudePlaceholder' | translate" step="0.000001" />
               @if (form.get('longitude')?.invalid && form.get('longitude')?.touched) {
-                <span class="field-error">Ungültiger Wert (−180 bis 180).</span>
+                <span class="field-error">{{ 'apiaries.form.longitudeError' | translate }}</span>
               }
             </div>
           </div>
 
           <div class="form-group">
-            <label for="notes">Notizen</label>
-            <textarea id="notes" formControlName="notes" rows="3" placeholder="Optionale Anmerkungen..."></textarea>
+            <label for="notes">{{ 'apiaries.form.notes' | translate }}</label>
+            <textarea id="notes" formControlName="notes" rows="3" [placeholder]="'apiaries.form.notesPlaceholder' | translate"></textarea>
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" (click)="closeForm()">Abbrechen</button>
+            <button type="button" class="btn btn-secondary" (click)="closeForm()">{{ 'apiaries.form.cancel' | translate }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
-              {{ editingApiary() ? 'Speichern' : 'Anlegen' }}
+              {{ (editingApiary() ? 'apiaries.form.save' : 'apiaries.form.create.submit') | translate }}
             </button>
           </div>
         </form>
@@ -71,11 +71,11 @@
   }
 
   @if (isLoading()) {
-    <div class="loading">Lade Bienenstände...</div>
+    <div class="loading">{{ 'apiaries.loading' | translate }}</div>
   } @else if (apiaries().length === 0) {
     <div class="empty-state">
-      <p>Noch keine Bienenstände angelegt.</p>
-      <button class="btn btn-primary" (click)="openCreateForm()">Ersten Stand anlegen</button>
+      <p>{{ 'apiaries.empty' | translate }}</p>
+      <button class="btn btn-primary" (click)="openCreateForm()">{{ 'apiaries.empty.cta' | translate }}</button>
     </div>
   } @else {
     <div class="apiary-grid">
@@ -83,15 +83,15 @@
         <div class="apiary-card">
           <div class="apiary-card-header">
             <h3>{{ apiary.name }}</h3>
-            <span class="hive-count">{{ apiary.hive_count }} Volk{{ apiary.hive_count !== 1 ? 'en' : '' }}</span>
+            <span class="hive-count">{{ hiveCountLabel(apiary.hive_count) }}</span>
           </div>
           <div class="apiary-card-body">
             @if (apiary.address) {
-              <p class="apiary-meta"><span class="label">Adresse</span> {{ apiary.address }}</p>
+              <p class="apiary-meta"><span class="label">{{ 'apiaries.meta.address' | translate }}</span> {{ apiary.address }}</p>
             }
             @if (apiary.latitude !== null && apiary.longitude !== null) {
               <p class="apiary-meta">
-                <span class="label">GPS</span>
+                <span class="label">{{ 'apiaries.meta.gps' | translate }}</span>
                 {{ apiary.latitude | number:'1.4-4' }}, {{ apiary.longitude | number:'1.4-4' }}
               </p>
             }
@@ -100,9 +100,9 @@
             }
           </div>
           <div class="apiary-card-actions">
-            <a class="btn btn-sm btn-primary" [routerLink]="['/apiaries', apiary.id]">Details</a>
-            <button class="btn btn-sm btn-secondary" (click)="openEditForm(apiary)">Bearbeiten</button>
-            <button class="btn btn-sm btn-danger" (click)="deleteApiary(apiary)">Löschen</button>
+            <a class="btn btn-sm btn-primary" [routerLink]="['/apiaries', apiary.id]">{{ 'apiaries.details' | translate }}</a>
+            <button class="btn btn-sm btn-secondary" (click)="openEditForm(apiary)">{{ 'apiaries.edit' | translate }}</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteApiary(apiary)">{{ 'apiaries.delete' | translate }}</button>
           </div>
         </div>
       }

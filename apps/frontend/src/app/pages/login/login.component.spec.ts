@@ -103,8 +103,8 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Username is required');
-    expect(element.textContent).toContain('Password is required');
+    expect(element.textContent).toContain('Benutzername ist erforderlich');
+    expect(element.textContent).toContain('Passwort ist erforderlich');
   });
 
   it('should show loading state while login request is pending', () => {
@@ -121,7 +121,7 @@ describe('LoginComponent', () => {
     const submitButton = element.querySelector('button[type="submit"]') as HTMLButtonElement;
 
     expect(submitButton.disabled).toBe(true);
-    expect(submitButton.textContent).toContain('Signing in...');
+    expect(submitButton.textContent).toContain('Anmeldung läuft...');
 
     pendingLogin$.complete();
   });

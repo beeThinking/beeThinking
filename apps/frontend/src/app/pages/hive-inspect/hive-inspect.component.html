@@ -1,7 +1,7 @@
 <div class="inspect-page">
   <header>
-    <p class="eyebrow">Mobile Durchsicht</p>
-    <h1>Volk prüfen</h1>
+    <p class="eyebrow">{{ 'inspect.eyebrow' | translate }}</p>
+    <h1>{{ 'inspect.title' | translate }}</h1>
   </header>
 
   @if (errorMessage()) {
@@ -12,33 +12,33 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="save()">
-    <label>Datum <input type="date" formControlName="date" /></label>
-    <label class="toggle"><input type="checkbox" formControlName="queen_seen" /> Königin gesehen</label>
+    <label>{{ 'inspect.form.date' | translate }} <input type="date" formControlName="date" /></label>
+    <label class="toggle"><input type="checkbox" formControlName="queen_seen" /> {{ 'inspect.form.queenSeen' | translate }}</label>
 
     <div class="control-grid">
-      <label>Futter <input type="number" min="1" max="10" formControlName="food_stores" /></label>
+      <label>{{ 'inspect.form.food' | translate }} <input type="number" min="1" max="10" formControlName="food_stores" /></label>
       <label>Varroa <input type="number" min="0" step="0.1" formControlName="varroa_count" /></label>
     </div>
 
-    <label>Schwarmzellen
+    <label>{{ 'inspect.form.swarmCells' | translate }}
       <select formControlName="swarm_cells">
-        <option value="none">Keine</option>
-        <option value="play_cups">Spielnäpfchen</option>
-        <option value="queen_cells">Weiselzellen</option>
+        <option value="none">{{ 'inspect.swarm.none' | translate }}</option>
+        <option value="play_cups">{{ 'inspect.swarm.playCups' | translate }}</option>
+        <option value="queen_cells">{{ 'inspect.swarm.queenCells' | translate }}</option>
       </select>
     </label>
 
     <div class="segmented">
-      <label><input type="radio" value="weak" formControlName="strength" /> Schwach</label>
-      <label><input type="radio" value="medium" formControlName="strength" /> Mittel</label>
-      <label><input type="radio" value="strong" formControlName="strength" /> Stark</label>
+      <label><input type="radio" value="weak" formControlName="strength" /> {{ 'inspect.strength.weak' | translate }}</label>
+      <label><input type="radio" value="medium" formControlName="strength" /> {{ 'inspect.strength.medium' | translate }}</label>
+      <label><input type="radio" value="strong" formControlName="strength" /> {{ 'inspect.strength.strong' | translate }}</label>
     </div>
 
-    <label>Wetter-Notiz <input formControlName="weather" placeholder="Optional, wird sonst automatisch vom Standort ergänzt" /></label>
-    <p class="weather-hint">Beim Speichern wird das aktuelle Wetter vom Bienenstand gespeichert, wenn Koordinaten am Stand hinterlegt sind.</p>
-    <label>Nächste Schritte <textarea formControlName="next_steps"></textarea></label>
-    <label>Notizen <textarea formControlName="notes"></textarea></label>
+    <label>{{ 'inspect.form.weather' | translate }} <input formControlName="weather" [placeholder]="'inspect.form.weatherPlaceholder' | translate" /></label>
+    <p class="weather-hint">{{ 'inspect.form.weatherHint' | translate }}</p>
+    <label>{{ 'inspect.form.nextSteps' | translate }} <textarea formControlName="next_steps"></textarea></label>
+    <label>{{ 'inspect.form.notes' | translate }} <textarea formControlName="notes"></textarea></label>
 
-    <button type="submit" [disabled]="saving()">{{ isOnline() ? 'Speichern' : 'Entwurf behalten' }}</button>
+    <button type="submit" [disabled]="saving()">{{ (isOnline() ? 'inspect.save' : 'inspect.keepDraft') | translate }}</button>
   </form>
 </div>

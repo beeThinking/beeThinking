@@ -2,17 +2,17 @@
   @if (apiary(); as apiary) {
     <header class="detail-header">
       <div>
-        <p class="eyebrow">Standort</p>
+        <p class="eyebrow">{{ 'apiaryDetail.eyebrow' | translate }}</p>
         <h1>{{ apiary.name }}</h1>
         @if (apiary.address) { <p>{{ apiary.address }}</p> }
       </div>
-      <a class="primary-action" routerLink="/beehives">Volk anlegen</a>
+      <a class="primary-action" routerLink="/beehives">{{ 'apiaryDetail.createHive' | translate }}</a>
     </header>
 
     <section class="facts">
-      <div><span>Völker</span><strong>{{ apiaryHives().length }}</strong></div>
-      <div><span>Breitengrad</span><strong>{{ apiary.latitude ?? 0 | number:'1.4-4' }}</strong></div>
-      <div><span>Längengrad</span><strong>{{ apiary.longitude ?? 0 | number:'1.4-4' }}</strong></div>
+      <div><span>{{ 'apiaryDetail.hives' | translate }}</span><strong>{{ apiaryHives().length }}</strong></div>
+      <div><span>{{ 'apiaryDetail.latitude' | translate }}</span><strong>{{ apiary.latitude ?? 0 | number:'1.4-4' }}</strong></div>
+      <div><span>{{ 'apiaryDetail.longitude' | translate }}</span><strong>{{ apiary.longitude ?? 0 | number:'1.4-4' }}</strong></div>
     </section>
 
     @if (apiary.notes) {
@@ -22,22 +22,22 @@
     @if (apiary.latitude !== null && apiary.longitude !== null) {
       <section class="map-panel">
         <app-apiary-map-picker
-          label="Standort auf OpenStreetMap"
+          [label]="'apiaryDetail.mapLabel' | translate"
           [selectable]="false"
           [latitude]="apiary.latitude"
           [longitude]="apiary.longitude" />
       </section>
     } @else {
-      <section class="empty-panel">Noch keine Kartenposition hinterlegt. Stand bearbeiten und Position auf der Karte setzen.</section>
+      <section class="empty-panel">{{ 'apiaryDetail.noMap' | translate }}</section>
     }
 
     <section class="weather-panel">
       <div class="section-title">
         <div>
-          <h2>Varroa-Wetter</h2>
-          <p>Planungshilfe. Zulassung, Packungsbeilage, regionale Empfehlungen und Volkzustand prüfen.</p>
+          <h2>{{ 'apiaryDetail.weatherTitle' | translate }}</h2>
+          <p>{{ 'apiaryDetail.weatherHelp' | translate }}</p>
         </div>
-        <button type="button" class="secondary-action" [disabled]="weatherLoading()" (click)="refreshWeather()">Aktualisieren</button>
+        <button type="button" class="secondary-action" [disabled]="weatherLoading()" (click)="refreshWeather()">{{ 'apiaryDetail.refresh' | translate }}</button>
       </div>
       <div class="treatment-tabs">
         @for (option of treatmentOptions; track option.value) {
@@ -45,7 +45,7 @@
             type="button"
             [class.active]="selectedTreatment() === option.value"
             (click)="loadTreatment(option.value)">
-            {{ option.label }}
+            {{ option.labelKey | translate }}
           </button>
         }
       </div>
@@ -61,20 +61,20 @@
                 {{ window.min_temperature | number:'1.0-0' }}-{{ window.max_temperature | number:'1.0-0' }} °C
               }
               @if (window.precipitation_probability !== null) {
-                · Regen {{ window.precipitation_probability | number:'1.0-0' }} %
+                · {{ 'apiaryDetail.rain' | translate: { n: (window.precipitation_probability | number:'1.0-0') ?? '' } }}
               }
             </small>
           </article>
         } @empty {
-          <div class="empty-panel">Keine Wetterfenster verfügbar. Standortkoordinaten prüfen.</div>
+          <div class="empty-panel">{{ 'apiaryDetail.weatherEmpty' | translate }}</div>
         }
       </div>
     </section>
 
     <section>
       <div class="section-title">
-        <h2>Völker am Stand</h2>
-        <a routerLink="/beehives">Alle Völker</a>
+        <h2>{{ 'apiaryDetail.hivesAtApiary' | translate }}</h2>
+        <a routerLink="/beehives">{{ 'apiaryDetail.allHives' | translate }}</a>
       </div>
       <div class="hive-list">
         @for (hive of apiaryHives(); track hive.id) {
@@ -83,11 +83,11 @@
             <small>{{ hive.type }} · {{ hive.status }}</small>
           </a>
         } @empty {
-          <div class="empty-panel">Noch keine Völker an diesem Standort.</div>
+          <div class="empty-panel">{{ 'apiaryDetail.noHives' | translate }}</div>
         }
       </div>
     </section>
   } @else {
-    <div class="empty-panel">Standort wird geladen...</div>
+    <div class="empty-panel">{{ 'apiaryDetail.loading' | translate }}</div>
   }
 </div>

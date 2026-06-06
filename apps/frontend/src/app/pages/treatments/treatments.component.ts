@@ -5,11 +5,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { Treatment, VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-treatments',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, TranslatePipe],
   templateUrl: './treatments.component.html',
   styleUrl: './treatments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +20,7 @@ export class TreatmentsComponent {
   private readonly beekeeping = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   private readonly remoteTreatments = toSignal(this.beekeeping.getTreatments(), { initialValue: [] });
   private readonly localTreatments = signal<Treatment[] | null>(null);
@@ -70,20 +73,20 @@ export class TreatmentsComponent {
         this.showForm.set(false);
         this.form.reset({ started_at: new Date().toISOString().slice(0, 10) });
       },
-      error: () => this.errorMessage.set('Behandlung konnte nicht gespeichert werden.')
+      error: () => this.errorMessage.set(this.translation.t('treatments.error.save'))
     });
   }
 
   protected deleteTreatment(treatment: Treatment): void {
-    if (!confirm('Behandlung löschen?')) return;
+    if (!confirm(this.translation.t('treatments.delete.confirm'))) return;
     this.beekeeping.deleteTreatment(treatment.id).subscribe({
       next: () => this.localTreatments.update(list => (list ?? this.remoteTreatments()).filter(t => t.id !== treatment.id)),
-      error: () => this.errorMessage.set('Behandlung konnte nicht gelöscht werden.')
+      error: () => this.errorMessage.set(this.translation.t('treatments.error.delete'))
     });
   }
 
   protected hiveName(id: number): string {
-    return this.hives().find(h => h.id === id)?.name ?? `Volk #${id}`;
+    return this.hives().find(h => h.id === id)?.name ?? this.translation.t('common.hiveRef', { id });
   }
 
   protected loadWeather(hiveId: number, treatmentType: VarroaTreatmentType): void {
@@ -97,12 +100,17 @@ export class TreatmentsComponent {
       },
       error: () => {
         this.weatherWindows.set([]);
-        this.weatherNote.set('Wetterfenster nicht verfügbar.');
+        this.weatherNote.set(this.translation.t('treatments.weather.unavailable'));
       }
     });
   }
 
   protected ratingLabel(rating: string): string {
-    return ({ suitable: 'geeignet', caution: 'kritisch', unsuitable: 'ungeeignet', unknown: 'keine Daten' } as Record<string, string>)[rating] ?? rating;
+    return ({
+      suitable: this.translation.t('treatments.rating.suitable'),
+      caution: this.translation.t('treatments.rating.caution'),
+      unsuitable: this.translation.t('treatments.rating.unsuitable'),
+      unknown: this.translation.t('treatments.rating.unknown')
+    } as Record<string, string>)[rating] ?? rating;
   }
 }

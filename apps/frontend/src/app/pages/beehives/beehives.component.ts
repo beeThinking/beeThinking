@@ -5,11 +5,14 @@ import { RouterLink } from '@angular/router';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
 
 @Component({
   selector: 'app-beehives',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './beehives.component.html',
   styleUrl: './beehives.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +21,7 @@ export class BeehivesComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   private readonly hivesData = toSignal(this.hiveService.getHives(), { initialValue: [] });
   private readonly localHives = signal<Hive[] | null>(null);
@@ -83,7 +87,7 @@ export class BeehivesComponent {
           this.localHives.update(list => (list ?? this.hivesData()).map(h => h.id === updated.id ? updated : h));
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to update hive.')
+        error: () => this.errorMessage.set(this.translation.t('beehives.error.update'))
       });
     } else {
       const create: HiveCreate = {
@@ -98,38 +102,45 @@ export class BeehivesComponent {
           this.localHives.update(list => [...(list ?? this.hivesData()), hive]);
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to create hive.')
+        error: () => this.errorMessage.set(this.translation.t('beehives.error.create'))
       });
     }
   }
 
   protected deleteHive(hive: Hive): void {
-    if (!confirm(`Delete "${hive.name}"?`)) return;
+    if (!confirm(this.translation.t('beehives.delete.confirm', { name: hive.name }))) return;
     this.hiveService.deleteHive(hive.id).subscribe({
       next: () => this.localHives.update(list => (list ?? this.hivesData()).filter(h => h.id !== hive.id)),
-      error: () => this.errorMessage.set('Failed to delete hive.')
+      error: () => this.errorMessage.set(this.translation.t('beehives.error.delete'))
     });
   }
 
   protected apiaryName(apiaryId: number): string {
-    return this.apiaries().find(a => a.id === apiaryId)?.name ?? `Stand #${apiaryId}`;
+    return this.apiaries().find(a => a.id === apiaryId)?.name ?? this.translation.t('common.apiaryRef', { id: apiaryId });
   }
 
   protected statusLabel(status: HiveStatus): string {
-    return {
-      active: 'Aktiv',
-      archived: 'Archiviert',
-      dissolved: 'Aufgelöst',
-      merged: 'Vereinigt',
-      sold: 'Verkauft',
-      dead: 'Tot',
-      inactive: 'Inaktiv',
-      lost: 'Verloren',
-      created_by_mistake: 'Fehleingabe'
-    }[status];
+    const key = ({
+      active: 'beehives.status.active',
+      archived: 'beehives.status.archived',
+      dissolved: 'beehives.status.dissolved',
+      merged: 'beehives.status.merged',
+      sold: 'beehives.status.sold',
+      dead: 'beehives.status.dead',
+      inactive: 'beehives.status.inactive',
+      lost: 'beehives.status.lost',
+      created_by_mistake: 'beehives.status.created_by_mistake'
+    } satisfies Record<HiveStatus, TranslationKey>)[status];
+    return this.translation.t(key);
   }
 
   protected typeLabel(type: HiveType): string {
-    return { langstroth: 'Langstroth', dadant: 'Dadant', zander: 'Zander', other: 'Other' }[type];
+    const key = ({
+      langstroth: 'beehives.type.langstroth',
+      dadant: 'beehives.type.dadant',
+      zander: 'beehives.type.zander',
+      other: 'beehives.type.other'
+    } satisfies Record<HiveType, TranslationKey>)[type];
+    return this.translation.t(key);
   }
 }

@@ -5,11 +5,13 @@ import { debounceTime } from 'rxjs';
 import { InspectionService } from '../../core/services/inspection.service';
 import { InspectionCreate } from '../../core/models/inspection.models';
 import { InspectionDraftService } from '../../core/services/inspection-draft.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-hive-inspect',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './hive-inspect.component.html',
   styleUrl: './hive-inspect.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,6 +22,7 @@ export class HiveInspectComponent {
   private readonly draftService = inject(InspectionDraftService);
   private readonly inspectionService = inject(InspectionService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   protected readonly saving = signal(false);
   protected readonly errorMessage = signal('');
@@ -45,20 +48,20 @@ export class HiveInspectComponent {
     const draft = this.draftService.getDraft(this.hiveId);
     if (draft) {
       this.form.patchValue(draft.data);
-      this.draftMessage.set(`Entwurf geladen: ${this.formatDateTime(draft.updated_at)}`);
+      this.draftMessage.set(this.translation.t('inspect.draftLoaded', { date: this.formatDateTime(draft.updated_at) }));
     }
 
     this.form.valueChanges.pipe(debounceTime(400)).subscribe(() => {
-      this.persistDraft('Entwurf lokal gespeichert.');
+      this.persistDraft(this.translation.t('inspect.draftSaved'));
     });
 
     window.addEventListener('online', () => {
       this.isOnline.set(true);
-      this.draftMessage.set('Wieder online. Entwurf kann gespeichert werden.');
+      this.draftMessage.set(this.translation.t('inspect.online'));
     });
     window.addEventListener('offline', () => {
       this.isOnline.set(false);
-      this.persistDraft('Offline. Entwurf lokal gespeichert.');
+      this.persistDraft(this.translation.t('inspect.offlineSaved'));
     });
   }
 
@@ -66,7 +69,7 @@ export class HiveInspectComponent {
     const payload = this.buildPayload();
     if (!this.isOnline()) {
       this.draftService.saveDraft(this.hiveId, payload);
-      this.draftMessage.set('Offline. Entwurf lokal gespeichert.');
+      this.draftMessage.set(this.translation.t('inspect.offlineSaved'));
       return;
     }
 
@@ -80,7 +83,7 @@ export class HiveInspectComponent {
       error: () => {
         this.draftService.saveDraft(this.hiveId, payload);
         this.saving.set(false);
-        this.errorMessage.set('Durchsicht konnte nicht gespeichert werden. Entwurf bleibt lokal gesichert.');
+        this.errorMessage.set(this.translation.t('inspect.error.save'));
       }
     });
   }
@@ -107,7 +110,7 @@ export class HiveInspectComponent {
   }
 
   private formatDateTime(value: string): string {
-    return new Date(value).toLocaleString('de-DE', {
+    return new Date(value).toLocaleString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',

@@ -1,55 +1,55 @@
 <div class="work-page">
   <header class="work-header">
     <div>
-      <p class="eyebrow">Aufgaben</p>
-      <h1>Was am Stand ansteht</h1>
+      <p class="eyebrow">{{ 'tasks.eyebrow' | translate }}</p>
+      <h1>{{ 'tasks.title' | translate }}</h1>
     </div>
-    <button class="primary-action" (click)="openForm()">+ Aufgabe</button>
+    <button class="primary-action" (click)="openForm()">{{ 'tasks.add' | translate }}</button>
   </header>
 
   @if (errorMessage()) {
     <div class="alert">{{ errorMessage() }}</div>
   }
 
-  <nav class="segmented" aria-label="Aufgabenfilter">
+  <nav class="segmented" [attr.aria-label]="'tasks.filterLabel' | translate">
     @for (item of views; track item.id) {
       <button [class.active]="view() === item.id" (click)="setView(item.id)">
-        {{ item.label }}
+        {{ item.labelKey | translate }}
       </button>
     }
   </nav>
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createTask()">
-      <label>Titel <input formControlName="title" placeholder="Futter prüfen" /></label>
-      <label>Fällig <input type="date" formControlName="due_date" /></label>
-      <label>Priorität
+      <label>{{ 'tasks.form.title' | translate }} <input formControlName="title" [placeholder]="'tasks.form.titlePlaceholder' | translate" /></label>
+      <label>{{ 'tasks.form.due' | translate }} <input type="date" formControlName="due_date" /></label>
+      <label>{{ 'tasks.form.priority' | translate }}
         <select formControlName="priority">
           @for (priority of priorities; track priority) {
             <option [value]="priority">{{ priorityLabel(priority) }}</option>
           }
         </select>
       </label>
-      <label>Volk
+      <label>{{ 'tasks.form.hive' | translate }}
         <select formControlName="hive_id">
-          <option [ngValue]="null">Ohne Volk</option>
+          <option [ngValue]="null">{{ 'tasks.form.noHive' | translate }}</option>
           @for (hive of hives(); track hive.id) {
             <option [ngValue]="hive.id">{{ hive.name }}</option>
           }
         </select>
       </label>
-      <label>Stand
+      <label>{{ 'tasks.form.apiary' | translate }}
         <select formControlName="apiary_id">
-          <option [ngValue]="null">Ohne Stand</option>
+          <option [ngValue]="null">{{ 'tasks.form.noApiary' | translate }}</option>
           @for (apiary of apiaries(); track apiary.id) {
             <option [ngValue]="apiary.id">{{ apiary.name }}</option>
           }
         </select>
       </label>
-      <label class="wide">Beschreibung <textarea formControlName="description" rows="3"></textarea></label>
+      <label class="wide">{{ 'tasks.form.description' | translate }} <textarea formControlName="description" rows="3"></textarea></label>
       <div class="form-actions">
-        <button type="button" class="secondary" (click)="closeForm()">Abbrechen</button>
-        <button type="submit" class="primary-action" [disabled]="form.invalid">Speichern</button>
+        <button type="button" class="secondary" (click)="closeForm()">{{ 'tasks.form.cancel' | translate }}</button>
+        <button type="submit" class="primary-action" [disabled]="form.invalid">{{ 'tasks.form.save' | translate }}</button>
       </div>
     </form>
   }
@@ -63,16 +63,16 @@
           @if (task.description) { <small>{{ task.description }}</small> }
         </div>
         <div class="task-meta">
-          <span>{{ task.due_date ? (task.due_date | date:'dd.MM.yyyy') : 'Ohne Datum' }}</span>
+          <span>{{ task.due_date ? (task.due_date | date:'dd.MM.yyyy') : ('tasks.noDate' | translate) }}</span>
           @if (task.status === 'open') {
             <button (click)="complete(task)">✓</button>
             <button (click)="cancel(task)">×</button>
           }
-          <button class="danger" (click)="deleteTask(task)">Löschen</button>
+          <button class="danger" (click)="deleteTask(task)">{{ 'tasks.delete' | translate }}</button>
         </div>
       </article>
     } @empty {
-      <div class="empty-panel">Keine Aufgaben in dieser Ansicht.</div>
+      <div class="empty-panel">{{ 'tasks.empty' | translate }}</div>
     }
   </section>
 </div>

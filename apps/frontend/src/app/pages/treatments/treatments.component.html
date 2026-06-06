@@ -1,39 +1,39 @@
 <div class="work-page">
   <header class="work-header">
     <div>
-      <p class="eyebrow">Gesundheit</p>
-      <h1>Behandlungen</h1>
+      <p class="eyebrow">{{ 'treatments.eyebrow' | translate }}</p>
+      <h1>{{ 'treatments.title' | translate }}</h1>
     </div>
-    <button class="primary-action" (click)="showForm.set(!showForm())">+ Behandlung</button>
+    <button class="primary-action" (click)="showForm.set(!showForm())">{{ 'treatments.add' | translate }}</button>
   </header>
 
   @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createTreatment()">
-      <label>Volk
+      <label>{{ 'treatments.form.hive' | translate }}
         <select formControlName="hive_id">
-          <option [ngValue]="null">Volk wählen</option>
+          <option [ngValue]="null">{{ 'treatments.form.chooseHive' | translate }}</option>
           @for (hive of hives(); track hive.id) { <option [ngValue]="hive.id">{{ hive.name }}</option> }
         </select>
       </label>
-      <label>Start <input type="date" formControlName="started_at" /></label>
-      <label>Ende <input type="date" formControlName="ended_at" /></label>
-      <label>Produkt <input formControlName="product" placeholder="Oxalsäure" /></label>
-      <label>Methode <input formControlName="method" placeholder="Träufeln" /></label>
-      <label>Dosierung <input formControlName="dosage" placeholder="30 ml" /></label>
-      <label class="wide">Grund <input formControlName="reason" placeholder="Varroa-Kontrolle" /></label>
+      <label>{{ 'treatments.form.start' | translate }} <input type="date" formControlName="started_at" /></label>
+      <label>{{ 'treatments.form.end' | translate }} <input type="date" formControlName="ended_at" /></label>
+      <label>{{ 'treatments.form.product' | translate }} <input formControlName="product" [placeholder]="'treatments.form.productPlaceholder' | translate" /></label>
+      <label>{{ 'treatments.form.method' | translate }} <input formControlName="method" [placeholder]="'treatments.form.methodPlaceholder' | translate" /></label>
+      <label>{{ 'treatments.form.dosage' | translate }} <input formControlName="dosage" placeholder="30 ml" /></label>
+      <label class="wide">{{ 'treatments.form.reason' | translate }} <input formControlName="reason" [placeholder]="'treatments.form.reasonPlaceholder' | translate" /></label>
       @if (form.value.hive_id) {
         <div class="wide weather-context">
-          <p>{{ weatherNote() || 'Wetterfenster ist Planungshilfe. Packungsbeilage und Volkzustand prüfen.' }}</p>
+          <p>{{ weatherNote() || ('treatments.weather.help' | translate) }}</p>
           <div class="method-row">
-            <button type="button" (click)="loadWeather(form.value.hive_id!, 'formic_acid_short')">Ameisensäure</button>
+            <button type="button" (click)="loadWeather(form.value.hive_id!, 'formic_acid_short')">{{ 'treatments.weather.formic' | translate }}</button>
             <button type="button" (click)="loadWeather(form.value.hive_id!, 'thymol')">Thymol</button>
-            <button type="button" (click)="loadWeather(form.value.hive_id!, 'oxalic_acid_dribble')">Oxalsäure</button>
+            <button type="button" (click)="loadWeather(form.value.hive_id!, 'oxalic_acid_dribble')">{{ 'treatments.weather.oxalic' | translate }}</button>
           </div>
-          <label>Wetterfenster
+          <label>{{ 'treatments.weather.window' | translate }}
             <select formControlName="weather_window_id">
-              <option [ngValue]="null">Nicht verknüpfen</option>
+              <option [ngValue]="null">{{ 'treatments.weather.unlink' | translate }}</option>
               @for (window of weatherWindows(); track window.id) {
                 <option [ngValue]="window.id">{{ window.date | date:'dd.MM.' }} · {{ ratingLabel(window.rating) }} · {{ window.reason }}</option>
               }
@@ -41,10 +41,10 @@
           </label>
         </div>
       }
-      <label class="wide">Notizen <textarea rows="3" formControlName="notes"></textarea></label>
+      <label class="wide">{{ 'treatments.form.notes' | translate }} <textarea rows="3" formControlName="notes"></textarea></label>
       <div class="form-actions">
-        <button type="button" class="secondary" (click)="showForm.set(false)">Abbrechen</button>
-        <button type="submit" class="primary-action" [disabled]="form.invalid">Speichern</button>
+        <button type="button" class="secondary" (click)="showForm.set(false)">{{ 'treatments.form.cancel' | translate }}</button>
+        <button type="submit" class="primary-action" [disabled]="form.invalid">{{ 'treatments.form.save' | translate }}</button>
       </div>
     </form>
   }
@@ -56,12 +56,12 @@
           <h2>{{ treatment.product }}</h2>
           <p>{{ hiveName(treatment.hive_id) }} · {{ treatment.started_at | date:'dd.MM.yyyy' }}</p>
           @if (treatment.reason) { <small>{{ treatment.reason }}</small> }
-          @if (treatment.weather_rating) { <small>Wetter: {{ ratingLabel(treatment.weather_rating) }} · {{ treatment.weather_source }}</small> }
+          @if (treatment.weather_rating) { <small>{{ 'treatments.weather.label' | translate: { rating: ratingLabel(treatment.weather_rating), source: treatment.weather_source ?? '' } }}</small> }
         </div>
-        <button class="danger" (click)="deleteTreatment(treatment)">Löschen</button>
+        <button class="danger" (click)="deleteTreatment(treatment)">{{ 'treatments.delete' | translate }}</button>
       </article>
     } @empty {
-      <div class="empty-panel">Noch keine Behandlung dokumentiert.</div>
+      <div class="empty-panel">{{ 'treatments.empty' | translate }}</div>
     }
   </section>
 </div>

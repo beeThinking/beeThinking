@@ -8,11 +8,14 @@ import { Hive } from '../../core/models/hive.models';
 import { PhotoWithPreview } from '../../core/models/beekeeping.models';
 import { Inspection, InspectionCreate, InspectionUpdate } from '../../core/models/inspection.models';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
 
 @Component({
   selector: 'app-inspections',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './inspections.component.html',
   styleUrl: './inspections.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,6 +25,7 @@ export class InspectionsComponent {
   private readonly hiveService = inject(HiveService);
   private readonly inspectionService = inject(InspectionService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   protected readonly hives = toSignal(this.hiveService.getHives(), { initialValue: [] });
   protected readonly selectedHiveId = signal<number | null>(null);
@@ -73,7 +77,7 @@ export class InspectionsComponent {
 
     this.inspectionService.getInspections(hiveId).subscribe({
       next: (list) => this.localInspections.set(list),
-      error: () => this.errorMessage.set('Failed to load inspections.')
+      error: () => this.errorMessage.set(this.translation.t('inspections.error.load'))
     });
     this.loadInspectionPhotos(hiveId);
   }
@@ -128,7 +132,7 @@ export class InspectionsComponent {
           );
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to update inspection.')
+        error: () => this.errorMessage.set(this.translation.t('inspections.error.update'))
       });
     } else {
       const create: InspectionCreate = {
@@ -145,16 +149,16 @@ export class InspectionsComponent {
           this.localInspections.update(list => [inspection, ...(list ?? [])]);
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to create inspection.')
+        error: () => this.errorMessage.set(this.translation.t('inspections.error.create'))
       });
     }
   }
 
   protected deleteInspection(inspection: Inspection): void {
-    if (!confirm('Delete this inspection?')) return;
+    if (!confirm(this.translation.t('inspections.delete.confirm'))) return;
     this.inspectionService.deleteInspection(this.selectedHiveId()!, inspection.id).subscribe({
       next: () => this.localInspections.update(list => (list ?? []).filter(i => i.id !== inspection.id)),
-      error: () => this.errorMessage.set('Failed to delete inspection.')
+      error: () => this.errorMessage.set(this.translation.t('inspections.error.delete'))
     });
   }
 
@@ -197,7 +201,7 @@ export class InspectionsComponent {
         this.photoUploadPending.set(false);
       },
       error: () => {
-        this.photoErrorMessage.set('Foto konnte nicht hochgeladen werden.');
+        this.photoErrorMessage.set(this.translation.t('inspections.photo.error.upload'));
         this.photoUploadPending.set(false);
       }
     });
@@ -206,18 +210,18 @@ export class InspectionsComponent {
   protected deletePhoto(photo: PhotoWithPreview): void {
     this.beekeepingService.deletePhoto(photo.id).subscribe({
       next: () => this.inspectionPhotos.update(photos => photos.filter(item => item.id !== photo.id)),
-      error: () => this.photoErrorMessage.set('Foto konnte nicht gelöscht werden.')
+      error: () => this.photoErrorMessage.set(this.translation.t('inspections.photo.error.delete'))
     });
   }
 
   protected formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   protected strengthLabel(value: number | null): string {
     if (value === null) return '–';
-    const labels = ['', 'Sehr schwach', 'Schwach', 'Schwach-mittel', 'Mittel', 'Mittel', 'Mittel-stark', 'Stark', 'Sehr stark', 'Sehr stark', 'Maximal'];
-    return `${value}/10 ${labels[value] ?? ''}`;
+    const key = `inspections.strength.${value}` as TranslationKey;
+    return `${value}/10 ${this.translation.t(key)}`;
   }
 
   protected weatherSummary(inspection: Inspection): string {
@@ -225,12 +229,12 @@ export class InspectionsComponent {
     if (inspection.weather_temperature === null && inspection.weather_code === null) return '–';
     const parts: string[] = [];
     if (inspection.weather_temperature !== null) parts.push(`${inspection.weather_temperature.toFixed(1)} °C`);
-    if (inspection.weather_humidity !== null) parts.push(`${Math.round(inspection.weather_humidity)} % rF`);
-    if (inspection.weather_wind_speed !== null) parts.push(`Wind ${inspection.weather_wind_speed.toFixed(1)} km/h`);
+    if (inspection.weather_humidity !== null) parts.push(this.translation.t('inspections.weather.humidity', { n: Math.round(inspection.weather_humidity) }));
+    if (inspection.weather_wind_speed !== null) parts.push(this.translation.t('inspections.weather.wind', { n: inspection.weather_wind_speed.toFixed(1) }));
     if (inspection.weather_precipitation !== null && inspection.weather_precipitation > 0) {
-      parts.push(`Regen ${inspection.weather_precipitation.toFixed(1)} mm`);
+      parts.push(this.translation.t('inspections.weather.rain', { n: inspection.weather_precipitation.toFixed(1) }));
     }
-    return parts.join(' · ') || 'Wetter gespeichert';
+    return parts.join(' · ') || this.translation.t('inspections.weather.saved');
   }
 
   protected formatBytes(value: number): string {
@@ -255,7 +259,7 @@ export class InspectionsComponent {
       )
     ).subscribe({
       next: photos => this.inspectionPhotos.set(photos),
-      error: () => this.photoErrorMessage.set('Fotos konnten nicht geladen werden.')
+      error: () => this.photoErrorMessage.set(this.translation.t('inspections.photo.error.load'))
     });
   }
 }

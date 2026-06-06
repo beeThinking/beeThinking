@@ -1,8 +1,8 @@
 <div class="archive-page">
   <header class="archive-header">
     <div>
-      <a routerLink="/beehives" class="back-link">Zurück</a>
-      <h1>Völkerarchiv</h1>
+      <a routerLink="/beehives" class="back-link">{{ 'common.back' | translate }}</a>
+      <h1>{{ 'archive.title' | translate }}</h1>
     </div>
   </header>
 
@@ -11,14 +11,14 @@
       <a class="archive-row" [routerLink]="['/beehives', hive.id]">
         <div>
           <strong>{{ hive.name }}</strong>
-          <small>{{ statusLabel(hive.status) }} · {{ hive.archived_at || 'ohne Archivdatum' }}</small>
+          <small>{{ statusLabel(hive.status) }} · {{ hive.archived_at || ('archive.noDate' | translate) }}</small>
         </div>
         @if (hive.merged_into_hive_id) {
-          <span>vereinigt mit #{{ hive.merged_into_hive_id }}</span>
+          <span>{{ 'archive.mergedInto' | translate: { id: hive.merged_into_hive_id } }}</span>
         }
       </a>
     } @empty {
-      <div class="empty-panel">Noch keine archivierten Völker.</div>
+      <div class="empty-panel">{{ 'archive.empty' | translate }}</div>
     }
   </section>
 </div>

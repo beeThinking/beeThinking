@@ -122,7 +122,8 @@
   border-left: 3px solid var(--amelie-orange);
 }
 
-.logout-button {
+.logout-button,
+.language-button {
   display: flex;
   align-items: center;
   background: transparent;
@@ -140,7 +141,12 @@
   justify-content: center;
 }
 
-.logout-button:hover {
+.language-button {
+  letter-spacing: 0;
+}
+
+.logout-button:hover,
+.language-button:hover {
   background: var(--amelie-orange);
   border-color: var(--amelie-orange);
   color: var(--amelie-dark-brown);
@@ -194,7 +200,8 @@
     border-left: none;
   }
 
-  .logout-button {
+  .logout-button,
+  .language-button {
     margin: 0;
     width: auto;
     padding: 0.5rem 1rem;

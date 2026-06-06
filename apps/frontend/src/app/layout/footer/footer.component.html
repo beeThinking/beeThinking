@@ -2,34 +2,34 @@
   <div class="footer-content">
     <div class="footer-section">
       <h4>bee thinking</h4>
-      <p>Digitale Stockkarte, Aufgabenplanung und Varroa-Dokumentation für Imkereien.</p>
+      <p>{{ 'footer.tagline' | translate }}</p>
     </div>
     <div class="footer-section">
-      <h4>Links</h4>
+      <h4>{{ 'footer.links' | translate }}</h4>
       <ul>
-        <li><a routerLink="/about">Über uns</a></li>
-        <li><a routerLink="/contact">Kontakt</a></li>
-        <li><a routerLink="/docs">Dokumentation</a></li>
+        <li><a routerLink="/about">{{ 'footer.about' | translate }}</a></li>
+        <li><a routerLink="/contact">{{ 'footer.contact' | translate }}</a></li>
+        <li><a routerLink="/docs">{{ 'footer.docs' | translate }}</a></li>
       </ul>
     </div>
     <div class="footer-section">
-      <h4>Ressourcen</h4>
+      <h4>{{ 'footer.resources' | translate }}</h4>
       <ul>
-        <li><a routerLink="/tips">Imker-Tipps</a></li>
+        <li><a routerLink="/tips">{{ 'footer.tips' | translate }}</a></li>
         <li><a routerLink="/faq">FAQ</a></li>
-        <li><a routerLink="/support">Support</a></li>
+        <li><a routerLink="/support">{{ 'footer.support' | translate }}</a></li>
       </ul>
     </div>
     <div class="footer-section">
-      <h4>Rechtliches</h4>
+      <h4>{{ 'footer.legal' | translate }}</h4>
       <ul>
-        <li><a routerLink="/privacy">Datenschutz</a></li>
-        <li><a routerLink="/imprint">Impressum</a></li>
-        <li><a routerLink="/terms">AGB</a></li>
+        <li><a routerLink="/privacy">{{ 'footer.privacy' | translate }}</a></li>
+        <li><a routerLink="/imprint">{{ 'footer.imprint' | translate }}</a></li>
+        <li><a routerLink="/terms">{{ 'footer.terms' | translate }}</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>&copy; {{ year }} bee thinking - Alle Rechte vorbehalten</p>
+    <p>{{ 'footer.copyright' | translate }}</p>
   </div>
 </footer>

@@ -2,6 +2,8 @@ import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 function passwordMatchValidator(control: AbstractControl) {
   const password = control.get('password')?.value;
@@ -16,7 +18,7 @@ function passwordMatchValidator(control: AbstractControl) {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -25,6 +27,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translation = inject(TranslationService);
 
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
@@ -53,7 +56,7 @@ export class RegisterComponent {
     this.authService.register({ username: username!, email: email!, password: password! }).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.successMessage.set('Registration successful! Redirecting to login...');
+        this.successMessage.set(this.translation.t('register.success'));
         setTimeout(() => this.router.navigate(['/login']), 2000);
       },
       error: (error) => {
@@ -87,7 +90,7 @@ export class RegisterComponent {
           }
           if (general.length) this.errorMessage.set(general.join(' · '));
         } else {
-          this.errorMessage.set('Registration failed. Please try again.');
+          this.errorMessage.set(this.translation.t('register.error.default'));
         }
       }
     });

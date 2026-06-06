@@ -6,11 +6,13 @@ import { RouterLink } from '@angular/router';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Apiary, ApiaryCreate, ApiaryUpdate } from '../../core/models/apiary.models';
 import { ApiaryMapPickerComponent, ApiaryPosition } from '../../shared/components/apiary-map-picker.component';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-apiaries',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe, RouterLink, ApiaryMapPickerComponent],
+  imports: [ReactiveFormsModule, DecimalPipe, RouterLink, ApiaryMapPickerComponent, TranslatePipe],
   templateUrl: './apiaries.component.html',
   styleUrl: './apiaries.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +20,7 @@ import { ApiaryMapPickerComponent, ApiaryPosition } from '../../shared/component
 export class ApiariesComponent {
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   private readonly apiarysData = toSignal(this.apiaryService.getApiaries(), { initialValue: [] });
   private readonly localApiaries = signal<Apiary[] | null>(null);
@@ -79,7 +82,7 @@ export class ApiariesComponent {
           this.localApiaries.update(list => (list ?? this.apiarysData()).map(a => a.id === updated.id ? updated : a));
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to update apiary.')
+        error: () => this.errorMessage.set(this.translation.t('apiaries.error.update'))
       });
     } else {
       const create: ApiaryCreate = {
@@ -94,7 +97,7 @@ export class ApiariesComponent {
           this.localApiaries.update(list => [...(list ?? this.apiarysData()), apiary]);
           this.closeForm();
         },
-        error: () => this.errorMessage.set('Failed to create apiary.')
+        error: () => this.errorMessage.set(this.translation.t('apiaries.error.create'))
       });
     }
   }
@@ -109,10 +112,14 @@ export class ApiariesComponent {
   }
 
   protected deleteApiary(apiary: Apiary): void {
-    if (!confirm(`Delete "${apiary.name}"?`)) return;
+    if (!confirm(this.translation.t('apiaries.delete.confirm', { name: apiary.name }))) return;
     this.apiaryService.deleteApiary(apiary.id).subscribe({
       next: () => this.localApiaries.update(list => (list ?? this.apiarysData()).filter(a => a.id !== apiary.id)),
-      error: () => this.errorMessage.set('Failed to delete apiary.')
+      error: () => this.errorMessage.set(this.translation.t('apiaries.error.delete'))
     });
+  }
+
+  protected hiveCountLabel(count: number): string {
+    return this.translation.t(count === 1 ? 'apiaries.hiveCount' : 'apiaries.hiveCountPlural', { n: count });
   }
 }

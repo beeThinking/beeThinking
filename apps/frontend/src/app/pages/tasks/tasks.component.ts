@@ -6,13 +6,16 @@ import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Task, TaskPriority, TaskStatus } from '../../core/models/beekeeping.models';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
 
 type TaskView = 'today' | 'overdue' | 'week' | 'open' | 'done';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, TranslatePipe],
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,6 +25,7 @@ export class TasksComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   private readonly remoteTasks = toSignal(this.beekeeping.getTasks(), { initialValue: [] });
   private readonly localTasks = signal<Task[] | null>(null);
@@ -32,12 +36,12 @@ export class TasksComponent {
   protected readonly showForm = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly priorities: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
-  protected readonly views: { id: TaskView; label: string }[] = [
-    { id: 'today', label: 'Heute' },
-    { id: 'overdue', label: 'Überfällig' },
-    { id: 'week', label: 'Woche' },
-    { id: 'open', label: 'Offen' },
-    { id: 'done', label: 'Erledigt' }
+  protected readonly views: { id: TaskView; labelKey: TranslationKey }[] = [
+    { id: 'today', labelKey: 'tasks.view.today' },
+    { id: 'overdue', labelKey: 'tasks.view.overdue' },
+    { id: 'week', labelKey: 'tasks.view.week' },
+    { id: 'open', labelKey: 'tasks.view.open' },
+    { id: 'done', labelKey: 'tasks.view.done' }
   ];
 
   protected readonly form = this.fb.group({
@@ -93,39 +97,45 @@ export class TasksComponent {
         this.localTasks.update(list => [task, ...(list ?? this.remoteTasks())]);
         this.closeForm();
       },
-      error: () => this.errorMessage.set('Aufgabe konnte nicht erstellt werden.')
+      error: () => this.errorMessage.set(this.translation.t('tasks.error.create'))
     });
   }
 
   protected complete(task: Task): void {
     this.beekeeping.completeTask(task.id).subscribe({
       next: updated => this.replaceTask(updated),
-      error: () => this.errorMessage.set('Aufgabe konnte nicht erledigt werden.')
+      error: () => this.errorMessage.set(this.translation.t('tasks.error.complete'))
     });
   }
 
   protected cancel(task: Task): void {
     this.beekeeping.updateTask(task.id, { status: 'cancelled' as TaskStatus }).subscribe({
       next: updated => this.replaceTask(updated),
-      error: () => this.errorMessage.set('Aufgabe konnte nicht aktualisiert werden.')
+      error: () => this.errorMessage.set(this.translation.t('tasks.error.update'))
     });
   }
 
   protected deleteTask(task: Task): void {
-    if (!confirm(`Aufgabe "${task.title}" löschen?`)) return;
+    if (!confirm(this.translation.t('tasks.delete.confirm', { title: task.title }))) return;
     this.beekeeping.deleteTask(task.id).subscribe({
       next: () => this.localTasks.update(list => (list ?? this.remoteTasks()).filter(t => t.id !== task.id)),
-      error: () => this.errorMessage.set('Aufgabe konnte nicht gelöscht werden.')
+      error: () => this.errorMessage.set(this.translation.t('tasks.error.delete'))
     });
   }
 
   protected hiveName(id: number | null): string {
-    if (!id) return 'Ohne Volk';
-    return this.hives().find(h => h.id === id)?.name ?? `Volk #${id}`;
+    if (!id) return this.translation.t('tasks.form.noHive');
+    return this.hives().find(h => h.id === id)?.name ?? this.translation.t('common.hiveRef', { id });
   }
 
   protected priorityLabel(priority: TaskPriority): string {
-    return { low: 'Niedrig', medium: 'Normal', high: 'Hoch', urgent: 'Dringend' }[priority];
+    const key = ({
+      low: 'tasks.priority.low',
+      medium: 'tasks.priority.medium',
+      high: 'tasks.priority.high',
+      urgent: 'tasks.priority.urgent'
+    } satisfies Record<TaskPriority, TranslationKey>)[priority];
+    return this.translation.t(key);
   }
 
   private replaceTask(updated: Task): void {

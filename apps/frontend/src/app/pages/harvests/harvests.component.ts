@@ -6,11 +6,13 @@ import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Harvest } from '../../core/models/beekeeping.models';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-harvests',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, TranslatePipe],
   templateUrl: './harvests.component.html',
   styleUrl: './harvests.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,6 +22,7 @@ export class HarvestsComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
 
   private readonly remoteHarvests = toSignal(this.beekeeping.getHarvests(), { initialValue: [] });
   private readonly localHarvests = signal<Harvest[] | null>(null);
@@ -57,25 +60,25 @@ export class HarvestsComponent {
         this.showForm.set(false);
         this.form.reset({ harvest_date: new Date().toISOString().slice(0, 10), amount_kg: 0 });
       },
-      error: () => this.errorMessage.set('Ernte konnte nicht gespeichert werden.')
+      error: () => this.errorMessage.set(this.translation.t('harvests.error.save'))
     });
   }
 
   protected deleteHarvest(harvest: Harvest): void {
-    if (!confirm('Ernte löschen?')) return;
+    if (!confirm(this.translation.t('harvests.delete.confirm'))) return;
     this.beekeeping.deleteHarvest(harvest.id).subscribe({
       next: () => this.localHarvests.update(list => (list ?? this.remoteHarvests()).filter(h => h.id !== harvest.id)),
-      error: () => this.errorMessage.set('Ernte konnte nicht gelöscht werden.')
+      error: () => this.errorMessage.set(this.translation.t('harvests.error.delete'))
     });
   }
 
   protected hiveName(id: number | null): string {
-    if (!id) return 'Alle Völker';
-    return this.hives().find(h => h.id === id)?.name ?? `Volk #${id}`;
+    if (!id) return this.translation.t('harvests.form.allHives');
+    return this.hives().find(h => h.id === id)?.name ?? this.translation.t('common.hiveRef', { id });
   }
 
   protected apiaryName(id: number | null): string {
-    if (!id) return 'Ohne Standort';
-    return this.apiaries().find(a => a.id === id)?.name ?? `Stand #${id}`;
+    if (!id) return this.translation.t('harvests.form.noApiary');
+    return this.apiaries().find(a => a.id === id)?.name ?? this.translation.t('common.apiaryRef', { id });
   }
 }

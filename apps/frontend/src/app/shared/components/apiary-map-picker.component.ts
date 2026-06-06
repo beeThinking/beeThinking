@@ -13,6 +13,8 @@ import {
   ChangeDetectorRef,
   inject
 } from '@angular/core';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationService } from '../../core/services/translation.service';
 
 import type * as Leaflet from 'leaflet';
 
@@ -23,17 +25,19 @@ export interface ApiaryPosition {
 
 @Component({
   selector: 'app-apiary-map-picker',
+  imports: [TranslatePipe],
   templateUrl: './apiary-map-picker.component.html',
   styleUrl: './apiary-map-picker.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApiaryMapPickerComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly translation = inject(TranslationService);
 
   @Input() latitude: number | string | null | undefined = null;
   @Input() longitude: number | string | null | undefined = null;
   @Input() selectable = true;
-  @Input() label = 'Standortkarte';
+  @Input() label = '';
 
   @Output() positionChange = new EventEmitter<ApiaryPosition>();
 
@@ -84,7 +88,7 @@ export class ApiaryMapPickerComponent implements AfterViewInit, OnChanges, OnDes
       this.cdr.markForCheck();
       [0, 100, 350].forEach(delay => setTimeout(() => this.map?.invalidateSize(), delay));
     } catch {
-      this.loadError = 'Karte konnte nicht geladen werden.';
+      this.loadError = this.translation.t('map.loadError');
       this.cdr.markForCheck();
     }
   }

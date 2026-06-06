@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { TranslationService } from '../../core/services/translation.service';
 
 type InfoPageKey = 'about' | 'contact' | 'docs' | 'tips' | 'faq' | 'support' | 'privacy' | 'imprint' | 'terms';
 
@@ -19,12 +20,12 @@ interface InfoPage {
   sections: InfoSection[];
 }
 
-const PAGES: Record<InfoPageKey, InfoPage> = {
+const PAGES_DE: Record<InfoPageKey, InfoPage> = {
   about: {
     eyebrow: 'Produkt',
     title: 'Über bee thinking',
     lead: 'bee thinking bündelt Stockkarten, Aufgaben, Ernten und Behandlungen in einer ruhigen Arbeitsoberfläche für den Imkereialltag.',
-    ctaLabel: 'Dashboard öffnen',
+    ctaLabel: 'Übersicht öffnen',
     ctaLink: '/dashboard',
     sections: [
       { heading: 'Wofür die App da ist', body: 'Die Anwendung hilft, Völker, Stände und Eingriffe nachvollziehbar zu dokumentieren. Der Fokus liegt auf schneller Erfassung am Stand und sauberer Historie für spätere Entscheidungen.' },
@@ -36,7 +37,7 @@ const PAGES: Record<InfoPageKey, InfoPage> = {
     eyebrow: 'Kontakt',
     title: 'Kontakt aufnehmen',
     lead: 'Fragen, Fehlerberichte und fachliche Hinweise gehören direkt in den Arbeitsfluss.',
-    ctaLabel: 'Support lesen',
+    ctaLabel: 'Hilfe lesen',
     ctaLink: '/support',
     sections: [
       { heading: 'Produktfragen', body: 'Für Fragen zur Nutzung beschreibe bitte Betriebssystem, Browser, betroffene Seite und gewünschten Ablauf. So lassen sich Probleme schneller eingrenzen.' },
@@ -81,8 +82,8 @@ const PAGES: Record<InfoPageKey, InfoPage> = {
     ]
   },
   support: {
-    eyebrow: 'Support',
-    title: 'Support',
+    eyebrow: 'Hilfe',
+    title: 'Hilfe',
     lead: 'Schnelle Hilfe braucht reproduzierbare Angaben.',
     ctaLabel: 'Kontakt öffnen',
     ctaLink: '/contact',
@@ -124,6 +125,111 @@ const PAGES: Record<InfoPageKey, InfoPage> = {
   }
 };
 
+const PAGES_EN: Record<InfoPageKey, InfoPage> = {
+  about: {
+    eyebrow: 'Product',
+    title: 'About bee thinking',
+    lead: 'bee thinking brings hive records, tasks, harvests and treatments into one calm workspace for everyday beekeeping.',
+    ctaLabel: 'Open dashboard',
+    ctaLink: '/dashboard',
+    sections: [
+      { heading: 'What the app is for', body: 'The app helps document colonies, apiaries and interventions in a traceable way, with fast capture at the apiary and clean history for later decisions.' },
+      { heading: 'Workflow', body: 'Planning, inspections, photos, varroa treatments and archiving stay connected, so seasonal context does not disappear into separate notes.' },
+      { heading: 'Development', body: 'New features follow practical workflows: fewer clicks, clear lists, exportable records and robust offline capture.' }
+    ]
+  },
+  contact: {
+    eyebrow: 'Contact',
+    title: 'Contact',
+    lead: 'Questions, bug reports and practical feedback belong close to the workflow.',
+    ctaLabel: 'Read help',
+    ctaLink: '/support',
+    sections: [
+      { heading: 'Product questions', body: 'For usage questions, include operating system, browser, affected page and expected workflow. That makes issues easier to narrow down.' },
+      { heading: 'Report bugs', body: 'Helpful details are time, affected record, expected behavior and a screenshot without sensitive data.' },
+      { heading: 'Operator details', body: 'Official contact and operator details are maintained in the imprint once production data is final.' }
+    ]
+  },
+  docs: {
+    eyebrow: 'Documentation',
+    title: 'Documentation',
+    lead: 'Short orientation for common areas in bee thinking.',
+    ctaLabel: 'Manage colonies',
+    ctaLink: '/beehives',
+    sections: [
+      { heading: 'Colonies and apiaries', body: 'Create apiaries first, assign colonies and use detail pages for history, photos and lifecycle actions.' },
+      { heading: 'Inspections', body: 'Inspections record strength, food stores, queen status, swarm risk and notes. Mobile drafts remain local until synchronization is possible.' },
+      { heading: 'Treatments', body: 'Varroa treatments can be planned with weather windows. Weather assessment is planning support and does not replace label or usage instructions.' }
+    ]
+  },
+  tips: {
+    eyebrow: 'Resources',
+    title: 'Beekeeper tips',
+    lead: 'Practical notes for clean records and repeatable workflows.',
+    ctaLabel: 'Plan tasks',
+    ctaLink: '/tasks',
+    sections: [
+      { heading: 'Capture at the apiary', body: 'Short structured entries right after an inspection are more reliable than long notes added later.' },
+      { heading: 'Name photos consistently', body: 'Use photo notes for brood pattern, food ring, queen or damage. This makes later comparison faster.' },
+      { heading: 'Prepare treatments', body: 'Check weather window, colony state, honey supers and approved products before treatment. Document start, end and result.' }
+    ]
+  },
+  faq: {
+    eyebrow: 'Help',
+    title: 'FAQ',
+    lead: 'Answers to common usage questions.',
+    ctaLabel: 'Read documentation',
+    ctaLink: '/docs',
+    sections: [
+      { heading: 'Can I record offline?', body: 'Mobile inspection forms store drafts locally. Full synchronization needs network access to the API again.' },
+      { heading: 'Are archived colonies deleted?', body: 'No. Archived, dissolved, sold or merged colonies remain available for history and annual reports.' },
+      { heading: 'Where does weather assessment come from?', body: 'The app uses weather data and maintained rules per treatment method. The rating is planning support, not the sole basis for decisions.' }
+    ]
+  },
+  support: {
+    eyebrow: 'Help',
+    title: 'Support',
+    lead: 'Fast help needs reproducible details.',
+    ctaLabel: 'Open contact',
+    ctaLink: '/contact',
+    sections: [
+      { heading: 'Describe the problem', body: 'Include page, action, error message, time and whether it happens in the browser or in Docker.' },
+      { heading: 'Protect data', body: 'Do not share passwords, tokens or full personal records. Check screenshots before sending them.' },
+      { heading: 'Technical check', body: 'For local installs, container status, browser console and API status code help separate UI, network and backend issues.' }
+    ]
+  },
+  privacy: {
+    eyebrow: 'Legal',
+    title: 'Privacy policy',
+    lead: 'Placeholder for production privacy information. Operator, purposes, retention periods and legal bases must be checked before publication.',
+    sections: [
+      { heading: 'Processed data', body: 'The app can store account, location, colony, inspection, photo, task, harvest and treatment data.' },
+      { heading: 'Purposes', body: 'Data is processed for apiary management, synchronization, documentation, analysis and operational reliability.' },
+      { heading: 'Notice', body: 'This page is not legal advice. Production use needs matching legal content.' }
+    ]
+  },
+  imprint: {
+    eyebrow: 'Legal',
+    title: 'Imprint',
+    lead: 'Placeholder for legally required provider identification.',
+    sections: [
+      { heading: 'Provider', body: 'Name, address, representatives and contact channels must be added before publication.' },
+      { heading: 'Responsible party', body: 'Content responsibility, register numbers, VAT ID or supervisory authority depend on the operator.' },
+      { heading: 'Status', body: 'This development page prevents dead footer links but does not replace a legally reviewed imprint.' }
+    ]
+  },
+  terms: {
+    eyebrow: 'Legal',
+    title: 'Terms',
+    lead: 'Placeholder for production terms of service.',
+    sections: [
+      { heading: 'Use', body: 'The app supports beekeeping documentation. Technical decisions and compliance with legal requirements remain with the user.' },
+      { heading: 'Availability', body: 'For production use, scope, backups, maintenance, support and data export should be described bindingly.' },
+      { heading: 'Notice', body: 'These contents are drafts and must be legally reviewed before public use.' }
+    ]
+  }
+};
+
 @Component({
   selector: 'app-info-page',
   imports: [RouterLink],
@@ -133,10 +239,14 @@ const PAGES: Record<InfoPageKey, InfoPage> = {
 })
 export class InfoPageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly translation = inject(TranslationService);
   private readonly pageKey = toSignal(
     this.route.data.pipe(map(data => (data['page'] ?? 'about') as InfoPageKey)),
     { initialValue: 'about' as InfoPageKey }
   );
 
-  protected readonly page = computed(() => PAGES[this.pageKey()] ?? PAGES.about);
+  protected readonly page = computed(() => {
+    const pages = this.translation.currentLang() === 'de' ? PAGES_DE : PAGES_EN;
+    return pages[this.pageKey()] ?? pages.about;
+  });
 }

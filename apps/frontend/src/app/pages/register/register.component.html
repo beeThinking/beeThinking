@@ -2,7 +2,7 @@
   <div class="register-card">
     <div class="register-header">
       <h1>🐝 BeeThinking</h1>
-      <p>Create your account</p>
+      <p>{{ 'register.subtitle' | translate }}</p>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
@@ -19,21 +19,21 @@
       }
 
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">{{ 'register.username' | translate }}</label>
         <input
           id="username"
           type="text"
           formControlName="username"
-          placeholder="Choose a username"
+          [placeholder]="'register.usernamePlaceholder' | translate"
           [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
         />
         @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
           <div class="field-error">
             @if (registerForm.get('username')?.errors?.['required']) {
-              <span>Username is required</span>
+              <span>{{ 'register.error.usernameRequired' | translate }}</span>
             }
             @if (registerForm.get('username')?.errors?.['minlength']) {
-              <span>Username must be at least 3 characters</span>
+              <span>{{ 'register.error.usernameMin' | translate }}</span>
             }
             @if (registerForm.get('username')?.errors?.['serverError']) {
               <span>{{ registerForm.get('username')?.errors?.['serverError'] }}</span>
@@ -43,21 +43,21 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ 'register.email' | translate }}</label>
         <input
           id="email"
           type="email"
           formControlName="email"
-          placeholder="Enter your email"
+          [placeholder]="'register.emailPlaceholder' | translate"
           [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
         />
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
           <div class="field-error">
             @if (registerForm.get('email')?.errors?.['required']) {
-              <span>Email is required</span>
+              <span>{{ 'register.error.emailRequired' | translate }}</span>
             }
             @if (registerForm.get('email')?.errors?.['email']) {
-              <span>Please enter a valid email address</span>
+              <span>{{ 'register.error.emailInvalid' | translate }}</span>
             }
             @if (registerForm.get('email')?.errors?.['serverError']) {
               <span>{{ registerForm.get('email')?.errors?.['serverError'] }}</span>
@@ -67,21 +67,21 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ 'register.password' | translate }}</label>
         <input
           id="password"
           type="password"
           formControlName="password"
-          placeholder="Create a password"
+          [placeholder]="'register.passwordPlaceholder' | translate"
           [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
         />
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
           <div class="field-error">
             @if (registerForm.get('password')?.errors?.['required']) {
-              <span>Password is required</span>
+              <span>{{ 'register.error.passwordRequired' | translate }}</span>
             }
             @if (registerForm.get('password')?.errors?.['minlength']) {
-              <span>Password must be at least 8 characters</span>
+              <span>{{ 'register.error.passwordMin' | translate }}</span>
             }
             @if (registerForm.get('password')?.errors?.['serverError']) {
               <span>{{ registerForm.get('password')?.errors?.['serverError'] }}</span>
@@ -91,21 +91,21 @@
       </div>
 
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
+        <label for="confirmPassword">{{ 'register.confirmPassword' | translate }}</label>
         <input
           id="confirmPassword"
           type="password"
           formControlName="confirmPassword"
-          placeholder="Confirm your password"
+          [placeholder]="'register.confirmPasswordPlaceholder' | translate"
           [class.invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
         />
         @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
           <div class="field-error">
             @if (registerForm.get('confirmPassword')?.errors?.['required']) {
-              <span>Please confirm your password</span>
+              <span>{{ 'register.error.confirmRequired' | translate }}</span>
             }
             @if (registerForm.get('confirmPassword')?.errors?.['passwordMismatch']) {
-              <span>Passwords do not match</span>
+              <span>{{ 'register.error.passwordMismatch' | translate }}</span>
             }
           </div>
         }
@@ -117,14 +117,14 @@
         [disabled]="isLoading()"
       >
         @if (isLoading()) {
-          <span>Creating account...</span>
+          <span>{{ 'register.submitting' | translate }}</span>
         } @else {
-          <span>Create Account</span>
+          <span>{{ 'register.submit' | translate }}</span>
         }
       </button>
 
       <div class="login-link">
-        Already have an account? <a routerLink="/login">Sign in</a>
+        {{ 'register.hasAccount' | translate }} <a routerLink="/login">{{ 'register.signIn' | translate }}</a>
       </div>
     </form>
   </div>

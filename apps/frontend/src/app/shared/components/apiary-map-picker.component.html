@@ -1,19 +1,19 @@
 <div class="map-shell">
   <div class="map-toolbar">
-    <strong>{{ label }}</strong>
+    <strong>{{ label || ('map.defaultLabel' | translate) }}</strong>
     @if (selectable) {
-      <button type="button" class="map-action" (click)="useBrowserPosition()">GPS übernehmen</button>
+      <button type="button" class="map-action" (click)="useBrowserPosition()">{{ 'map.useGps' | translate }}</button>
     }
   </div>
   <div #mapContainer class="apiary-map" [class.is-readonly]="!selectable">
     @if (!isReady && !loadError) {
-      <span class="map-loading">Karte wird geladen...</span>
+      <span class="map-loading">{{ 'map.loading' | translate }}</span>
     }
     @if (loadError) {
       <span class="map-loading">{{ loadError }}</span>
     }
   </div>
   @if (selectable) {
-    <p class="map-help">Karte anklicken, um den Bienenstand zu markieren.</p>
+    <p class="map-help">{{ 'map.help' | translate }}</p>
   }
 </div>

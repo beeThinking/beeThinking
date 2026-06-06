@@ -2,11 +2,11 @@
   @if (hive(); as hive) {
     <header class="detail-header">
       <div>
-        <a routerLink="/beehives" class="back-link">Zurück</a>
+        <a routerLink="/beehives" class="back-link">{{ 'common.back' | translate }}</a>
         <h1>{{ hive.name }}</h1>
-        <p>{{ hive.type }} · {{ hive.status }}</p>
+        <p>{{ typeLabel(hive.type) }} · {{ statusLabel(hive.status) }}</p>
       </div>
-      <a class="inspect-action" [routerLink]="inspectLink()">Durchsicht starten</a>
+      <a class="inspect-action" [routerLink]="inspectLink()">{{ 'dashboard.startInspection' | translate }}</a>
     </header>
 
     @if (hive.notes) {
@@ -16,52 +16,52 @@
     <section class="lifecycle-panel">
       <div class="section-heading">
         <div>
-          <h2>Lebenszyklus</h2>
-          <p>Archivieren ist Standard. Endgültiges Löschen nur für Fehleingaben ohne Historie.</p>
+          <h2>{{ 'hiveDetail.lifecycle' | translate }}</h2>
+          <p>{{ 'hiveDetail.lifecycleHelp' | translate }}</p>
         </div>
       </div>
       @if (lifecycleError()) { <p class="form-error">{{ lifecycleError() }}</p> }
       <div class="lifecycle-grid">
-        <label>Datum
+        <label>{{ 'hiveDetail.date' | translate }}
           <input type="date" [ngModel]="lifecycleDate()" (ngModelChange)="lifecycleDate.set($event)">
         </label>
-        <label>Notiz
-          <input [ngModel]="lifecycleNote()" (ngModelChange)="lifecycleNote.set($event)" placeholder="Grund oder Kontext">
+        <label>{{ 'hiveDetail.note' | translate }}
+          <input [ngModel]="lifecycleNote()" (ngModelChange)="lifecycleNote.set($event)" [placeholder]="'hiveDetail.notePlaceholder' | translate">
         </label>
-        <label>Zielvolk ID
+        <label>{{ 'hiveDetail.targetHive' | translate }}
           <input type="number" [ngModel]="mergeTargetId()" (ngModelChange)="mergeTargetId.set($event ? +$event : null)">
         </label>
       </div>
       <div class="lifecycle-actions">
-        <button type="button" (click)="archiveHive()">Archivieren</button>
-        <button type="button" (click)="dissolveHive('dead')">Tot melden</button>
-        <button type="button" (click)="dissolveHive('sold')">Verkauft</button>
-        <button type="button" (click)="mergeHive()">Vereinigen</button>
+        <button type="button" (click)="archiveHive()">{{ 'hiveDetail.archive' | translate }}</button>
+        <button type="button" (click)="dissolveHive('dead')">{{ 'hiveDetail.markDead' | translate }}</button>
+        <button type="button" (click)="dissolveHive('sold')">{{ 'hiveDetail.sold' | translate }}</button>
+        <button type="button" (click)="mergeHive()">{{ 'hiveDetail.merge' | translate }}</button>
       </div>
     </section>
 
     <section class="photo-panel">
       <div class="section-heading">
         <div>
-          <h2>Fotos</h2>
-          <p>Aufnahmen zu Volk, Durchsicht und Zustand.</p>
+          <h2>{{ 'hiveDetail.photos' | translate }}</h2>
+          <p>{{ 'hiveDetail.photosHelp' | translate }}</p>
         </div>
       </div>
 
       <div class="upload-row">
         <label class="file-picker">
-          <span>Foto auswählen</span>
+          <span>{{ 'hiveDetail.choosePhoto' | translate }}</span>
           <input type="file" accept="image/*" (change)="selectPhoto($event)">
         </label>
         <input
           class="caption-input"
           type="text"
-          placeholder="Kurze Notiz"
+          [placeholder]="'hiveDetail.captionPlaceholder' | translate"
           [ngModel]="caption()"
           (ngModelChange)="caption.set($event)"
         >
         <button type="button" class="upload-button" [disabled]="!selectedFile() || uploadPending()" (click)="uploadPhoto()">
-          {{ uploadPending() ? 'Lädt hoch ...' : 'Hochladen' }}
+          {{ (uploadPending() ? 'hiveDetail.uploading' : 'hiveDetail.upload') | translate }}
         </button>
       </div>
 
@@ -79,24 +79,24 @@
             @if (photo.preview_url) {
               <img [src]="photo.preview_url" [alt]="photo.caption || photo.filename">
             } @else {
-              <div class="photo-placeholder">Keine Vorschau</div>
+              <div class="photo-placeholder">{{ 'hiveDetail.noPreview' | translate }}</div>
             }
             <div class="photo-meta">
               <div>
                 <h3>{{ photo.caption || photo.filename }}</h3>
                 <p>{{ formatDate(photo.created_at) }} · {{ formatBytes(photo.size_bytes) }}</p>
               </div>
-              <button type="button" (click)="deletePhoto(photo)">Löschen</button>
+              <button type="button" (click)="deletePhoto(photo)">{{ 'beehives.delete' | translate }}</button>
             </div>
           </article>
         } @empty {
-          <div class="empty">Noch keine Fotos für dieses Volk.</div>
+          <div class="empty">{{ 'hiveDetail.noPhotos' | translate }}</div>
         }
       </div>
     </section>
 
     <section class="timeline">
-      <h2>Timeline</h2>
+      <h2>{{ 'hiveDetail.timeline' | translate }}</h2>
       @for (event of history(); track event.id) {
         <article class="event event-history">
           <span class="event-date">{{ formatDate(event.event_date) }}</span>
@@ -122,7 +122,7 @@
           </div>
         </article>
       } @empty {
-        <div class="empty">Noch keine Ereignisse für dieses Volk.</div>
+        <div class="empty">{{ 'hiveDetail.noEvents' | translate }}</div>
       }
     </section>
   }

@@ -2,11 +2,13 @@ import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -16,6 +18,7 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translation = inject(TranslationService);
 
   private readonly returnUrl = this.route.snapshot.queryParams['returnUrl'] ?? '/dashboard';
 
@@ -49,7 +52,7 @@ export class LoginComponent {
         } else if (Array.isArray(detail)) {
           this.errorMessage.set(detail.map((d: { msg: string }) => d.msg).join(' · '));
         } else {
-          this.errorMessage.set('Login failed. Please check your credentials.');
+          this.errorMessage.set(this.translation.t('login.error.default'));
         }
       }
     });

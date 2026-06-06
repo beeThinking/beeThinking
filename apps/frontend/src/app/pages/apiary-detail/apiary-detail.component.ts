@@ -7,11 +7,14 @@ import { VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beek
 import { ApiaryService } from '../../core/services/apiary.service';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryMapPickerComponent } from '../../shared/components/apiary-map-picker.component';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
 
 @Component({
   selector: 'app-apiary-detail',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, ApiaryMapPickerComponent],
+  imports: [DecimalPipe, RouterLink, ApiaryMapPickerComponent, TranslatePipe],
   templateUrl: './apiary-detail.component.html',
   styleUrl: './apiary-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,6 +23,7 @@ export class ApiaryDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly apiaryService = inject(ApiaryService);
   private readonly hiveService = inject(HiveService);
+  private readonly translation = inject(TranslationService);
 
   protected readonly apiaryId = Number(this.route.snapshot.paramMap.get('id'));
   protected readonly apiary = toSignal(
@@ -33,14 +37,14 @@ export class ApiaryDetailComponent {
   protected readonly weatherLoading = signal(false);
   protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
 
-  protected readonly treatmentOptions: { value: VarroaTreatmentType; label: string }[] = [
-    { value: 'formic_acid_short', label: 'Ameisensäure kurz' },
-    { value: 'formic_acid_long', label: 'Ameisensäure lang' },
-    { value: 'thymol', label: 'Thymol' },
-    { value: 'oxalic_acid_dribble', label: 'Oxalsäure träufeln' },
-    { value: 'oxalic_acid_sublimation', label: 'Oxalsäure sublimieren' },
-    { value: 'lactic_acid', label: 'Milchsäure' },
-    { value: 'biotechnical', label: 'Biotechnisch' }
+  protected readonly treatmentOptions: { value: VarroaTreatmentType; labelKey: TranslationKey }[] = [
+    { value: 'formic_acid_short', labelKey: 'apiaryDetail.treatment.formicShort' },
+    { value: 'formic_acid_long', labelKey: 'apiaryDetail.treatment.formicLong' },
+    { value: 'thymol', labelKey: 'treatments.weather.thymol' },
+    { value: 'oxalic_acid_dribble', labelKey: 'apiaryDetail.treatment.oxalicDribble' },
+    { value: 'oxalic_acid_sublimation', labelKey: 'apiaryDetail.treatment.oxalicSublimation' },
+    { value: 'lactic_acid', labelKey: 'apiaryDetail.treatment.lactic' },
+    { value: 'biotechnical', labelKey: 'apiaryDetail.treatment.biotechnical' }
   ];
 
   constructor() {
@@ -57,7 +61,7 @@ export class ApiaryDetailComponent {
         this.weatherLoading.set(false);
       },
       error: () => {
-        this.weatherError.set('Wetterfenster konnten nicht geladen werden.');
+        this.weatherError.set(this.translation.t('apiaryDetail.error.weatherLoad'));
         this.weatherLoading.set(false);
       }
     });
@@ -73,17 +77,22 @@ export class ApiaryDetailComponent {
         this.weatherLoading.set(false);
       },
       error: () => {
-        this.weatherError.set('Wetterdaten konnten nicht aktualisiert werden.');
+        this.weatherError.set(this.translation.t('apiaryDetail.error.weatherRefresh'));
         this.weatherLoading.set(false);
       }
     });
   }
 
   protected formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    return new Date(value).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { weekday: 'short', day: '2-digit', month: '2-digit' });
   }
 
   protected ratingLabel(rating: string): string {
-    return ({ suitable: 'geeignet', caution: 'kritisch', unsuitable: 'ungeeignet', unknown: 'keine Daten' } as Record<string, string>)[rating] ?? rating;
+    return ({
+      suitable: this.translation.t('treatments.rating.suitable'),
+      caution: this.translation.t('treatments.rating.caution'),
+      unsuitable: this.translation.t('treatments.rating.unsuitable'),
+      unknown: this.translation.t('treatments.rating.unknown')
+    } as Record<string, string>)[rating] ?? rating;
   }
 }

@@ -8,7 +8,7 @@
     }
   </header>
 
-  <section class="info-grid" aria-label="Seiteninhalt">
+  <section class="info-grid" [attr.aria-label]="page().title">
     @for (section of page().sections; track section.heading) {
       <article class="info-section">
         <h2>{{ section.heading }}</h2>

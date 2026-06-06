@@ -3,16 +3,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent {
   private readonly beekeepingService = inject(BeekeepingService);
+  private readonly translation = inject(TranslationService);
 
   protected readonly summary = toSignal(this.beekeepingService.getDashboardSummary(), {
     initialValue: {
@@ -33,7 +36,7 @@ export class DashboardComponent {
   );
 
   protected formatDate(value: string | null): string {
-    if (!value) return 'Noch keine';
-    return new Date(value).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+    if (!value) return this.translation.t('dashboard.noDate');
+    return new Date(value).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit' });
   }
 }

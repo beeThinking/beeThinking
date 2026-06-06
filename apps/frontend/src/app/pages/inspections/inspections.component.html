@@ -1,6 +1,6 @@
 <div class="page-container">
   <header class="page-header">
-    <h1>Inspektionen</h1>
+    <h1>{{ 'inspections.title' | translate }}</h1>
   </header>
 
   @if (errorMessage()) {
@@ -11,9 +11,9 @@
   }
 
   <div class="hive-selector">
-    <h2>Bienenstock wählen</h2>
+    <h2>{{ 'inspections.selectHive' | translate }}</h2>
     @if (hives().length === 0) {
-      <p class="hint">Noch keine Bienenstöcke vorhanden. <a href="/beehives">Bienenstock anlegen</a></p>
+      <p class="hint">{{ 'inspections.noHives' | translate }} <a href="/beehives">{{ 'inspections.noHives.cta' | translate }}</a></p>
     } @else {
       <div class="hive-tabs">
         @for (hive of hives(); track hive.id) {
@@ -33,62 +33,62 @@
     <div class="inspections-section">
       <div class="section-header">
         <h2>{{ selectedHive()!.name }}</h2>
-        <button class="btn btn-primary" (click)="openCreateForm()">+ Neue Inspektion</button>
+        <button class="btn btn-primary" (click)="openCreateForm()">{{ 'inspections.add' | translate }}</button>
       </div>
 
       @if (showForm()) {
-        <div class="modal-overlay" role="button" tabindex="0" aria-label="Formular schließen" (click)="closeForm()" (keydown.enter)="closeForm()">
+        <div class="modal-overlay" role="button" tabindex="0" [attr.aria-label]="'common.modalClose' | translate" (click)="closeForm()" (keydown.enter)="closeForm()">
           <div class="modal" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-            <h3>{{ editingInspection() ? 'Inspektion bearbeiten' : 'Neue Inspektion' }}</h3>
+            <h3>{{ (editingInspection() ? 'inspections.form.edit' : 'inspections.form.create') | translate }}</h3>
 
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <div class="form-row">
                 <div class="form-group">
-                  <label for="date">Datum *</label>
+                  <label for="date">{{ 'inspections.form.date' | translate }}</label>
                   <input id="date" type="date" formControlName="date" />
                 </div>
                 <div class="form-group checkbox-group">
                   <label>
                     <input type="checkbox" formControlName="queen_seen" />
-                    Königin gesehen
+                    {{ 'inspections.form.queenSeen' | translate }}
                   </label>
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label for="brood_strength">Brutstärke (1–10)</label>
+                  <label for="brood_strength">{{ 'inspections.form.broodStrength' | translate }}</label>
                   <input id="brood_strength" type="number" formControlName="brood_strength" min="1" max="10" placeholder="–" />
                   @if (form.get('brood_strength')?.errors) {
-                    <span class="field-error">Wert zwischen 1 und 10</span>
+                    <span class="field-error">{{ 'inspections.form.broodError' | translate }}</span>
                   }
                 </div>
                 <div class="form-group">
-                  <label for="food_stores">Futtervorrat (1–10)</label>
+                  <label for="food_stores">{{ 'inspections.form.foodStores' | translate }}</label>
                   <input id="food_stores" type="number" formControlName="food_stores" min="1" max="10" placeholder="–" />
                 </div>
               </div>
 
               <div class="form-group">
-                <label for="varroa_count">Varroa-Zahl (natürlicher Abfall/Tag)</label>
+                <label for="varroa_count">{{ 'inspections.form.varroaCount' | translate }}</label>
                 <input id="varroa_count" type="number" formControlName="varroa_count" min="0" step="0.1" placeholder="–" />
               </div>
 
               <div class="form-group">
-                <label for="weather">Wetter-Notiz</label>
-                <input id="weather" type="text" formControlName="weather" placeholder="Optional, sonst automatisch vom Standort" />
-                <span class="field-hint">Aktuelles Wetter wird beim Anlegen gespeichert, wenn der Bienenstand Koordinaten hat.</span>
+                <label for="weather">{{ 'inspections.form.weather' | translate }}</label>
+                <input id="weather" type="text" formControlName="weather" [placeholder]="'inspections.form.weatherPlaceholder' | translate" />
+                <span class="field-hint">{{ 'inspections.form.weatherHint' | translate }}</span>
               </div>
 
               <div class="form-group">
-                <label for="notes">Notizen</label>
-                <textarea id="notes" formControlName="notes" rows="3" placeholder="Beobachtungen, Maßnahmen..."></textarea>
+                <label for="notes">{{ 'inspections.form.notes' | translate }}</label>
+                <textarea id="notes" formControlName="notes" rows="3" [placeholder]="'inspections.form.notesPlaceholder' | translate"></textarea>
               </div>
 
               <div class="form-actions">
-                <button type="button" class="btn btn-secondary" (click)="closeForm()">Abbrechen</button>
+                <button type="button" class="btn btn-secondary" (click)="closeForm()">{{ 'inspections.form.cancel' | translate }}</button>
                 <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
-                  {{ editingInspection() ? 'Speichern' : 'Anlegen' }}
+                  {{ (editingInspection() ? 'inspections.form.save' : 'inspections.form.create.submit') | translate }}
                 </button>
               </div>
             </form>
@@ -98,8 +98,8 @@
 
       @if (inspections().length === 0) {
         <div class="empty-state">
-          <p>Noch keine Inspektionen für diesen Bienenstock.</p>
-          <button class="btn btn-primary" (click)="openCreateForm()">Erste Inspektion anlegen</button>
+          <p>{{ 'inspections.empty' | translate }}</p>
+          <button class="btn btn-primary" (click)="openCreateForm()">{{ 'inspections.empty.cta' | translate }}</button>
         </div>
       } @else {
         <div class="inspection-list">
@@ -109,35 +109,35 @@
                 <span class="inspection-date">{{ formatDate(inspection.date) }}</span>
                 <div class="inspection-badges">
                   @if (inspection.queen_seen) {
-                    <span class="badge badge-queen">Königin gesehen</span>
+                    <span class="badge badge-queen">{{ 'inspections.badge.queenSeen' | translate }}</span>
                   }
                   @if (inspection.varroa_count !== null && inspection.varroa_count > 3) {
-                    <span class="badge badge-warning">Varroa erhöht</span>
+                    <span class="badge badge-warning">{{ 'inspections.badge.varroaHigh' | translate }}</span>
                   }
                 </div>
                 <div class="inspection-actions">
-                  <button class="btn btn-sm btn-secondary" (click)="openEditForm(inspection)">Bearbeiten</button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteInspection(inspection)">Löschen</button>
+                  <button class="btn btn-sm btn-secondary" (click)="openEditForm(inspection)">{{ 'inspections.edit' | translate }}</button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteInspection(inspection)">{{ 'inspections.delete' | translate }}</button>
                 </div>
               </div>
               <div class="inspection-body">
                 <div class="inspection-stats">
                   <div class="stat">
-                    <span class="stat-label">Brutstärke</span>
+                    <span class="stat-label">{{ 'inspections.stat.brood' | translate }}</span>
                     <span class="stat-value">{{ strengthLabel(inspection.brood_strength) }}</span>
                   </div>
                   <div class="stat">
-                    <span class="stat-label">Futtervorrat</span>
+                    <span class="stat-label">{{ 'inspections.stat.food' | translate }}</span>
                     <span class="stat-value">{{ inspection.food_stores !== null ? inspection.food_stores + '/10' : '–' }}</span>
                   </div>
                   <div class="stat">
-                    <span class="stat-label">Varroa</span>
+                    <span class="stat-label">{{ 'inspections.stat.varroa' | translate }}</span>
                     <span class="stat-value" [class.varroa-high]="inspection.varroa_count !== null && inspection.varroa_count > 3">
                       {{ inspection.varroa_count !== null ? inspection.varroa_count : '–' }}
                     </span>
                   </div>
                   <div class="stat">
-                    <span class="stat-label">Wetter</span>
+                    <span class="stat-label">{{ 'inspections.stat.weather' | translate }}</span>
                     <span class="stat-value">{{ weatherSummary(inspection) }}</span>
                     @if (inspection.weather_source) {
                       <small>{{ inspection.weather_source }}</small>
@@ -151,13 +151,13 @@
                 <div class="inspection-photos">
                   <div class="photo-upload-row">
                     <label class="photo-picker">
-                      <span>Foto wählen</span>
+                      <span>{{ 'inspections.photo.choose' | translate }}</span>
                       <input type="file" accept="image/*" (change)="selectPhoto(inspection, $event)">
                     </label>
                     <input
                       type="text"
                       class="photo-caption"
-                      placeholder="Fotonotiz"
+                      [placeholder]="'inspections.photo.caption' | translate"
                       [value]="selectedPhotoInspectionId() === inspection.id ? photoCaption() : ''"
                       (input)="photoCaption.set($any($event.target).value)"
                     >
@@ -166,7 +166,7 @@
                       class="btn btn-sm btn-primary"
                       [disabled]="selectedPhotoInspectionId() !== inspection.id || !selectedPhotoFile() || photoUploadPending()"
                       (click)="uploadPhoto(inspection)">
-                      {{ photoUploadPending() && selectedPhotoInspectionId() === inspection.id ? 'Lädt ...' : 'Hochladen' }}
+                      {{ (photoUploadPending() && selectedPhotoInspectionId() === inspection.id ? 'inspections.photo.uploading' : 'inspections.photo.upload') | translate }}
                     </button>
                   </div>
 
@@ -181,13 +181,13 @@
                           @if (photo.preview_url) {
                             <img [src]="photo.preview_url" [alt]="photo.caption || photo.filename">
                           } @else {
-                            <div class="photo-fallback">Keine Vorschau</div>
+                            <div class="photo-fallback">{{ 'inspections.photo.noPreview' | translate }}</div>
                           }
                           <div>
                             <strong>{{ photo.caption || photo.filename }}</strong>
                             <span>{{ formatBytes(photo.size_bytes) }}</span>
                           </div>
-                          <button type="button" class="btn btn-sm btn-secondary" (click)="deletePhoto(photo)">Löschen</button>
+                          <button type="button" class="btn btn-sm btn-secondary" (click)="deletePhoto(photo)">{{ 'inspections.delete' | translate }}</button>
                         </article>
                       }
                     </div>

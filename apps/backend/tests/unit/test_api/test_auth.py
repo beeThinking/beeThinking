@@ -42,7 +42,7 @@ class TestRegisterEndpoint:
         response = client.post("/api/auth/register", json=user_data)
 
         assert response.status_code == 400
-        assert "already registered" in response.json()["detail"].lower()
+        assert "bereits registriert" in response.json()["detail"].lower()
 
     def test_register_duplicate_email(self, client: TestClient, test_user: User):
         """Test: Doppelte Email wird abgelehnt"""
@@ -55,7 +55,7 @@ class TestRegisterEndpoint:
         response = client.post("/api/auth/register", json=user_data)
 
         assert response.status_code == 400
-        assert "already registered" in response.json()["detail"].lower()
+        assert "bereits registriert" in response.json()["detail"].lower()
 
     def test_register_invalid_email(self, client: TestClient):
         """Test: Ungültige Email wird abgelehnt"""
@@ -138,7 +138,7 @@ class TestLoginEndpoint:
         response = client.post("/api/auth/login", data=login_data)
 
         assert response.status_code == 401
-        assert "incorrect" in response.json()["detail"].lower()
+        assert "falsch" in response.json()["detail"].lower()
 
     def test_login_wrong_username(self, client: TestClient):
         """Test: Login mit falschem Username schlägt fehl"""
@@ -191,7 +191,7 @@ class TestLoginEndpoint:
         response = client.post("/api/auth/login", data=login_data)
 
         assert response.status_code == 401
-        assert "incorrect" in response.json()["detail"].lower()
+        assert "falsch" in response.json()["detail"].lower()
 
     def test_login_returns_valid_jwt(self, client: TestClient, test_user: User, test_user_data: dict):
         """Test: Login gibt einen gültigen JWT Token zurück"""

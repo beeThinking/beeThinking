@@ -5,13 +5,17 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, combineLatest, forkJoin, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { PhotoWithPreview } from '../../core/models/beekeeping.models';
 import { HiveEvent } from '../../core/models/hive.models';
+import { HiveStatus, HiveType } from '../../core/models/hive.models';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
 
 @Component({
   selector: 'app-hive-detail',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './hive-detail.component.html',
   styleUrl: './hive-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,6 +24,7 @@ export class HiveDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly beekeepingService = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
+  private readonly translation = inject(TranslationService);
   private readonly hiveId = computed(() => Number(this.route.snapshot.paramMap.get('id')));
   private readonly photoRefresh$ = new Subject<void>();
 
@@ -62,7 +67,7 @@ export class HiveDetailComponent {
   protected readonly mergeTargetId = signal<number | null>(null);
 
   protected formatDate(value: string): string {
-    return new Date(value).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(value).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   protected formatBytes(value: number): string {
@@ -101,7 +106,7 @@ export class HiveDetailComponent {
         this.uploadPending.set(false);
       },
       error: () => {
-        this.uploadError.set('Foto konnte nicht hochgeladen werden.');
+        this.uploadError.set(this.translation.t('hiveDetail.error.upload'));
         this.uploadPending.set(false);
       }
     });
@@ -110,7 +115,7 @@ export class HiveDetailComponent {
   protected deletePhoto(photo: PhotoWithPreview): void {
     this.beekeepingService.deletePhoto(photo.id).subscribe({
       next: () => this.photoRefresh$.next(),
-      error: () => this.uploadError.set('Foto konnte nicht gelöscht werden.')
+      error: () => this.uploadError.set(this.translation.t('hiveDetail.error.deletePhoto'))
     });
   }
 
@@ -121,7 +126,7 @@ export class HiveDetailComponent {
       note: this.lifecycleNote() || undefined
     }).subscribe({
       next: () => window.location.reload(),
-      error: () => this.lifecycleError.set('Volk konnte nicht archiviert werden.')
+      error: () => this.lifecycleError.set(this.translation.t('hiveDetail.error.archive'))
     });
   }
 
@@ -132,14 +137,14 @@ export class HiveDetailComponent {
       note: this.lifecycleNote() || undefined
     }).subscribe({
       next: () => window.location.reload(),
-      error: () => this.lifecycleError.set('Volk konnte nicht aufgelöst werden.')
+      error: () => this.lifecycleError.set(this.translation.t('hiveDetail.error.dissolve'))
     });
   }
 
   protected mergeHive(): void {
     const target = this.mergeTargetId();
     if (!target) {
-      this.lifecycleError.set('Zielvolk fehlt.');
+      this.lifecycleError.set(this.translation.t('hiveDetail.error.targetMissing'));
       return;
     }
     this.hiveService.mergeHive(this.hiveId(), {
@@ -149,7 +154,32 @@ export class HiveDetailComponent {
       target_hive_id: target
     }).subscribe({
       next: () => window.location.reload(),
-      error: () => this.lifecycleError.set('Völker konnten nicht vereinigt werden.')
+      error: () => this.lifecycleError.set(this.translation.t('hiveDetail.error.merge'))
     });
+  }
+
+  protected statusLabel(status: HiveStatus): string {
+    const key = ({
+      active: 'beehives.status.active',
+      archived: 'beehives.status.archived',
+      dissolved: 'beehives.status.dissolved',
+      merged: 'beehives.status.merged',
+      sold: 'beehives.status.sold',
+      dead: 'beehives.status.dead',
+      inactive: 'beehives.status.inactive',
+      lost: 'beehives.status.lost',
+      created_by_mistake: 'beehives.status.created_by_mistake'
+    } satisfies Record<HiveStatus, TranslationKey>)[status];
+    return this.translation.t(key);
+  }
+
+  protected typeLabel(type: HiveType): string {
+    const key = ({
+      langstroth: 'beehives.type.langstroth',
+      dadant: 'beehives.type.dadant',
+      zander: 'beehives.type.zander',
+      other: 'beehives.type.other'
+    } satisfies Record<HiveType, TranslationKey>)[type];
+    return this.translation.t(key);
   }
 }

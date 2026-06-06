@@ -3,16 +3,19 @@ import { en, TranslationKey } from '../i18n/en';
 import { de } from '../i18n/de';
 
 type Translations = Record<string, string>;
-type Lang = 'en' | 'de';
+export type Lang = 'en' | 'de';
 
 const TRANSLATIONS: Record<Lang, Translations> = { en: en as Translations, de: de as Translations };
 const STORAGE_KEY = 'bee_lang';
 
+function storedLang(): Lang {
+  const value = globalThis.localStorage?.getItem(STORAGE_KEY);
+  return value === 'en' || value === 'de' ? value : 'de';
+}
+
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
-  readonly currentLang = signal<Lang>(
-    (localStorage.getItem(STORAGE_KEY) as Lang | null) ?? 'de'
-  );
+  readonly currentLang = signal<Lang>(storedLang());
 
   t(key: TranslationKey, params?: Record<string, string | number>): string {
     const dict = TRANSLATIONS[this.currentLang()];
@@ -27,7 +30,7 @@ export class TranslationService {
 
   setLang(lang: Lang): void {
     this.currentLang.set(lang);
-    localStorage.setItem(STORAGE_KEY, lang);
+    globalThis.localStorage?.setItem(STORAGE_KEY, lang);
   }
 
   toggleLang(): void {

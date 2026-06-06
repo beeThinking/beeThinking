@@ -1,10 +1,10 @@
 <div class="page-container">
   <header class="page-header">
     <div class="header-row">
-      <h1>Bienenstöcke</h1>
+      <h1>{{ 'beehives.title' | translate }}</h1>
       <div class="header-actions">
-        <a class="btn btn-secondary" routerLink="/hives/archive">Archiv</a>
-        <button class="btn btn-primary" (click)="openCreateForm()">+ Neuer Bienenstock</button>
+        <a class="btn btn-secondary" routerLink="/hives/archive">{{ 'beehives.archive' | translate }}</a>
+        <button class="btn btn-primary" (click)="openCreateForm()">{{ 'beehives.add' | translate }}</button>
       </div>
     </div>
   </header>
@@ -14,35 +14,35 @@
   }
 
   @if (showForm()) {
-    <div class="modal-overlay" role="button" tabindex="0" aria-label="Formular schließen" (click)="closeForm()" (keydown.enter)="closeForm()">
+    <div class="modal-overlay" role="button" tabindex="0" [attr.aria-label]="'common.modalClose' | translate" (click)="closeForm()" (keydown.enter)="closeForm()">
       <div class="modal" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-        <h2>{{ editingHive() ? 'Bienenstock bearbeiten' : 'Neuer Bienenstock' }}</h2>
+        <h2>{{ (editingHive() ? 'beehives.form.edit' : 'beehives.form.create') | translate }}</h2>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="name">Name *</label>
-            <input id="name" type="text" formControlName="name" placeholder="z.B. Volk Alpha" />
+            <label for="name">{{ 'beehives.form.name' | translate }}</label>
+            <input id="name" type="text" formControlName="name" [placeholder]="'beehives.form.namePlaceholder' | translate" />
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
-              <span class="field-error">Name ist erforderlich.</span>
+              <span class="field-error">{{ 'beehives.form.nameRequired' | translate }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label for="apiary_id">Stand *</label>
+            <label for="apiary_id">{{ 'beehives.form.apiary' | translate }}</label>
             <select id="apiary_id" formControlName="apiary_id">
-              <option [value]="null">-- Stand wählen --</option>
+              <option [value]="null">{{ 'beehives.form.apiaryPlaceholder' | translate }}</option>
               @for (apiary of apiaries(); track apiary.id) {
                 <option [value]="apiary.id">{{ apiary.name }}</option>
               }
             </select>
             @if (form.get('apiary_id')?.invalid && form.get('apiary_id')?.touched) {
-              <span class="field-error">Stand ist erforderlich.</span>
+              <span class="field-error">{{ 'beehives.form.apiaryRequired' | translate }}</span>
             }
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="type">Typ</label>
+              <label for="type">{{ 'beehives.form.type' | translate }}</label>
               <select id="type" formControlName="type">
                 @for (t of hiveTypes; track t) {
                   <option [value]="t">{{ typeLabel(t) }}</option>
@@ -51,7 +51,7 @@
             </div>
 
             <div class="form-group">
-              <label for="status">Status</label>
+              <label for="status">{{ 'beehives.form.status' | translate }}</label>
               <select id="status" formControlName="status">
                 @for (s of hiveStatuses; track s) {
                   <option [value]="s">{{ statusLabel(s) }}</option>
@@ -61,14 +61,14 @@
           </div>
 
           <div class="form-group">
-            <label for="notes">Notizen</label>
-            <textarea id="notes" formControlName="notes" rows="3" placeholder="Optionale Anmerkungen..."></textarea>
+            <label for="notes">{{ 'beehives.form.notes' | translate }}</label>
+            <textarea id="notes" formControlName="notes" rows="3" [placeholder]="'beehives.form.notesPlaceholder' | translate"></textarea>
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" (click)="closeForm()">Abbrechen</button>
+            <button type="button" class="btn btn-secondary" (click)="closeForm()">{{ 'beehives.form.cancel' | translate }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
-              {{ editingHive() ? 'Speichern' : 'Anlegen' }}
+              {{ (editingHive() ? 'beehives.form.save' : 'beehives.form.create.submit') | translate }}
             </button>
           </div>
         </form>
@@ -77,11 +77,11 @@
   }
 
   @if (isLoading()) {
-    <div class="loading">Lade Bienenstöcke...</div>
+    <div class="loading">{{ 'beehives.loading' | translate }}</div>
   } @else if (hives().length === 0) {
     <div class="empty-state">
-      <p>Noch keine Bienenstöcke angelegt.</p>
-      <button class="btn btn-primary" (click)="openCreateForm()">Ersten Bienenstock anlegen</button>
+      <p>{{ 'beehives.empty' | translate }}</p>
+      <button class="btn btn-primary" (click)="openCreateForm()">{{ 'beehives.empty.cta' | translate }}</button>
     </div>
   } @else {
     <div class="hive-grid">
@@ -92,17 +92,17 @@
             <span class="status-badge status-{{ hive.status }}">{{ statusLabel(hive.status) }}</span>
           </div>
           <div class="hive-card-body">
-            <p class="hive-meta"><span class="label">Stand</span> {{ apiaryName(hive.apiary_id) }}</p>
-            <p class="hive-meta"><span class="label">Typ</span> {{ typeLabel(hive.type) }}</p>
+            <p class="hive-meta"><span class="label">{{ 'beehives.meta.apiary' | translate }}</span> {{ apiaryName(hive.apiary_id) }}</p>
+            <p class="hive-meta"><span class="label">{{ 'beehives.meta.type' | translate }}</span> {{ typeLabel(hive.type) }}</p>
             @if (hive.notes) {
               <p class="hive-notes">{{ hive.notes }}</p>
             }
           </div>
           <div class="hive-card-actions">
-            <a class="btn btn-sm btn-primary" [routerLink]="['/beehives', hive.id, 'inspect']">Durchsicht</a>
-            <a class="btn btn-sm btn-secondary" [routerLink]="['/beehives', hive.id]">Details</a>
-            <button class="btn btn-sm btn-secondary" (click)="openEditForm(hive)">Bearbeiten</button>
-            <button class="btn btn-sm btn-danger" (click)="deleteHive(hive)">Löschen</button>
+            <a class="btn btn-sm btn-primary" [routerLink]="['/beehives', hive.id, 'inspect']">{{ 'beehives.inspect' | translate }}</a>
+            <a class="btn btn-sm btn-secondary" [routerLink]="['/beehives', hive.id]">{{ 'beehives.details' | translate }}</a>
+            <button class="btn btn-sm btn-secondary" (click)="openEditForm(hive)">{{ 'beehives.edit' | translate }}</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteHive(hive)">{{ 'beehives.delete' | translate }}</button>
           </div>
         </div>
       }
