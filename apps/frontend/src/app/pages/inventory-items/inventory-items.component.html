@@ -1,0 +1,34 @@
+<div class="inventory-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Lager</p>
+      <h1>Bestände</h1>
+      <p>{{ honeyTotal() | number:'1.0-1' }} Einheiten Honig im Bestand</p>
+    </div>
+    <a href="/inventory/articles">Artikel</a>
+  </header>
+  <section class="form-panel">
+    <label>Artikel
+      <select [ngModel]="articleId()" (ngModelChange)="articleId.set(+$event)">
+        @for (article of articles(); track article.id) { <option [value]="article.id">{{ article.name }}</option> }
+      </select>
+    </label>
+    <label>Menge <input type="number" step="0.1" [ngModel]="quantity()" (ngModelChange)="quantity.set(+$event)"></label>
+    <label>Einheit <input [ngModel]="unit()" (ngModelChange)="unit.set($event)"></label>
+    <label>VK-Preis <input type="number" step="0.01" [ngModel]="price()" (ngModelChange)="price.set($event === '' ? null : +$event)"></label>
+    <label>MHD <input type="date" [ngModel]="bestBefore()" (ngModelChange)="bestBefore.set($event)"></label>
+    <label>Charge <input [ngModel]="batchCode()" (ngModelChange)="batchCode.set($event)"></label>
+    <button type="button" (click)="create()">Einlagern</button>
+  </section>
+  @if (message()) { <p class="message">{{ message() }}</p> }
+  <section class="list">
+    @for (item of items(); track item.id) {
+      <article class="row">
+        <div><strong>{{ item.article.name }}</strong><span>{{ item.article.category }} · {{ item.batch_code || 'ohne Charge' }}</span></div>
+        <span>{{ item.quantity | number:'1.0-2' }} {{ item.unit }}</span>
+        <span>{{ item.price ?? 0 | number:'1.2-2' }} €</span>
+        <button type="button" (click)="delete(item)">Löschen</button>
+      </article>
+    } @empty { <div class="empty-panel">Noch kein Bestand.</div> }
+  </section>
+</div>

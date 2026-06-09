@@ -1,0 +1,54 @@
+<div class="stock-page">
+  @if (hive(); as hive) {
+    <header class="work-header">
+      <div>
+        <a routerLink="/beehives" class="back-link">Zurück</a>
+        <p class="eyebrow">Stockkarte</p>
+        <h1>{{ hive.name }}</h1>
+        <p>{{ hive.type }} · {{ hive.status }}</p>
+      </div>
+      <div class="qr-box">
+        <span>QR-Link</span>
+        <code>{{ qrUrl() }}</code>
+      </div>
+    </header>
+
+    <section class="filters">
+      <label>Typ
+        <select [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
+          @for (type of eventTypes(); track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </label>
+      <label>Von
+        <input type="date" [value]="fromDate()" (input)="fromDate.set($any($event.target).value)">
+      </label>
+      <label>Bis
+        <input type="date" [value]="toDate()" (input)="toDate.set($any($event.target).value)">
+      </label>
+    </section>
+
+    <section class="timeline">
+      @for (event of events(); track event.type + event.id) {
+        <article class="event">
+          <time>{{ event.date | date:'dd.MM.yyyy' }}</time>
+          <div>
+            <strong>{{ event.title }}</strong>
+            <span>{{ eventMeta(event) }}</span>
+            @if (event.notes) { <p>{{ event.notes }}</p> }
+            @if (event.warnings?.length) {
+              <ul>
+                @for (warning of event.warnings; track warning) { <li>{{ warning }}</li> }
+              </ul>
+            }
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-panel">Keine Einträge für Filter.</div>
+      }
+    </section>
+  } @else {
+    <div class="empty-panel">Stockkarte wird geladen...</div>
+  }
+</div>

@@ -1,0 +1,31 @@
+<div class="inventory-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Lager</p>
+      <h1>Artikel</h1>
+    </div>
+    <a href="/inventory/items">Bestände</a>
+  </header>
+  <section class="form-panel">
+    <label>Name <input [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="Neutralglas 500g"></label>
+    <label>Kategorie
+      <select [ngModel]="category()" (ngModelChange)="category.set($event)">
+        @for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }
+      </select>
+    </label>
+    <label>Artikelnummer <input [ngModel]="sku()" (ngModelChange)="sku.set($event)"></label>
+    <label>Einheit <input [ngModel]="unit()" (ngModelChange)="unit.set($event)"></label>
+    <label>Gewicht kg <input type="number" step="0.001" [ngModel]="weightKg()" (ngModelChange)="weightKg.set($event === '' ? null : +$event)"></label>
+    <button type="button" (click)="create()">Anlegen</button>
+  </section>
+  @if (message()) { <p class="message">{{ message() }}</p> }
+  <section class="list">
+    @for (article of articles(); track article.id) {
+      <article class="row">
+        <div><strong>{{ article.name }}</strong><span>{{ article.category }} · {{ article.sku || 'ohne Nummer' }}</span></div>
+        <span>{{ article.weight_kg || 0 }} kg / {{ article.unit }}</span>
+        <button type="button" (click)="delete(article)">Löschen</button>
+      </article>
+    } @empty { <div class="empty-panel">Noch keine Artikel.</div> }
+  </section>
+</div>
