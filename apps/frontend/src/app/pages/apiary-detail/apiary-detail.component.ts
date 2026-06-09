@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
@@ -14,7 +15,7 @@ import { TranslationKey } from '../../core/i18n/en';
 @Component({
   selector: 'app-apiary-detail',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, ApiaryMapPickerComponent, TranslatePipe],
+  imports: [DecimalPipe, FormsModule, RouterLink, ApiaryMapPickerComponent, TranslatePipe],
   templateUrl: './apiary-detail.component.html',
   styleUrl: './apiary-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -36,6 +37,14 @@ export class ApiaryDetailComponent {
   protected readonly weatherError = signal('');
   protected readonly weatherLoading = signal(false);
   protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
+  protected readonly batchActionType = signal<'inspection' | 'treatment' | 'feeding' | 'harvest'>('inspection');
+  protected readonly selectedHiveIds = signal<number[]>([]);
+  protected readonly batchDate = signal(new Date().toISOString().slice(0, 10));
+  protected readonly batchNotes = signal('');
+  protected readonly batchAmount = signal<number | null>(null);
+  protected readonly batchLabel = signal('');
+  protected readonly batchSaving = signal(false);
+  protected readonly batchMessage = signal('');
 
   protected readonly treatmentOptions: { value: VarroaTreatmentType; labelKey: TranslationKey }[] = [
     { value: 'formic_acid_short', labelKey: 'apiaryDetail.treatment.formicShort' },
@@ -94,5 +103,43 @@ export class ApiaryDetailComponent {
       unsuitable: this.translation.t('treatments.rating.unsuitable'),
       unknown: this.translation.t('treatments.rating.unknown')
     } as Record<string, string>)[rating] ?? rating;
+  }
+
+  protected toggleHive(id: number, checked: boolean): void {
+    this.selectedHiveIds.update(ids => checked ? [...new Set([...ids, id])] : ids.filter(existing => existing !== id));
+  }
+
+  protected submitBatchAction(): void {
+    const hiveIds = this.selectedHiveIds();
+    if (hiveIds.length === 0) {
+      this.batchMessage.set('Bitte mindestens ein Volk wählen.');
+      return;
+    }
+    this.batchSaving.set(true);
+    this.batchMessage.set('');
+    const action = this.batchActionType();
+    const label = this.batchLabel().trim();
+    const amount = this.batchAmount();
+    const payload = {
+      hive_ids: hiveIds,
+      date: this.batchDate(),
+      notes: this.batchNotes() || undefined,
+      queen_seen: false,
+      product: action === 'treatment' ? (label || 'Varroabehandlung') : undefined,
+      feed_type: action === 'feeding' ? (label || 'Futter') : undefined,
+      amount_kg_or_l: action === 'feeding' ? (amount ?? 0.1) : undefined,
+      crop_type: action === 'harvest' ? (label || 'Honig') : undefined,
+      amount_kg: action === 'harvest' ? (amount ?? 0) : undefined
+    };
+    this.apiaryService.createBatchAction(this.apiaryId, action, payload).subscribe({
+      next: result => {
+        this.batchMessage.set(`${result.created} Einträge angelegt.`);
+        this.batchSaving.set(false);
+      },
+      error: () => {
+        this.batchMessage.set('Sammelaktion konnte nicht gespeichert werden.');
+        this.batchSaving.set(false);
+      }
+    });
   }
 }

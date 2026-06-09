@@ -26,8 +26,13 @@ export class DashboardComponent {
       tasks_due_this_week: 0,
       treatment_count: 0,
       harvest_kg_total: 0,
+      inventory_item_count: 0,
       latest_inspection_date: null,
-      hives: []
+      hives: [],
+      apiaries: [],
+      open_tasks: [],
+      upcoming_appointments: [],
+      low_inventory: []
     }
   });
 

@@ -19,6 +19,51 @@
       <section class="note-panel">{{ apiary.notes }}</section>
     }
 
+    <section class="batch-panel">
+      <div class="section-title">
+        <div>
+          <h2>Sammelaktion</h2>
+          <p>Durchsicht, Behandlung, Fütterung oder Ernte für mehrere Völker erfassen.</p>
+        </div>
+      </div>
+      <div class="batch-grid">
+        <label>Aktion
+          <select [ngModel]="batchActionType()" (ngModelChange)="batchActionType.set($event)">
+            <option value="inspection">Durchsicht</option>
+            <option value="treatment">Varroabehandlung</option>
+            <option value="feeding">Fütterung</option>
+            <option value="harvest">Honigernte</option>
+          </select>
+        </label>
+        <label>Datum
+          <input type="date" [ngModel]="batchDate()" (ngModelChange)="batchDate.set($event)">
+        </label>
+        <label>Bezeichnung
+          <input [ngModel]="batchLabel()" (ngModelChange)="batchLabel.set($event)" placeholder="Futter, Produkt, Tracht">
+        </label>
+        <label>Menge
+          <input type="number" min="0" step="0.1" [ngModel]="batchAmount()" (ngModelChange)="batchAmount.set($event === '' ? null : +$event)">
+        </label>
+      </div>
+      <div class="hive-checks">
+        @for (hive of apiaryHives(); track hive.id) {
+          <label>
+            <input type="checkbox" [checked]="selectedHiveIds().includes(hive.id)" (change)="toggleHive(hive.id, $any($event.target).checked)">
+            {{ hive.name }}
+          </label>
+        } @empty {
+          <div class="empty-panel">Keine Völker an diesem Stand.</div>
+        }
+      </div>
+      <label class="notes-field">Notizen
+        <textarea [ngModel]="batchNotes()" (ngModelChange)="batchNotes.set($event)" rows="3"></textarea>
+      </label>
+      <div class="batch-actions">
+        <button type="button" class="primary-action" [disabled]="batchSaving()" (click)="submitBatchAction()">Speichern</button>
+        @if (batchMessage()) { <span>{{ batchMessage() }}</span> }
+      </div>
+    </section>
+
     @if (apiary.latitude !== null && apiary.longitude !== null) {
       <section class="map-panel">
         <app-apiary-map-picker
@@ -82,6 +127,7 @@
             <span>{{ hive.name }}</span>
             <small>{{ hive.type }} · {{ hive.status }}</small>
           </a>
+          <a class="hive-row stock-link" [routerLink]="['/stock-card', hive.id]">Stockkarte / QR</a>
         } @empty {
           <div class="empty-panel">{{ 'apiaryDetail.noHives' | translate }}</div>
         }

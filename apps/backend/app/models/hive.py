@@ -48,6 +48,7 @@ class Hive(Base):
     tasks = relationship("Task", back_populates="hive")
     treatments = relationship("Treatment", back_populates="hive", cascade="all, delete-orphan")
     harvests = relationship("Harvest", back_populates="hive")
+    feedings = relationship("Feeding", back_populates="hive")
     photos = relationship("Photo", back_populates="hive")
     merged_into_hive = relationship("Hive", remote_side=[id])
     events = relationship("HiveEvent", back_populates="hive", cascade="all, delete-orphan")

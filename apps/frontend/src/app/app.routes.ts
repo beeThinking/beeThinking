@@ -67,8 +67,23 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'stands',
+    loadComponent: () => import('./pages/apiaries/apiaries.component').then(m => m.ApiariesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'apiaries/:id',
     loadComponent: () => import('./pages/apiary-detail/apiary-detail.component').then(m => m.ApiaryDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'stands/:id',
+    loadComponent: () => import('./pages/apiary-detail/apiary-detail.component').then(m => m.ApiaryDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'stock-card/:hiveId',
+    loadComponent: () => import('./pages/stock-card/stock-card.component').then(m => m.StockCardComponent),
     canActivate: [authGuard]
   },
   {
@@ -114,6 +129,21 @@ export const routes: Routes = [
   {
     path: 'appointments',
     loadComponent: () => import('./pages/appointments/appointments.component').then(m => m.AppointmentsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/articles',
+    loadComponent: () => import('./pages/inventory-articles/inventory-articles.component').then(m => m.InventoryArticlesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/items',
+    loadComponent: () => import('./pages/inventory-items/inventory-items.component').then(m => m.InventoryItemsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'office/reports',
+    loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [authGuard]
   },
   {

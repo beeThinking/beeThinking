@@ -1,8 +1,32 @@
-<div class="page-container">
-  <header class="page-header">
-    <h1>{{ 'appointments.title' | translate }}</h1>
+<div class="appointments-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Büro</p>
+      <h1>Termine</h1>
+    </div>
   </header>
-  <div class="page-content">
-    <p>{{ 'comingSoon' | translate }}</p>
-  </div>
+
+  <section class="form-panel">
+    <label>Titel <input [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="Standkontrolle"></label>
+    <label>Start <input type="datetime-local" [ngModel]="startAt()" (ngModelChange)="startAt.set($event)"></label>
+    <label>Notiz <input [ngModel]="description()" (ngModelChange)="description.set($event)"></label>
+    <button type="button" (click)="create()">Anlegen</button>
+  </section>
+
+  @if (message()) { <p class="message">{{ message() }}</p> }
+
+  <section class="list">
+    @for (appointment of appointments(); track appointment.id) {
+      <article class="row">
+        <div>
+          <strong>{{ appointment.title }}</strong>
+          <span>{{ appointment.description || 'Ohne Notiz' }}</span>
+        </div>
+        <time>{{ (appointment.start_at || appointment.due_date) | date:'dd.MM.yyyy HH:mm' }}</time>
+        <button type="button" (click)="complete(appointment)">Erledigt</button>
+      </article>
+    } @empty {
+      <div class="empty-panel">Keine Termine.</div>
+    }
+  </section>
 </div>

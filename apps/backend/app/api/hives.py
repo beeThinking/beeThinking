@@ -5,6 +5,7 @@ from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
 from app.models.harvest import Harvest
+from app.models.feeding import Feeding
 from app.models.inspection import Inspection
 from app.models.photo import Photo
 from app.models.task import Task
@@ -109,6 +110,15 @@ def get_hive_timeline(
             "title": harvest.crop_type or "Harvest",
             "amount_kg": harvest.amount_kg,
         })
+    for feeding in db.query(Feeding).filter(Feeding.owner_id == current_user.id, Feeding.hive_id == hive_id).all():
+        events.append({
+            "type": "feeding",
+            "id": feeding.id,
+            "date": feeding.date,
+            "title": feeding.feed_type,
+            "amount_kg_or_l": feeding.amount_kg_or_l,
+            "notes": feeding.notes,
+        })
     for photo in db.query(Photo).filter(Photo.owner_id == current_user.id, Photo.hive_id == hive_id).all():
         events.append({
             "type": "photo",
@@ -119,6 +129,22 @@ def get_hive_timeline(
         })
 
     return sorted(events, key=lambda event: event["date"], reverse=True)
+
+
+@router.get("/{hive_id}/stock-card")
+def get_stock_card(
+    hive_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not db_hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return {
+        "hive": db_hive,
+        "qr_url": f"/stock-card/{db_hive.id}",
+        "events": get_hive_timeline(hive_id=hive_id, db=db, current_user=current_user),
+    }
 
 
 @router.get("/{hive_id}/history", response_model=list[HiveEventResponse])

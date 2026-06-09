@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api import auth, users, hives, inspections, apiaries, dashboard, harvests, photos, queens, reports, tasks, treatments
+from app.api import apiaries, auth, dashboard, feedings, harvests, hives, inspections, inventory, photos, queens, reports, tasks, treatments, users
 
 settings = get_settings()
 
@@ -29,6 +29,9 @@ app.include_router(inspections.router, prefix="/api/hives/{hive_id}/inspections"
 app.include_router(tasks.router, prefix="/api/tasks", tags=["Tasks"])
 app.include_router(treatments.router, prefix="/api/treatments", tags=["Treatments"])
 app.include_router(harvests.router, prefix="/api/harvests", tags=["Harvests"])
+app.include_router(feedings.router, prefix="/api/feedings", tags=["Feedings"])
+app.include_router(inventory.articles_router, prefix="/api/articles", tags=["Articles"])
+app.include_router(inventory.items_router, prefix="/api/inventory-items", tags=["Inventory"])
 app.include_router(queens.router, prefix="/api/queens", tags=["Queens"])
 app.include_router(photos.router, prefix="/api/photos", tags=["Photos"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])

@@ -25,6 +25,11 @@ class TaskSource(str, enum.Enum):
     system = "system"
 
 
+class TaskKind(str, enum.Enum):
+    todo = "todo"
+    appointment = "appointment"
+
+
 class Task(Base):
     __tablename__ = "tasks"
 
@@ -35,6 +40,9 @@ class Task(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
     due_date = Column(Date, nullable=True)
+    start_at = Column(DateTime(timezone=True), nullable=True)
+    end_at = Column(DateTime(timezone=True), nullable=True)
+    kind = Column(Enum(TaskKind), default=TaskKind.todo, nullable=False)
     priority = Column(Enum(TaskPriority), default=TaskPriority.medium, nullable=False)
     status = Column(Enum(TaskStatus), default=TaskStatus.open, nullable=False)
     source = Column(Enum(TaskSource), default=TaskSource.manual, nullable=False)

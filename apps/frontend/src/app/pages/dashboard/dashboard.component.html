@@ -24,13 +24,63 @@
       <span class="metric-value">{{ summary().harvest_kg_total | number:'1.0-1' }}</span>
       <span class="metric-label">{{ 'dashboard.honeyKg' | translate }}</span>
     </a>
+    <a class="metric" routerLink="/inventory/items">
+      <span class="metric-value">{{ summary().inventory_item_count }}</span>
+      <span class="metric-label">Lager</span>
+    </a>
   </section>
 
   <section class="action-strip">
-    <a routerLink="/tasks">{{ 'dashboard.tasks' | translate }}</a>
+    <a routerLink="/stands">Stände</a>
     <a routerLink="/beehives">{{ 'dashboard.colonies' | translate }}</a>
     <a routerLink="/treatments">{{ 'dashboard.treatments' | translate }}</a>
     <a routerLink="/harvests">{{ 'dashboard.harvests' | translate }}</a>
+    <a routerLink="/office/reports">Reports</a>
+  </section>
+
+  <section class="overview-grid">
+    <article class="overview-panel">
+      <div class="section-title"><h2>Stände</h2><a routerLink="/stands">Alle</a></div>
+      @for (apiary of summary().apiaries; track apiary.id) {
+        <a class="hive-status" [routerLink]="['/stands', apiary.id]">
+          <strong>{{ apiary.name }}</strong>
+          <span>{{ apiary.hive_count }} Völker</span>
+          <span>{{ apiary.address || 'Ohne Adresse' }}</span>
+        </a>
+      } @empty { <div class="empty-panel">Noch keine Stände.</div> }
+    </article>
+
+    <article class="overview-panel">
+      <div class="section-title"><h2>Todo</h2><a routerLink="/tasks">Alle</a></div>
+      @for (task of summary().open_tasks; track task.id) {
+        <a class="hive-status" routerLink="/tasks">
+          <strong>{{ task.title }}</strong>
+          <span>{{ task.due_date ? formatDate(task.due_date) : 'Ohne Datum' }}</span>
+          <span>{{ task.priority }}</span>
+        </a>
+      } @empty { <div class="empty-panel">Keine offenen Aufgaben.</div> }
+    </article>
+
+    <article class="overview-panel">
+      <div class="section-title"><h2>Termine</h2><a routerLink="/appointments">Alle</a></div>
+      @for (appointment of summary().upcoming_appointments; track appointment.id) {
+        <a class="hive-status" routerLink="/appointments">
+          <strong>{{ appointment.title }}</strong>
+          <span>{{ appointment.start_at ? formatDate(appointment.start_at) : (appointment.due_date ? formatDate(appointment.due_date) : 'Ohne Datum') }}</span>
+        </a>
+      } @empty { <div class="empty-panel">Keine Termine.</div> }
+    </article>
+
+    <article class="overview-panel">
+      <div class="section-title"><h2>Lager</h2><a routerLink="/inventory/items">Alle</a></div>
+      @for (item of summary().low_inventory; track item.id) {
+        <a class="hive-status" routerLink="/inventory/items">
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.quantity | number:'1.0-1' }} {{ item.unit }}</span>
+          <span>{{ item.category }}</span>
+        </a>
+      } @empty { <div class="empty-panel">Kein Bestand erfasst.</div> }
+    </article>
   </section>
 
   <section class="status-section">

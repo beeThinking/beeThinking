@@ -117,6 +117,18 @@
   gap: var(--space-sm);
 }
 
+.overview-grid {
+  display: grid;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.overview-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-sm);
+}
+
 .hive-status {
   display: grid;
   grid-template-columns: 1fr;
@@ -133,10 +145,14 @@
   }
 
   .metric-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .action-strip {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

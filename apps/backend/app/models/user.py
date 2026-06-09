@@ -24,3 +24,6 @@ class User(Base):
     harvests = relationship("Harvest", back_populates="owner", cascade="all, delete-orphan")
     photos = relationship("Photo", back_populates="owner", cascade="all, delete-orphan")
     varroa_weather_windows = relationship("VarroaWeatherWindow", back_populates="owner", cascade="all, delete-orphan")
+    feedings = relationship("Feeding", back_populates="owner", cascade="all, delete-orphan")
+    articles = relationship("Article", back_populates="owner", cascade="all, delete-orphan")
+    inventory_items = relationship("InventoryItem", back_populates="owner", cascade="all, delete-orphan")

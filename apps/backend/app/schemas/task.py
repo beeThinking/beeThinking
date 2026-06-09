@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.models.task import TaskPriority, TaskSource, TaskStatus
+from app.models.task import TaskKind, TaskPriority, TaskSource, TaskStatus
 
 
 class TaskBase(BaseModel):
@@ -12,6 +12,9 @@ class TaskBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=2000)
     due_date: Optional[date] = None
+    start_at: Optional[datetime] = None
+    end_at: Optional[datetime] = None
+    kind: TaskKind = TaskKind.todo
     priority: TaskPriority = TaskPriority.medium
     status: TaskStatus = TaskStatus.open
     source: TaskSource = TaskSource.manual
@@ -27,6 +30,9 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=2000)
     due_date: Optional[date] = None
+    start_at: Optional[datetime] = None
+    end_at: Optional[datetime] = None
+    kind: Optional[TaskKind] = None
     priority: Optional[TaskPriority] = None
     status: Optional[TaskStatus] = None
     source: Optional[TaskSource] = None

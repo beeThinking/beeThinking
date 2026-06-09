@@ -1,6 +1,7 @@
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TaskStatus = 'open' | 'done' | 'cancelled';
 export type TaskSource = 'manual' | 'inspection' | 'system';
+export type TaskKind = 'todo' | 'appointment';
 export type VarroaTreatmentType =
   | 'formic_acid_short'
   | 'formic_acid_long'
@@ -66,6 +67,9 @@ export interface Task {
   title: string;
   description: string | null;
   due_date: string | null;
+  start_at: string | null;
+  end_at: string | null;
+  kind: TaskKind;
   priority: TaskPriority;
   status: TaskStatus;
   source: TaskSource;
@@ -80,6 +84,9 @@ export interface TaskCreate {
   title: string;
   description?: string;
   due_date?: string;
+  start_at?: string;
+  end_at?: string;
+  kind?: TaskKind;
   priority?: TaskPriority;
   status?: TaskStatus;
   source?: TaskSource;
@@ -146,6 +153,85 @@ export interface HarvestCreate {
 
 export type HarvestUpdate = Partial<HarvestCreate>;
 
+export interface Feeding {
+  id: number;
+  owner_id: number;
+  apiary_id: number | null;
+  hive_id: number | null;
+  date: string;
+  feed_type: string;
+  amount_kg_or_l: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface FeedingCreate {
+  apiary_id?: number | null;
+  hive_id?: number | null;
+  date: string;
+  feed_type: string;
+  amount_kg_or_l: number;
+  notes?: string;
+}
+
+export type FeedingUpdate = Partial<FeedingCreate>;
+
+export type ArticleCategory = 'honey' | 'material' | 'feed' | 'other';
+
+export interface Article {
+  id: number;
+  owner_id: number;
+  category: ArticleCategory;
+  name: string;
+  sku: string | null;
+  weight_kg: number | null;
+  unit: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface ArticleCreate {
+  category?: ArticleCategory;
+  name: string;
+  sku?: string;
+  weight_kg?: number | null;
+  unit?: string;
+  notes?: string;
+}
+
+export type ArticleUpdate = Partial<ArticleCreate>;
+
+export interface InventoryItem {
+  id: number;
+  owner_id: number;
+  article_id: number;
+  article: Article;
+  quantity: number;
+  unit: string;
+  price: number | null;
+  best_before: string | null;
+  batch_code: string | null;
+  archived: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface InventoryItemCreate {
+  article_id: number;
+  quantity?: number;
+  unit?: string;
+  price?: number | null;
+  best_before?: string | null;
+  batch_code?: string;
+  archived?: boolean;
+  notes?: string;
+}
+
+export type InventoryItemUpdate = Partial<InventoryItemCreate>;
+
 export interface DashboardHiveStatus {
   hive_id: number;
   name: string;
@@ -162,12 +248,17 @@ export interface DashboardSummary {
   tasks_due_this_week: number;
   treatment_count: number;
   harvest_kg_total: number;
+  inventory_item_count: number;
   latest_inspection_date: string | null;
   hives: DashboardHiveStatus[];
+  apiaries: { id: number; name: string; hive_count: number; address: string | null }[];
+  open_tasks: { id: number; title: string; due_date: string | null; priority: TaskPriority; apiary_id: number | null; hive_id: number | null }[];
+  upcoming_appointments: { id: number; title: string; due_date: string | null; start_at: string | null; apiary_id: number | null; hive_id: number | null }[];
+  low_inventory: { id: number; name: string; category: ArticleCategory; quantity: number; unit: string }[];
 }
 
 export interface TimelineEvent {
-  type: 'inspection' | 'task' | 'treatment' | 'harvest' | 'photo';
+  type: 'inspection' | 'task' | 'treatment' | 'harvest' | 'photo' | 'feeding' | string;
   id: number;
   date: string;
   title: string;
@@ -175,5 +266,30 @@ export interface TimelineEvent {
   status?: string;
   warnings?: string[];
   amount_kg?: number;
+  amount_kg_or_l?: number;
   caption?: string | null;
+}
+
+export interface StockCard {
+  hive: unknown;
+  qr_url: string;
+  events: TimelineEvent[];
+}
+
+export interface BatchActionCreate {
+  hive_ids: number[];
+  date: string;
+  notes?: string;
+  queen_seen?: boolean;
+  brood_strength?: number | null;
+  varroa_count?: number | null;
+  food_stores?: number | null;
+  product?: string;
+  method?: string;
+  dosage?: string;
+  feed_type?: string;
+  amount_kg_or_l?: number | null;
+  crop_type?: string;
+  amount_kg?: number | null;
+  batch_code?: string;
 }

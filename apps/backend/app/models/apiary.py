@@ -22,3 +22,4 @@ class Apiary(Base):
     tasks = relationship("Task", back_populates="apiary")
     harvests = relationship("Harvest", back_populates="apiary")
     varroa_weather_windows = relationship("VarroaWeatherWindow", back_populates="apiary", cascade="all, delete-orphan")
+    feedings = relationship("Feeding", back_populates="apiary")

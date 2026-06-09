@@ -4,7 +4,7 @@ export const de: Record<TranslationKey, string> = {
   // Navbar
   'nav.dashboard': 'Übersicht',
   'nav.beehives': 'Bienenstöcke',
-  'nav.inspections': 'Inspektionen',
+  'nav.inspections': 'Durchsichten',
   'nav.tasks': 'Aufgaben',
   'nav.harvests': 'Ernten',
   'nav.treatments': 'Behandlungen',

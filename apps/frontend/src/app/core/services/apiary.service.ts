@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Apiary, ApiaryCreate, ApiaryUpdate } from '../models/apiary.models';
-import { VarroaTreatmentType, VarroaWeatherWindow } from '../models/beekeeping.models';
+import { BatchActionCreate, VarroaTreatmentType, VarroaWeatherWindow } from '../models/beekeeping.models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +36,9 @@ export class ApiaryService {
 
   refreshVarroaWeather(id: number): Observable<VarroaWeatherWindow[]> {
     return this.api.post<VarroaWeatherWindow[]>(`/api/apiaries/${id}/varroa-weather/refresh`, {});
+  }
+
+  createBatchAction(id: number, actionType: 'inspection' | 'treatment' | 'feeding' | 'harvest', payload: BatchActionCreate): Observable<{ action_type: string; created: number; hive_ids: number[] }> {
+    return this.api.post<{ action_type: string; created: number; hive_ids: number[] }>(`/api/apiaries/${id}/batch-actions/${actionType}`, payload);
   }
 }

@@ -3,9 +3,18 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   DashboardSummary,
+  Article,
+  ArticleCreate,
+  ArticleUpdate,
+  Feeding,
+  FeedingCreate,
+  FeedingUpdate,
   Harvest,
   HarvestCreate,
   HarvestUpdate,
+  InventoryItem,
+  InventoryItemCreate,
+  InventoryItemUpdate,
   Photo,
   PhotoPreview,
   Task,
@@ -76,6 +85,62 @@ export class BeekeepingService {
 
   deleteHarvest(id: number): Observable<void> {
     return this.api.delete<void>(`/api/harvests/${id}`);
+  }
+
+  getFeedings(): Observable<Feeding[]> {
+    return this.api.get<Feeding[]>('/api/feedings');
+  }
+
+  createFeeding(feeding: FeedingCreate): Observable<Feeding> {
+    return this.api.post<Feeding>('/api/feedings', feeding);
+  }
+
+  updateFeeding(id: number, feeding: FeedingUpdate): Observable<Feeding> {
+    return this.api.put<Feeding>(`/api/feedings/${id}`, feeding);
+  }
+
+  deleteFeeding(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/feedings/${id}`);
+  }
+
+  getArticles(): Observable<Article[]> {
+    return this.api.get<Article[]>('/api/articles');
+  }
+
+  createArticle(article: ArticleCreate): Observable<Article> {
+    return this.api.post<Article>('/api/articles', article);
+  }
+
+  updateArticle(id: number, article: ArticleUpdate): Observable<Article> {
+    return this.api.put<Article>(`/api/articles/${id}`, article);
+  }
+
+  deleteArticle(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/articles/${id}`);
+  }
+
+  getInventoryItems(): Observable<InventoryItem[]> {
+    return this.api.get<InventoryItem[]>('/api/inventory-items');
+  }
+
+  createInventoryItem(item: InventoryItemCreate): Observable<InventoryItem> {
+    return this.api.post<InventoryItem>('/api/inventory-items', item);
+  }
+
+  updateInventoryItem(id: number, item: InventoryItemUpdate): Observable<InventoryItem> {
+    return this.api.put<InventoryItem>(`/api/inventory-items/${id}`, item);
+  }
+
+  deleteInventoryItem(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/inventory-items/${id}`);
+  }
+
+  getReport<T>(name: 'harvest-by-crop' | 'harvest-by-apiary' | 'varroa' | 'feedings', from?: string, to?: string): Observable<T[]> {
+    const params = new URLSearchParams();
+    if (from) params.set('from_date', from);
+    if (to) params.set('to_date', to);
+    const query = params.toString();
+    return this.api.get<T[]>(`/api/reports/${name}${query ? `?${query}` : ''}`);
   }
 
   getPhotos(): Observable<Photo[]> {
