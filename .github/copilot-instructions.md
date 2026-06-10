@@ -3,18 +3,13 @@
 ## General
 - Do not write JSDoc or inline comments unless explicitly requested.
 - Use English-only identifiers (variable names, class names, method names) and comments in all code.
-- Document all important decisions in `apps/frontend/AI_DOCS/` (frontend) or as inline architecture notes.
+- Keep durable decisions in current project documentation. Remove stale planning notes when implementation changes.
 
 ## Commit messages
-Follow the project convention:
+Use Conventional Commits:
 
-```
-<ticket-number> - <short description>
-
-Optional:
-* Breaking Changes
-* Critical Changes
-* Bugfixes
+```text
+<type>(<scope>): <imperative summary>
 ```
 
 All commit messages must be written in English.

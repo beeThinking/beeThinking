@@ -41,6 +41,7 @@ Backend:
 ```bash
 cd apps/backend
 pytest
+DATABASE_URL=sqlite:////private/tmp/beethinking_backend_unit.db SECRET_KEY=test-secret .venv/bin/pytest tests/unit -q
 ```
 
 Frontend:
@@ -48,7 +49,7 @@ Frontend:
 ```bash
 cd apps/frontend
 npm run lint
-npm run test
+npm test -- --watch=false
 npm run build
 ```
 
@@ -76,6 +77,8 @@ Allowed providers: `open_meteo`, `internal_rules`, `official_varroawetter`, `dis
 
 No HTML scraping is used. `official_varroawetter` is a stub until an official API endpoint is configured and documented.
 
-## Known Issues
+## Current Verification Baseline
 
-- `npm run build` may need to run outside restricted sandboxes because Angular's build process can be terminated without diagnostics there.
+- Backend unit suite: 142 tests.
+- Frontend unit suite: 9 tests across 2 spec files.
+- Alembic `upgrade head` passes against a fresh SQLite database.

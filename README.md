@@ -2,6 +2,16 @@
 
 A beekeeping management application — think like a bee.
 
+## Features
+
+- Apiaries, hives, inspections and hive lifecycle history
+- Durchschau workflow with inspections, feeding, treatments and harvests
+- Tasks, appointments, inventory, photos and reports
+- Team apiary memberships with role-based collaboration groundwork
+- CMS-backed public content pages with admin editing UI
+- Cashbook with income, expenses and EÜR summary
+- PWA shell and local inspection drafts
+
 ## Structure
 
 ```
@@ -94,3 +104,14 @@ alembic revision --autogenerate -m "describe change"
 ```
 
 The Docker backend container runs `alembic upgrade head` before starting FastAPI.
+
+## Checks
+
+```bash
+cd apps/backend
+DATABASE_URL=sqlite:////private/tmp/beethinking_backend_unit.db SECRET_KEY=test-secret .venv/bin/pytest tests/unit -q
+
+cd ../frontend
+npm test -- --watch=false
+npm run build
+```

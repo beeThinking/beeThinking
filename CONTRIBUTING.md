@@ -10,7 +10,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) before contribu
 
 ### Reporting Bugs
 
-Use the [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) issue template. Include:
+Use the [Bug Report](.github/ISSUE_TEMPLATE/bug_report.yml) issue template. Include:
 - A clear description of the problem
 - Steps to reproduce
 - Expected vs. actual behavior
@@ -18,7 +18,7 @@ Use the [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md) issue template. Inclu
 
 ### Suggesting Features
 
-Use the [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md) issue template.
+Use the [Feature Request](.github/ISSUE_TEMPLATE/feature_request.yml) issue template.
 
 ### Submitting a Pull Request
 
@@ -63,13 +63,18 @@ npm run lint
 
 ## Commit Convention
 
-```
-<ticket-number> - <short description>
+Use Conventional Commits:
 
-Optional:
-* Breaking Changes
-* Critical Changes
-* Bugfixes
+```text
+<type>(<scope>): <imperative summary>
+```
+
+Examples:
+
+```text
+feat(cashbook): add EÜR summary
+fix(auth): normalize invalid-token errors
+docs(readme): update local setup
 ```
 
 All commit messages must be written in **English**.

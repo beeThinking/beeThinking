@@ -1,6 +1,6 @@
 # CLAUDE.md — BeeThinking Monorepo
 
-This file provides context and conventions for AI coding assistants (Claude / OpenCode) working in this repository.
+This file provides context and conventions for AI coding assistants working in this repository.
 
 ---
 
@@ -22,7 +22,7 @@ beeThinking/
 ├── apps/
 │   ├── backend/          # Python / FastAPI
 │   │   ├── app/
-│   │   │   ├── api/      # Route handlers (auth.py, users.py, dependencies.py)
+│   │   │   ├── api/      # Route handlers
 │   │   │   ├── core/     # Config (pydantic-settings) and security (JWT, bcrypt)
 │   │   │   ├── crud/     # Database operations
 │   │   │   ├── db/       # SQLAlchemy engine and session
@@ -169,7 +169,7 @@ Rules:
 ### Database
 - Development default: SQLite (`DATABASE_URL=sqlite:///./beethinking.db`).
 - Production: PostgreSQL 15 (configured in `docker-compose.yml`).
-- Tables are auto-created on startup via `Base.metadata.create_all()`. For schema changes, use Alembic migrations.
+- Schema changes use Alembic migrations. The app must not create tables on import.
 
 ### Testing (Frontend)
 - Test runner: **Vitest** (not Karma/Jest). Config: `apps/frontend/vitest.config.ts`.
@@ -180,19 +180,18 @@ Rules:
 
 ## Commit Convention
 
-```
-<ticket-number> - <short description>
+Use Conventional Commits:
 
-Optional sections:
-* Breaking Changes
-* Critical Changes
-* Bugfixes
+```text
+<type>(<scope>): <imperative summary>
 ```
 
-Example: `42 - add beehive inspection endpoint`
+Common types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `build`, `ci`.
+
+Example: `feat(cashbook): add EÜR summary`
 
 ---
 
 ## Important Decisions Log
 
-Decisions that required investigation or are non-obvious are recorded in `apps/frontend/AI_DOCS/`. Check there before changing the test setup or Angular configuration.
+Keep decision notes only while they are still useful. Remove stale planning files instead of letting them contradict current code.

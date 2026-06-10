@@ -13,3 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Community health files: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`
 - GitHub issue templates and pull request template
 - CI workflows for backend (pytest) and frontend (lint + test)
+- Team apiary memberships and activity authorship fields
+- CMS content APIs with admin UI and public page fallback
+- Cashbook APIs and frontend EÜR summary
+- Durchschau navigation with inspection, feeding, treatment and harvest variants
