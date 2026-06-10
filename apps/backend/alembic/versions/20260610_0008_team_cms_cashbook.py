@@ -7,6 +7,7 @@ Create Date: 2026-06-10
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
 revision = "20260610_0008"
@@ -15,17 +16,27 @@ branch_labels = None
 depends_on = None
 
 
-apiary_member_role = sa.Enum("owner", "admin", "member", "viewer", name="apiarymemberrole")
-cashbook_direction = sa.Enum("income", "expense", name="cashbookdirection")
-ocr_status = sa.Enum("pending", "parsed", "confirmed", "failed", name="ocrstatus")
+APIARY_MEMBER_ROLE_VALUES = ("owner", "admin", "member", "viewer")
+CASHBOOK_DIRECTION_VALUES = ("income", "expense")
+OCR_STATUS_VALUES = ("pending", "parsed", "confirmed", "failed")
+
+
+def enum_type(bind, values: tuple[str, ...], name: str, create_type: bool = False) -> sa.Enum:
+    if bind.dialect.name == "postgresql":
+        return postgresql.ENUM(*values, name=name, create_type=create_type)
+    return sa.Enum(*values, name=name, native_enum=False)
 
 
 def upgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        apiary_member_role.create(bind, checkfirst=True)
-        cashbook_direction.create(bind, checkfirst=True)
-        ocr_status.create(bind, checkfirst=True)
+        enum_type(bind, APIARY_MEMBER_ROLE_VALUES, "apiarymemberrole", create_type=True).create(bind, checkfirst=True)
+        enum_type(bind, CASHBOOK_DIRECTION_VALUES, "cashbookdirection", create_type=True).create(bind, checkfirst=True)
+        enum_type(bind, OCR_STATUS_VALUES, "ocrstatus", create_type=True).create(bind, checkfirst=True)
+
+    apiary_member_role = enum_type(bind, APIARY_MEMBER_ROLE_VALUES, "apiarymemberrole")
+    cashbook_direction = enum_type(bind, CASHBOOK_DIRECTION_VALUES, "cashbookdirection")
+    ocr_status = enum_type(bind, OCR_STATUS_VALUES, "ocrstatus")
 
     op.create_table(
         "apiary_members",
@@ -165,3 +176,9 @@ def downgrade() -> None:
     op.drop_table("content_pages")
     op.drop_index(op.f("ix_apiary_members_id"), table_name="apiary_members")
     op.drop_table("apiary_members")
+
+    bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        enum_type(bind, OCR_STATUS_VALUES, "ocrstatus", create_type=True).drop(bind, checkfirst=True)
+        enum_type(bind, CASHBOOK_DIRECTION_VALUES, "cashbookdirection", create_type=True).drop(bind, checkfirst=True)
+        enum_type(bind, APIARY_MEMBER_ROLE_VALUES, "apiarymemberrole", create_type=True).drop(bind, checkfirst=True)
