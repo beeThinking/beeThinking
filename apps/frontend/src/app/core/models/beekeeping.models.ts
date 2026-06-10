@@ -240,6 +240,88 @@ export interface DashboardHiveStatus {
   latest_inspection_date: string | null;
 }
 
+export type CashbookDirection = 'income' | 'expense';
+
+export interface CashbookEntry {
+  id: number;
+  apiary_id: number | null;
+  owner_id: number;
+  performed_by_user_id: number;
+  booking_date: string;
+  direction: CashbookDirection;
+  category: string;
+  amount_gross: number;
+  tax_rate: number;
+  tax_amount: number;
+  amount_net: number;
+  counterparty: string | null;
+  description: string | null;
+  payment_method: string | null;
+  receipt_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface CashbookEntryCreate {
+  apiary_id?: number | null;
+  booking_date: string;
+  direction: CashbookDirection;
+  category: string;
+  amount_gross: number;
+  tax_rate?: number;
+  tax_amount?: number;
+  amount_net: number;
+  counterparty?: string;
+  description?: string;
+  payment_method?: string;
+  receipt_id?: number | null;
+}
+
+export type CashbookEntryUpdate = Partial<CashbookEntryCreate>;
+
+export interface CashbookSummary {
+  income: number;
+  expenses: number;
+  surplus: number;
+}
+
+export interface ContentSection {
+  id?: number;
+  sort_order: number;
+  heading: string;
+  body: string;
+}
+
+export interface ContentPage {
+  id: number;
+  slug: string;
+  locale: string;
+  title: string;
+  eyebrow: string | null;
+  lead: string | null;
+  cta_label: string | null;
+  cta_link: string | null;
+  status: 'draft' | 'published';
+  updated_by_user_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+  sections: ContentSection[];
+}
+
+export interface ContentPageCreate {
+  slug: string;
+  locale: string;
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  cta_label?: string;
+  cta_link?: string;
+  status?: 'draft' | 'published';
+  sections?: ContentSection[];
+}
+
+export type ContentPageUpdate = Partial<Omit<ContentPageCreate, 'slug' | 'locale'>>;
+
 export interface DashboardSummary {
   apiary_count: number;
   hive_count: number;

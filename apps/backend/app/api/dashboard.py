@@ -75,15 +75,16 @@ def get_dashboard_summary(
         "apiary_count": len(apiaries),
         "hive_count": db.query(Hive).filter(Hive.owner_id == current_user.id).count(),
         "open_task_count": db.query(Task)
-        .filter(Task.owner_id == current_user.id, Task.status == TaskStatus.open)
+        .filter(Task.owner_id == current_user.id, Task.status == TaskStatus.open, Task.kind == TaskKind.todo)
         .count(),
         "overdue_task_count": db.query(Task)
-        .filter(Task.owner_id == current_user.id, Task.status == TaskStatus.open, Task.due_date < today)
+        .filter(Task.owner_id == current_user.id, Task.status == TaskStatus.open, Task.kind == TaskKind.todo, Task.due_date < today)
         .count(),
         "tasks_due_this_week": db.query(Task)
         .filter(
             Task.owner_id == current_user.id,
             Task.status == TaskStatus.open,
+            Task.kind == TaskKind.todo,
             Task.due_date >= today,
             Task.due_date <= week_end,
         )

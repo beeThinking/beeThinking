@@ -29,6 +29,7 @@ class Inspection(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     hive_id = Column(Integer, ForeignKey("hives.id"), nullable=False)
+    performed_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     date = Column(Date, nullable=False)
     queen_seen = Column(Boolean, nullable=False, default=False)
     brood_strength = Column(Integer, nullable=True)
@@ -50,4 +51,5 @@ class Inspection(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     hive = relationship("Hive", back_populates="inspections")
+    performed_by = relationship("User")
     photos = relationship("Photo", back_populates="inspection")

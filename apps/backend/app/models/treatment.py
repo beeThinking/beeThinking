@@ -9,6 +9,7 @@ class Treatment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    performed_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     hive_id = Column(Integer, ForeignKey("hives.id"), nullable=False)
     started_at = Column(Date, nullable=False)
     ended_at = Column(Date, nullable=True)
@@ -24,6 +25,7 @@ class Treatment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    owner = relationship("User", back_populates="treatments")
+    owner = relationship("User", foreign_keys=[owner_id], back_populates="treatments")
+    performed_by = relationship("User", foreign_keys=[performed_by_user_id])
     hive = relationship("Hive", back_populates="treatments")
     weather_window = relationship("VarroaWeatherWindow")

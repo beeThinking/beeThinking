@@ -5,8 +5,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
+from app.crud import user as user_crud
+from app.crud.ownership import user_can_admin_apiary
+from app.models.apiary_member import ApiaryMember
 from app.crud import feeding as feeding_crud
 from app.models.user import User
+from app.schemas.apiary_member import ApiaryMemberCreate, ApiaryMemberResponse, ApiaryMemberUpdate
 from app.models.varroa_weather import VarroaTreatmentType
 from app.schemas.feeding import FeedingCreate
 from app.schemas.harvest import HarvestCreate
@@ -103,6 +107,82 @@ def delete_apiary(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
 
 
+@router.get("/{apiary_id}/members", response_model=list[ApiaryMemberResponse])
+def list_apiary_members(
+    apiary_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not apiary_crud.get_apiary(db, apiary_id=apiary_id, owner_id=current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    return db.query(ApiaryMember).filter(ApiaryMember.apiary_id == apiary_id).all()
+
+
+@router.post("/{apiary_id}/members", response_model=ApiaryMemberResponse, status_code=status.HTTP_201_CREATED)
+def add_apiary_member(
+    apiary_id: int,
+    payload: ApiaryMemberCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not user_can_admin_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    user = user_crud.get_user_by_username(db, payload.username_or_email) or user_crud.get_user_by_email(db, payload.username_or_email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    existing = db.query(ApiaryMember).filter(ApiaryMember.apiary_id == apiary_id, ApiaryMember.user_id == user.id).first()
+    if existing:
+        existing.role = payload.role
+        db.commit()
+        db.refresh(existing)
+        return existing
+    member = ApiaryMember(
+        apiary_id=apiary_id,
+        user_id=user.id,
+        role=payload.role,
+        invited_by_user_id=current_user.id,
+    )
+    db.add(member)
+    db.commit()
+    db.refresh(member)
+    return member
+
+
+@router.put("/{apiary_id}/members/{member_id}", response_model=ApiaryMemberResponse)
+def update_apiary_member(
+    apiary_id: int,
+    member_id: int,
+    payload: ApiaryMemberUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not user_can_admin_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    member = db.query(ApiaryMember).filter(ApiaryMember.id == member_id, ApiaryMember.apiary_id == apiary_id).first()
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    member.role = payload.role
+    db.commit()
+    db.refresh(member)
+    return member
+
+
+@router.delete("/{apiary_id}/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_apiary_member(
+    apiary_id: int,
+    member_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not user_can_admin_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    member = db.query(ApiaryMember).filter(ApiaryMember.id == member_id, ApiaryMember.apiary_id == apiary_id).first()
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    db.delete(member)
+    db.commit()
+
+
 @router.post("/{apiary_id}/batch-actions/{action_type}")
 def create_batch_action(
     apiary_id: int,
@@ -129,7 +209,7 @@ def create_batch_action(
                 varroa_count=payload.varroa_count,
                 food_stores=payload.food_stores,
                 notes=payload.notes,
-            ), hive_id=hive_id))
+            ), hive_id=hive_id, performed_by_user_id=current_user.id))
         elif action_type == "treatment":
             created_item = treatment_crud.create_treatment(db, TreatmentCreate(
                 hive_id=hive_id,
@@ -139,7 +219,7 @@ def create_batch_action(
                 dosage=payload.dosage,
                 reason=payload.notes,
                 notes=payload.notes,
-            ), owner_id=current_user.id)
+            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         elif action_type == "feeding":
@@ -150,7 +230,7 @@ def create_batch_action(
                 feed_type=payload.feed_type or "Futter",
                 amount_kg_or_l=payload.amount_kg_or_l or 0.1,
                 notes=payload.notes,
-            ), owner_id=current_user.id)
+            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         elif action_type == "harvest":
@@ -162,7 +242,7 @@ def create_batch_action(
                 amount_kg=payload.amount_kg or 0,
                 batch_code=payload.batch_code,
                 notes=payload.notes,
-            ), owner_id=current_user.id)
+            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         else:

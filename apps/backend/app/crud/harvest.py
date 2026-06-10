@@ -15,11 +15,11 @@ def get_harvest(db: Session, harvest_id: int, owner_id: int) -> Optional[Harvest
     return db.query(Harvest).filter(Harvest.id == harvest_id, Harvest.owner_id == owner_id).first()
 
 
-def create_harvest(db: Session, harvest: HarvestCreate, owner_id: int) -> Optional[Harvest]:
+def create_harvest(db: Session, harvest: HarvestCreate, owner_id: int, performed_by_user_id: int | None = None) -> Optional[Harvest]:
     data = harvest.model_dump()
     if not validate_optional_refs(db, owner_id, hive_id=data.get("hive_id"), apiary_id=data.get("apiary_id")):
         return None
-    db_harvest = Harvest(**data, owner_id=owner_id)
+    db_harvest = Harvest(**data, owner_id=owner_id, performed_by_user_id=performed_by_user_id or owner_id)
     db.add(db_harvest)
     db.commit()
     db.refresh(db_harvest)

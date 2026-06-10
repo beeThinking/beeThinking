@@ -16,14 +16,21 @@ type Row = Record<string, string | number | null>;
 })
 export class ReportsComponent {
   private readonly beekeeping = inject(BeekeepingService);
-  protected readonly fromDate = signal(new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10));
-  protected readonly toDate = signal(new Date().toISOString().slice(0, 10));
+  protected readonly fromDate = signal(this.localDate(new Date(new Date().getFullYear(), 0, 1)));
+  protected readonly toDate = signal(this.localDate(new Date()));
   protected readonly harvestByCrop = signal<Row[]>([]);
   protected readonly harvestByApiary = signal<Row[]>([]);
   protected readonly varroa = signal<Row[]>([]);
   protected readonly feedings = signal<Row[]>([]);
 
   constructor() { this.load(); }
+
+  private localDate(value: Date): string {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   protected load(): void {
     const from = this.fromDate();

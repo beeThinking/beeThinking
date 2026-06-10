@@ -53,6 +53,7 @@ class InspectionUpdate(BaseModel):
 class InspectionResponse(InspectionBase):
     id: int
     hive_id: int
+    performed_by_user_id: Optional[int] = None
     created_at: datetime
 
     class Config:

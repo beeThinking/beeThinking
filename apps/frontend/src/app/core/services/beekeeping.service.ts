@@ -6,6 +6,13 @@ import {
   Article,
   ArticleCreate,
   ArticleUpdate,
+  CashbookEntry,
+  CashbookEntryCreate,
+  CashbookEntryUpdate,
+  CashbookSummary,
+  ContentPage,
+  ContentPageCreate,
+  ContentPageUpdate,
   Feeding,
   FeedingCreate,
   FeedingUpdate,
@@ -145,6 +152,50 @@ export class BeekeepingService {
 
   getPhotos(): Observable<Photo[]> {
     return this.api.get<Photo[]>('/api/photos');
+  }
+
+  getCashbookEntries(from?: string, to?: string): Observable<CashbookEntry[]> {
+    const params = new URLSearchParams();
+    if (from) params.set('from_date', from);
+    if (to) params.set('to_date', to);
+    const query = params.toString();
+    return this.api.get<CashbookEntry[]>(`/api/cashbook/entries${query ? `?${query}` : ''}`);
+  }
+
+  createCashbookEntry(entry: CashbookEntryCreate): Observable<CashbookEntry> {
+    return this.api.post<CashbookEntry>('/api/cashbook/entries', entry);
+  }
+
+  updateCashbookEntry(id: number, entry: CashbookEntryUpdate): Observable<CashbookEntry> {
+    return this.api.put<CashbookEntry>(`/api/cashbook/entries/${id}`, entry);
+  }
+
+  deleteCashbookEntry(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/cashbook/entries/${id}`);
+  }
+
+  getCashbookSummary(from?: string, to?: string): Observable<CashbookSummary> {
+    const params = new URLSearchParams();
+    if (from) params.set('from_date', from);
+    if (to) params.set('to_date', to);
+    const query = params.toString();
+    return this.api.get<CashbookSummary>(`/api/cashbook/summary${query ? `?${query}` : ''}`);
+  }
+
+  getContentPages(): Observable<ContentPage[]> {
+    return this.api.get<ContentPage[]>('/api/admin/content/pages');
+  }
+
+  getContentPage(slug: string, locale: string): Observable<ContentPage> {
+    return this.api.get<ContentPage>(`/api/content/pages/${slug}?locale=${locale}`);
+  }
+
+  createContentPage(page: ContentPageCreate): Observable<ContentPage> {
+    return this.api.post<ContentPage>('/api/admin/content/pages', page);
+  }
+
+  updateContentPage(id: number, page: ContentPageUpdate): Observable<ContentPage> {
+    return this.api.put<ContentPage>(`/api/admin/content/pages/${id}`, page);
   }
 
   uploadPhoto(input: { file: File; hive_id?: number; inspection_id?: number; caption?: string }): Observable<Photo> {

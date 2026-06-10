@@ -21,7 +21,9 @@ def create_harvest(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    db_harvest = harvest_crud.create_harvest(db, harvest=harvest, owner_id=current_user.id)
+    db_harvest = harvest_crud.create_harvest(
+        db, harvest=harvest, owner_id=current_user.id, performed_by_user_id=current_user.id
+    )
     if not db_harvest:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Related resource not found")
     return db_harvest

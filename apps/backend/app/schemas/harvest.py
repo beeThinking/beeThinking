@@ -31,6 +31,7 @@ class HarvestUpdate(BaseModel):
 class HarvestResponse(HarvestBase):
     id: int
     owner_id: int
+    performed_by_user_id: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

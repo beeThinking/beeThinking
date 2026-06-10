@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 
 revision: str = "20260609_0007"
@@ -17,17 +18,25 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-article_category = sa.Enum("honey", "material", "feed", "other", name="articlecategory")
-task_kind = sa.Enum("todo", "appointment", name="taskkind")
+ARTICLE_CATEGORY_VALUES = ("honey", "material", "feed", "other")
+TASK_KIND_VALUES = ("todo", "appointment")
+
+
+def _enum(name: str, values: tuple[str, ...]):
+    if op.get_bind().dialect.name == "postgresql":
+        return postgresql.ENUM(*values, name=name, create_type=False)
+    return sa.Enum(*values, name=name)
 
 
 def upgrade() -> None:
-    article_category.create(op.get_bind(), checkfirst=True)
-    task_kind.create(op.get_bind(), checkfirst=True)
+    bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        postgresql.ENUM(*ARTICLE_CATEGORY_VALUES, name="articlecategory").create(bind, checkfirst=True)
+        postgresql.ENUM(*TASK_KIND_VALUES, name="taskkind").create(bind, checkfirst=True)
 
     op.add_column("tasks", sa.Column("start_at", sa.DateTime(timezone=True), nullable=True))
     op.add_column("tasks", sa.Column("end_at", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("tasks", sa.Column("kind", task_kind, nullable=False, server_default="todo"))
+    op.add_column("tasks", sa.Column("kind", _enum("taskkind", TASK_KIND_VALUES), nullable=False, server_default="todo"))
 
     op.create_table(
         "feedings",
@@ -52,7 +61,7 @@ def upgrade() -> None:
         "articles",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("owner_id", sa.Integer(), nullable=False),
-        sa.Column("category", article_category, nullable=False),
+        sa.Column("category", _enum("articlecategory", ARTICLE_CATEGORY_VALUES), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("sku", sa.String(), nullable=True),
         sa.Column("weight_kg", sa.Float(), nullable=True),
@@ -96,5 +105,7 @@ def downgrade() -> None:
     op.drop_column("tasks", "kind")
     op.drop_column("tasks", "end_at")
     op.drop_column("tasks", "start_at")
-    task_kind.drop(op.get_bind(), checkfirst=True)
-    article_category.drop(op.get_bind(), checkfirst=True)
+    bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        postgresql.ENUM(*TASK_KIND_VALUES, name="taskkind").drop(bind, checkfirst=True)
+        postgresql.ENUM(*ARTICLE_CATEGORY_VALUES, name="articlecategory").drop(bind, checkfirst=True)

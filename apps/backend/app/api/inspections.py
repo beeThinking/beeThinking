@@ -35,7 +35,9 @@ def create_inspection(
     current_user: User = Depends(get_current_active_user)
 ):
     _get_hive_or_404(hive_id, current_user, db)
-    return inspection_crud.create_inspection(db, inspection=inspection, hive_id=hive_id)
+    return inspection_crud.create_inspection(
+        db, inspection=inspection, hive_id=hive_id, performed_by_user_id=current_user.id
+    )
 
 
 @router.get("/{inspection_id}", response_model=InspectionResponse)

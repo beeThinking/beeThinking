@@ -18,9 +18,9 @@ def get_inspection(db: Session, inspection_id: int, hive_id: int) -> Optional[In
     ).first()
 
 
-def create_inspection(db: Session, inspection: InspectionCreate, hive_id: int) -> Inspection:
+def create_inspection(db: Session, inspection: InspectionCreate, hive_id: int, performed_by_user_id: int | None = None) -> Inspection:
     data = inspection.model_dump()
-    db_inspection = Inspection(**data, hive_id=hive_id)
+    db_inspection = Inspection(**data, hive_id=hive_id, performed_by_user_id=performed_by_user_id)
     db.add(db_inspection)
     db.flush()
     if not db_inspection.weather_source:

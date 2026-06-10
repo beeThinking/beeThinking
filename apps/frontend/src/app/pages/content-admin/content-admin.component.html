@@ -1,0 +1,61 @@
+<div class="cms-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">CMS</p>
+      <h1>Texte pflegen</h1>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert">{{ errorMessage() }}</div>
+  }
+
+  <form class="editor" [formGroup]="form" (ngSubmit)="createPage()">
+    <label>Slug <input formControlName="slug" placeholder="about"></label>
+    <label>Sprache <input formControlName="locale" placeholder="de"></label>
+    <label>Titel <input formControlName="title"></label>
+    <label>Eyebrow <input formControlName="eyebrow"></label>
+    <label class="wide">Lead <textarea rows="3" formControlName="lead"></textarea></label>
+    <label>CTA Label <input formControlName="cta_label"></label>
+    <label>CTA Link <input formControlName="cta_link"></label>
+    <label>Status
+      <select formControlName="status">
+        <option value="draft">Entwurf</option>
+        <option value="published">Veröffentlicht</option>
+      </select>
+    </label>
+
+    <div class="wide sections" formArrayName="sections">
+      <div class="section-title">
+        <h2>Abschnitte</h2>
+        <button type="button" class="secondary" (click)="addSection()">Abschnitt hinzufügen</button>
+      </div>
+      @for (section of sections.controls; track $index) {
+        <fieldset [formGroupName]="$index">
+          <label>Reihenfolge <input type="number" formControlName="sort_order"></label>
+          <label>Überschrift <input formControlName="heading"></label>
+          <label class="wide">Text <textarea rows="4" formControlName="body"></textarea></label>
+          <button type="button" class="danger" (click)="removeSection($index)">Entfernen</button>
+        </fieldset>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="primary-action" [disabled]="form.invalid">Seite speichern</button>
+    </div>
+  </form>
+
+  <section class="page-list">
+    @for (page of pages(); track page.id) {
+      <article>
+        <div>
+          <h2>{{ page.title }}</h2>
+          <p>{{ page.slug }} · {{ page.locale }} · {{ page.status }} · {{ page.updated_at | date:'dd.MM.yyyy HH:mm' }}</p>
+        </div>
+        <span>{{ page.sections.length }} Abschnitte</span>
+      </article>
+    } @empty {
+      <div class="empty-panel">Noch keine CMS-Seiten.</div>
+    }
+  </section>
+</div>

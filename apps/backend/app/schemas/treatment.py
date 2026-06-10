@@ -35,6 +35,7 @@ class TreatmentUpdate(BaseModel):
 class TreatmentResponse(TreatmentBase):
     id: int
     owner_id: int
+    performed_by_user_id: Optional[int] = None
     weather_rating: Optional[str] = None
     weather_source: Optional[str] = None
     weather_fetched_at: Optional[datetime] = None

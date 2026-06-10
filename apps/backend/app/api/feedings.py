@@ -28,7 +28,9 @@ def create_feeding(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    db_feeding = feeding_crud.create_feeding(db, feeding=feeding, owner_id=current_user.id)
+    db_feeding = feeding_crud.create_feeding(
+        db, feeding=feeding, owner_id=current_user.id, performed_by_user_id=current_user.id
+    )
     if not db_feeding:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Related resource not found")
     return db_feeding

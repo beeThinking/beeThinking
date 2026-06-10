@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { TranslationService } from '../../core/services/translation.service';
+import { BeekeepingService } from '../../core/services/beekeeping.service';
+import { ContentPage } from '../../core/models/beekeeping.models';
 
 type InfoPageKey = 'about' | 'contact' | 'docs' | 'tips' | 'faq' | 'support' | 'privacy' | 'imprint' | 'terms';
 
@@ -240,13 +242,42 @@ const PAGES_EN: Record<InfoPageKey, InfoPage> = {
 export class InfoPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly translation = inject(TranslationService);
+  private readonly beekeeping = inject(BeekeepingService);
+  private readonly cmsPage = signal<InfoPage | null>(null);
   private readonly pageKey = toSignal(
     this.route.data.pipe(map(data => (data['page'] ?? 'about') as InfoPageKey)),
     { initialValue: 'about' as InfoPageKey }
   );
 
   protected readonly page = computed(() => {
+    const cms = this.cmsPage();
+    if (cms) return cms;
     const pages = this.translation.currentLang() === 'de' ? PAGES_DE : PAGES_EN;
     return pages[this.pageKey()] ?? pages.about;
   });
+
+  constructor() {
+    effect(() => {
+      const slug = this.pageKey();
+      const locale = this.translation.currentLang();
+      this.beekeeping.getContentPage(slug, locale).pipe(
+        map(page => this.toInfoPage(page)),
+        catchError(() => of(null))
+      ).subscribe(page => this.cmsPage.set(page));
+    });
+  }
+
+  private toInfoPage(page: ContentPage): InfoPage {
+    return {
+      eyebrow: page.eyebrow ?? '',
+      title: page.title,
+      lead: page.lead ?? '',
+      ctaLabel: page.cta_label ?? undefined,
+      ctaLink: page.cta_link ?? undefined,
+      sections: page.sections.map(section => ({
+        heading: section.heading,
+        body: section.body
+      }))
+    };
+  }
 }

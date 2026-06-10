@@ -17,13 +17,13 @@ def get_treatment(db: Session, treatment_id: int, owner_id: int) -> Optional[Tre
     return db.query(Treatment).filter(Treatment.id == treatment_id, Treatment.owner_id == owner_id).first()
 
 
-def create_treatment(db: Session, treatment: TreatmentCreate, owner_id: int) -> Optional[Treatment]:
+def create_treatment(db: Session, treatment: TreatmentCreate, owner_id: int, performed_by_user_id: int | None = None) -> Optional[Treatment]:
     data = treatment.model_dump()
     if not validate_optional_refs(db, owner_id, hive_id=data["hive_id"]):
         return None
     if not _attach_weather_context(db, data, owner_id):
         return None
-    db_treatment = Treatment(**data, owner_id=owner_id)
+    db_treatment = Treatment(**data, owner_id=owner_id, performed_by_user_id=performed_by_user_id or owner_id)
     db.add(db_treatment)
     db.commit()
     db.refresh(db_treatment)

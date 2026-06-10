@@ -21,7 +21,9 @@ def create_treatment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    db_treatment = treatment_crud.create_treatment(db, treatment=treatment, owner_id=current_user.id)
+    db_treatment = treatment_crud.create_treatment(
+        db, treatment=treatment, owner_id=current_user.id, performed_by_user_id=current_user.id
+    )
     if not db_treatment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return db_treatment

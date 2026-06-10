@@ -26,12 +26,43 @@
         <li><a routerLink="/stands"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">Stände</a></li>
         <li><a routerLink="/beehives"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.beehives' | translate }}</a></li>
         <li><a routerLink="/tasks"       routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.tasks' | translate }}</a></li>
-        <li><a routerLink="/inspections" routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.inspections' | translate }}</a></li>
-        <li><a routerLink="/harvests" routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.harvests' | translate }}</a></li>
-        <li><a routerLink="/treatments" routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.treatments' | translate }}</a></li>
-        <li><a routerLink="/inventory/items" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Lager</a></li>
-        <li><a routerLink="/office/reports" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Büro</a></li>
-        <li><a routerLink="/appointments" routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.appointments' | translate }}</a></li>
+        <li class="nav-group" [class.open]="inspectionMenuOpen()">
+          <button
+            type="button"
+            class="nav-link nav-more-button"
+            [class.active]="inspectionMenuActive()"
+            [attr.aria-expanded]="inspectionMenuOpen()"
+            aria-haspopup="menu"
+            (click)="toggleInspectionMenu($event)">
+            Durchschau
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="submenu" role="menu">
+            <li><a routerLink="/inspections" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Kontrolle</a></li>
+            <li><a routerLink="/feedings" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Füttern</a></li>
+            <li><a routerLink="/treatments" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.treatments' | translate }}</a></li>
+            <li><a routerLink="/harvests" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.harvests' | translate }}</a></li>
+          </ul>
+        </li>
+        <li class="nav-group" [class.open]="moreOpen()">
+          <button
+            type="button"
+            class="nav-link nav-more-button"
+            [class.active]="moreActive()"
+            [attr.aria-expanded]="moreOpen()"
+            aria-haspopup="menu"
+            (click)="toggleMore($event)">
+            Mehr
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="submenu" role="menu">
+            <li><a routerLink="/inventory/items" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Lager</a></li>
+            <li><a routerLink="/office/reports" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Büro</a></li>
+            <li><a routerLink="/office/cashbook" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Kassenbuch</a></li>
+            <li><a routerLink="/admin/content" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">CMS</a></li>
+            <li><a routerLink="/appointments" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.appointments' | translate }}</a></li>
+          </ul>
+        </li>
         <li>
           <button
             type="button"

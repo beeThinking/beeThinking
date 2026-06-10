@@ -122,6 +122,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'feedings',
+    loadComponent: () => import('./pages/feedings/feedings.component').then(m => m.FeedingsComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'honey-harvest',
     loadComponent: () => import('./pages/honey-harvest/honey-harvest.component').then(m => m.HoneyHarvestComponent),
     canActivate: [authGuard]
@@ -144,6 +149,16 @@ export const routes: Routes = [
   {
     path: 'office/reports',
     loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'office/cashbook',
+    loadComponent: () => import('./pages/cashbook/cashbook.component').then(m => m.CashbookComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/content',
+    loadComponent: () => import('./pages/content-admin/content-admin.component').then(m => m.ContentAdminComponent),
     canActivate: [authGuard]
   },
   {

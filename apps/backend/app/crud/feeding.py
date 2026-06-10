@@ -20,11 +20,11 @@ def get_feeding(db: Session, feeding_id: int, owner_id: int) -> Optional[Feeding
     return db.query(Feeding).filter(Feeding.id == feeding_id, Feeding.owner_id == owner_id).first()
 
 
-def create_feeding(db: Session, feeding: FeedingCreate, owner_id: int) -> Optional[Feeding]:
+def create_feeding(db: Session, feeding: FeedingCreate, owner_id: int, performed_by_user_id: int | None = None) -> Optional[Feeding]:
     data = feeding.model_dump()
     if not validate_optional_refs(db, owner_id, hive_id=data.get("hive_id"), apiary_id=data.get("apiary_id")):
         return None
-    db_feeding = Feeding(**data, owner_id=owner_id)
+    db_feeding = Feeding(**data, owner_id=owner_id, performed_by_user_id=performed_by_user_id or owner_id)
     db.add(db_feeding)
     db.commit()
     db.refresh(db_feeding)

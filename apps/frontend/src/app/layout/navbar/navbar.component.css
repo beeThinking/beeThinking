@@ -104,6 +104,7 @@
 .nav-link {
   display: flex;
   align-items: center;
+  gap: 0.4rem;
   color: var(--amelie-light);
   text-decoration: none;
   font-weight: 500;
@@ -112,8 +113,56 @@
   transition: background 0.2s, color 0.2s;
 }
 
+.nav-more-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.chevron {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.2s ease;
+}
+
+.nav-group.open .chevron {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.submenu {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0.15rem 0 0.35rem;
+  background: rgba(31, 20, 6, 0.28);
+}
+
+.nav-group.open .submenu {
+  display: block;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.55rem var(--page-px) 0.55rem calc(var(--page-px) + 1rem);
+  color: var(--amelie-light);
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
 .nav-link:hover,
-.nav-link.active {
+.nav-link.active,
+.submenu-link:hover,
+.submenu-link.active {
   background: rgba(207, 163, 79, 0.2);
   color: var(--amelie-orange);
 }
@@ -194,10 +243,48 @@
     min-height: 36px;
   }
 
+  .nav-group {
+    position: relative;
+  }
+
+  .nav-more-button {
+    width: auto;
+  }
+
+  .nav-group:hover .submenu,
+  .nav-group:focus-within .submenu,
+  .nav-group.open .submenu {
+    display: block;
+  }
+
+  .submenu {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    min-width: 190px;
+    padding: 0.35rem;
+    background: #3f2705;
+    border: 1px solid rgba(207, 163, 79, 0.25);
+    border-radius: 8px;
+    box-shadow: 0 14px 30px rgba(24, 14, 3, 0.36);
+  }
+
+  .submenu-link {
+    min-height: 36px;
+    padding: 0.55rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
   .nav-link.active {
     background: var(--amelie-orange);
     color: var(--amelie-dark-brown);
     border-left: none;
+  }
+
+  .submenu-link.active {
+    background: var(--amelie-orange);
+    color: var(--amelie-dark-brown);
   }
 
   .logout-button,
