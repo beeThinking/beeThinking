@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -158,8 +159,13 @@ export const routes: Routes = [
   },
   {
     path: 'admin/content',
+    redirectTo: '/admin/cms',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/cms',
     loadComponent: () => import('./pages/content-admin/content-admin.component').then(m => m.ContentAdminComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, adminGuard]
   },
   {
     path: 'inspections',

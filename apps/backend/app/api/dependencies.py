@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.core.security import decode_access_token
+from app.core.config import get_settings
 from app.crud.user import get_user_by_username
 from app.models.user import User
 
@@ -45,5 +46,19 @@ async def get_current_active_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    return current_user
+
+
+async def get_current_admin_user(
+    current_user: User = Depends(get_current_active_user)
+) -> User:
+    """Get current user and require system admin privileges."""
+    settings = get_settings()
+    is_env_admin = current_user.email.lower() in settings.admin_emails_set
+    if not current_user.is_admin and not is_env_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
         )
     return current_user

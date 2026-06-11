@@ -6,6 +6,10 @@ import {
   Article,
   ArticleCreate,
   ArticleUpdate,
+  AdminUserUpdate,
+  AppText,
+  AppTextCreate,
+  AppTextUpdate,
   CashbookEntry,
   CashbookEntryCreate,
   CashbookEntryUpdate,
@@ -32,6 +36,7 @@ import {
   TreatmentCreate,
   TreatmentUpdate
 } from '../models/beekeeping.models';
+import { UserResponse } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class BeekeepingService {
@@ -196,6 +201,27 @@ export class BeekeepingService {
 
   updateContentPage(id: number, page: ContentPageUpdate): Observable<ContentPage> {
     return this.api.put<ContentPage>(`/api/admin/content/pages/${id}`, page);
+  }
+
+  getAppTexts(): Observable<AppText[]> {
+    return this.api.get<AppText[]>('/api/admin/content/app-texts');
+  }
+
+  upsertAppText(text: AppTextCreate): Observable<AppText> {
+    return this.api.post<AppText>('/api/admin/content/app-texts', text);
+  }
+
+  updateAppText(id: number, text: AppTextUpdate): Observable<AppText> {
+    return this.api.put<AppText>(`/api/admin/content/app-texts/${id}`, text);
+  }
+
+  getAdminUsers(search?: string): Observable<UserResponse[]> {
+    const query = search ? `?search=${encodeURIComponent(search)}` : '';
+    return this.api.get<UserResponse[]>(`/api/users${query}`);
+  }
+
+  updateAdminUser(id: number, update: AdminUserUpdate): Observable<UserResponse> {
+    return this.api.patch<UserResponse>(`/api/users/${id}`, update);
   }
 
   uploadPhoto(input: { file: File; hive_id?: number; inspection_id?: number; caption?: string }): Observable<Photo> {

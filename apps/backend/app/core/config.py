@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "BeeThinking Backend"
     APP_ENV: str = "development"
     DEBUG: bool = False
+    ADMIN_EMAILS: str = ""
 
     # CORS — comma-separated list of allowed origins
     CORS_ORIGINS: str = "http://localhost,http://localhost:80,http://localhost:4200,http://localhost:3000"
@@ -62,6 +63,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def admin_emails_set(self) -> set[str]:
+        return {email.strip().lower() for email in self.ADMIN_EMAILS.split(",") if email.strip()}
 
     class Config:
         env_file = ".env"

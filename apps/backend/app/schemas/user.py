@@ -21,6 +21,7 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_verified: bool
+    is_admin: bool
     created_at: datetime
 
     class Config:
@@ -32,6 +33,12 @@ class UserUpdate(BaseModel):
     password: Optional[str] = Field(None, min_length=8, max_length=100)
 
 
+class AdminUserUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
+    is_admin: Optional[bool] = None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -39,4 +46,3 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
-

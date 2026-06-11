@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
@@ -15,6 +15,13 @@ export class AuthService {
 
   readonly isAuthenticated = signal<boolean>(this.hasToken());
   readonly currentUser = signal<UserResponse | null>(null);
+  readonly isAdmin = computed(() => !!this.currentUser()?.is_admin);
+
+  constructor() {
+    if (this.hasToken()) {
+      this.loadCurrentUser().subscribe({ error: () => undefined });
+    }
+  }
 
   login(credentials: LoginRequest): Observable<Token> {
     const body = new URLSearchParams();
@@ -29,6 +36,7 @@ export class AuthService {
       tap(response => {
         this.storage?.setItem(this.TOKEN_KEY, response.access_token);
         this.isAuthenticated.set(true);
+        this.loadCurrentUser().subscribe({ error: () => undefined });
       })
     );
   }
@@ -58,6 +66,12 @@ export class AuthService {
 
   getToken(): string | null {
     return this.storage?.getItem(this.TOKEN_KEY) ?? null;
+  }
+
+  loadCurrentUser(): Observable<UserResponse> {
+    return this.apiService.get<UserResponse>('/api/users/me').pipe(
+      tap(user => this.currentUser.set(user))
+    );
   }
 
   private hasToken(): boolean {

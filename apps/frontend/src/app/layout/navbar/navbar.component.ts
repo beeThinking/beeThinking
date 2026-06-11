@@ -18,6 +18,7 @@ export class NavbarComponent {
   protected readonly translation = inject(TranslationService);
 
   protected readonly isAuthenticated = this.authService.isAuthenticated;
+  protected readonly isAdmin = this.authService.isAdmin;
   protected readonly menuOpen = signal(false);
   protected readonly moreOpen = signal(false);
   protected readonly inspectionMenuOpen = signal(false);
@@ -26,7 +27,7 @@ export class NavbarComponent {
     return [
       '/inventory',
       '/office',
-      '/admin/content',
+      '/admin/cms',
       '/appointments'
     ].some(path => this.router.url.startsWith(path));
   }

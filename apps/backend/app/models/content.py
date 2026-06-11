@@ -41,3 +41,17 @@ class ContentSection(Base):
     body = Column(Text, nullable=False)
 
     page = relationship("ContentPage", back_populates="sections")
+
+
+class AppText(Base):
+    __tablename__ = "app_texts"
+    __table_args__ = (UniqueConstraint("key", "locale", name="uq_app_texts_key_locale"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, nullable=False, index=True)
+    locale = Column(String, nullable=False, default="de", index=True)
+    value = Column(Text, nullable=False)
+    status = Column(String, nullable=False, default="draft")
+    updated_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

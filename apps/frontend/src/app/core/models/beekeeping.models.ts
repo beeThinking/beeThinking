@@ -322,6 +322,32 @@ export interface ContentPageCreate {
 
 export type ContentPageUpdate = Partial<Omit<ContentPageCreate, 'slug' | 'locale'>>;
 
+export interface AppText {
+  id: number;
+  key: string;
+  locale: 'de' | 'en' | string;
+  value: string;
+  status: 'draft' | 'published';
+  updated_by_user_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface AppTextCreate {
+  key: string;
+  locale: string;
+  value: string;
+  status?: 'draft' | 'published';
+}
+
+export type AppTextUpdate = Partial<Omit<AppTextCreate, 'key' | 'locale'>>;
+
+export interface AdminUserUpdate {
+  is_active?: boolean;
+  is_verified?: boolean;
+  is_admin?: boolean;
+}
+
 export interface DashboardSummary {
   apiary_count: number;
   hive_count: number;

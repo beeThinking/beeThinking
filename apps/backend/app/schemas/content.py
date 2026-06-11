@@ -55,3 +55,29 @@ class ContentPageResponse(ContentPageBase):
 
     class Config:
         from_attributes = True
+
+
+class AppTextBase(BaseModel):
+    key: str = Field(..., min_length=1, max_length=200)
+    locale: str = Field("de", min_length=2, max_length=8)
+    value: str = Field(..., min_length=1)
+    status: str = Field("draft", pattern="^(draft|published)$")
+
+
+class AppTextCreate(AppTextBase):
+    pass
+
+
+class AppTextUpdate(BaseModel):
+    value: Optional[str] = Field(None, min_length=1)
+    status: Optional[str] = Field(None, pattern="^(draft|published)$")
+
+
+class AppTextResponse(AppTextBase):
+    id: int
+    updated_by_user_id: Optional[int] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

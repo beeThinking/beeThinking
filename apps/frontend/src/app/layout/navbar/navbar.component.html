@@ -59,7 +59,9 @@
             <li><a routerLink="/inventory/items" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Lager</a></li>
             <li><a routerLink="/office/reports" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Büro</a></li>
             <li><a routerLink="/office/cashbook" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Kassenbuch</a></li>
-            <li><a routerLink="/admin/content" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">CMS</a></li>
+            @if (isAdmin()) {
+              <li><a routerLink="/admin/cms" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">CMS</a></li>
+            }
             <li><a routerLink="/appointments" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.appointments' | translate }}</a></li>
           </ul>
         </li>

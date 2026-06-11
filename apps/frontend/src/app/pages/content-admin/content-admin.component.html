@@ -2,60 +2,157 @@
   <header class="work-header">
     <div>
       <p class="eyebrow">CMS</p>
-      <h1>Texte pflegen</h1>
+      <h1>Content Management</h1>
     </div>
   </header>
 
+  <nav class="tabbar" aria-label="CMS Bereiche">
+    @for (item of tabs; track item.id) {
+      <button type="button" [class.active]="tab() === item.id" (click)="setTab(item.id)">{{ item.label }}</button>
+    }
+  </nav>
+
   @if (errorMessage()) {
-    <div class="alert">{{ errorMessage() }}</div>
+    <div class="alert error">{{ errorMessage() }}</div>
+  }
+  @if (successMessage()) {
+    <div class="alert success">{{ successMessage() }}</div>
   }
 
-  <form class="editor" [formGroup]="form" (ngSubmit)="createPage()">
-    <label><span class="required-label">Slug</span> <input formControlName="slug" placeholder="about" required></label>
-    <label><span class="required-label">Sprache</span> <input formControlName="locale" placeholder="de" required></label>
-    <label><span class="required-label">Titel</span> <input formControlName="title" required></label>
-    <label>Eyebrow <input formControlName="eyebrow"></label>
-    <label class="wide">Lead <textarea rows="3" formControlName="lead"></textarea></label>
-    <label>CTA Label <input formControlName="cta_label"></label>
-    <label>CTA Link <input formControlName="cta_link"></label>
-    <label><span class="required-label">Status</span>
-      <select formControlName="status" required>
-        <option value="draft">Entwurf</option>
-        <option value="published">Veröffentlicht</option>
-      </select>
-    </label>
-
-    <div class="wide sections" formArrayName="sections">
-      <div class="section-title">
-        <h2>Abschnitte</h2>
-        <button type="button" class="secondary" (click)="addSection()">Abschnitt hinzufügen</button>
-      </div>
-      @for (section of sections.controls; track $index) {
-        <fieldset [formGroupName]="$index">
-          <label>Reihenfolge <input type="number" formControlName="sort_order"></label>
-          <label><span class="required-label">Überschrift</span> <input formControlName="heading" required></label>
-          <label class="wide"><span class="required-label">Text</span> <textarea rows="4" formControlName="body" required></textarea></label>
-          <button type="button" class="danger" (click)="removeSection($index)">Entfernen</button>
-        </fieldset>
-      }
-    </div>
-
-    <div class="form-actions">
-      <button type="submit" class="primary-action" [disabled]="form.invalid">Seite speichern</button>
-    </div>
-  </form>
-
-  <section class="page-list">
-    @for (page of pages(); track page.id) {
-      <article>
-        <div>
-          <h2>{{ page.title }}</h2>
-          <p>{{ page.slug }} · {{ page.locale }} · {{ page.status }} · {{ page.updated_at | date:'dd.MM.yyyy HH:mm' }}</p>
+  @if (tab() === 'pages') {
+    <section class="split-view">
+      <div class="list-panel">
+        <div class="panel-heading">
+          <h2>Webseiten</h2>
+          <button type="button" class="secondary" (click)="newPage()">Neu</button>
         </div>
-        <span>{{ page.sections.length }} Abschnitte</span>
-      </article>
-    } @empty {
-      <div class="empty-panel">Noch keine CMS-Seiten.</div>
-    }
-  </section>
+        @for (page of pages(); track page.id) {
+          <button type="button" class="row-button" [class.active]="selectedPageId() === page.id" (click)="editPage(page)">
+            <span>
+              <strong>{{ page.title }}</strong>
+              <small>{{ page.slug }} · {{ page.locale }} · {{ page.sections.length }} Abschnitte</small>
+            </span>
+            <em [class.published]="page.status === 'published'">{{ statusLabel(page.status) }}</em>
+          </button>
+        } @empty {
+          <div class="empty-panel">Noch keine CMS-Seiten.</div>
+        }
+      </div>
+
+      <form class="editor" [formGroup]="pageForm" (ngSubmit)="savePage()">
+        <label>Slug <input formControlName="slug" placeholder="imprint" required></label>
+        <label>Sprache
+          <select formControlName="locale" required>
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <label>Titel <input formControlName="title" required></label>
+        <label>Eyebrow <input formControlName="eyebrow"></label>
+        <label class="wide">Lead <textarea rows="3" formControlName="lead"></textarea></label>
+        <label>CTA Label <input formControlName="cta_label"></label>
+        <label>CTA Link <input formControlName="cta_link"></label>
+        <label>Status
+          <select formControlName="status" required>
+            <option value="draft">Entwurf</option>
+            <option value="published">Veröffentlicht</option>
+          </select>
+        </label>
+
+        <div class="wide sections" formArrayName="sections">
+          <div class="section-title">
+            <h2>Abschnitte</h2>
+            <button type="button" class="secondary" (click)="addSection()">Abschnitt hinzufügen</button>
+          </div>
+          @for (section of sections.controls; track $index) {
+            <fieldset [formGroupName]="$index">
+              <label>Reihenfolge <input type="number" formControlName="sort_order"></label>
+              <label>Überschrift <input formControlName="heading" required></label>
+              <label class="wide">Text <textarea rows="5" formControlName="body" required></textarea></label>
+              <button type="button" class="danger" (click)="removeSection($index)">Entfernen</button>
+            </fieldset>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-action" [disabled]="pageForm.invalid">Seite speichern</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (tab() === 'texts') {
+    <section class="split-view">
+      <div class="list-panel">
+        <div class="panel-heading">
+          <h2>App-Texte</h2>
+          <input class="search" [value]="textSearch()" (input)="textSearch.set($any($event.target).value)" placeholder="Key oder Text suchen">
+        </div>
+        @for (row of filteredTranslationRows(); track row.key) {
+          <div class="text-row">
+            <strong>{{ row.key }}</strong>
+            <p>{{ row.deOverride?.value || row.deDefault }}</p>
+            <div class="row-actions">
+              <button type="button" class="secondary" (click)="selectText(row.key, 'de')">DE</button>
+              <button type="button" class="secondary" (click)="selectText(row.key, 'en')">EN</button>
+              @if (row.deOverride?.status === 'published' || row.enOverride?.status === 'published') {
+                <em class="published">Override aktiv</em>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <form class="editor" [formGroup]="textForm" (ngSubmit)="saveText()">
+        <label class="wide">Key <input formControlName="key" required></label>
+        <label>Sprache
+          <select formControlName="locale" required>
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <label>Status
+          <select formControlName="status" required>
+            <option value="draft">Entwurf</option>
+            <option value="published">Veröffentlicht</option>
+          </select>
+        </label>
+        <label class="wide">Text <textarea rows="8" formControlName="value" required></textarea></label>
+        <div class="form-actions">
+          <button type="submit" class="primary-action" [disabled]="textForm.invalid">App-Text speichern</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (tab() === 'users') {
+    <section class="user-panel">
+      <div class="filters">
+        <input [value]="userSearch()" (input)="userSearch.set($any($event.target).value)" placeholder="Name oder E-Mail suchen">
+        <button type="button" class="secondary" (click)="searchUsers()">Suchen</button>
+      </div>
+
+      <div class="user-table">
+        @for (user of users(); track user.id) {
+          <article>
+            <div>
+              <strong>{{ user.username }}</strong>
+              <small>{{ user.email }} · seit {{ user.created_at | date:'dd.MM.yyyy' }}</small>
+            </div>
+            <button type="button" [class.enabled]="user.is_active" (click)="toggleUser(user, 'is_active')">
+              {{ user.is_active ? 'Aktiv' : 'Gesperrt' }}
+            </button>
+            <button type="button" [class.enabled]="user.is_verified" (click)="toggleUser(user, 'is_verified')">
+              {{ user.is_verified ? 'Verifiziert' : 'Unverifiziert' }}
+            </button>
+            <button type="button" [class.enabled]="user.is_admin" (click)="toggleUser(user, 'is_admin')">
+              {{ user.is_admin ? 'Admin' : 'User' }}
+            </button>
+          </article>
+        } @empty {
+          <div class="empty-panel">Keine User gefunden.</div>
+        }
+      </div>
+    </section>
+  }
 </div>
