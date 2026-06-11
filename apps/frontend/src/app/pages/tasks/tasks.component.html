@@ -21,7 +21,7 @@
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createTask()">
-      <label>{{ 'tasks.form.title' | translate }} <input formControlName="title" [placeholder]="'tasks.form.titlePlaceholder' | translate" /></label>
+      <label><span class="required-label">{{ 'tasks.form.title' | translate }}</span> <input formControlName="title" [placeholder]="'tasks.form.titlePlaceholder' | translate" required /></label>
       <label>{{ 'tasks.form.due' | translate }} <input type="date" formControlName="due_date" /></label>
       <label>{{ 'tasks.form.priority' | translate }}
         <select formControlName="priority">

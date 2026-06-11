@@ -16,8 +16,8 @@
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createHarvest()">
-      <label>{{ 'harvests.form.date' | translate }} <input type="date" formControlName="harvest_date" /></label>
-      <label>{{ 'harvests.form.amount' | translate }} <input type="number" step="0.1" formControlName="amount_kg" /></label>
+      <label><span class="required-label">{{ 'harvests.form.date' | translate }}</span> <input type="date" formControlName="harvest_date" required /></label>
+      <label><span class="required-label">{{ 'harvests.form.amount' | translate }}</span> <input type="number" step="0.1" formControlName="amount_kg" required /></label>
       <label>{{ 'harvests.form.crop' | translate }} <input formControlName="crop_type" [placeholder]="'harvests.form.cropPlaceholder' | translate" /></label>
       <label>{{ 'harvests.form.batch' | translate }} <input formControlName="batch_code" placeholder="2026-FR-01" /></label>
       <label>{{ 'harvests.form.hive' | translate }}

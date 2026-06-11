@@ -20,16 +20,16 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="name">{{ 'beehives.form.name' | translate }}</label>
-            <input id="name" type="text" formControlName="name" [placeholder]="'beehives.form.namePlaceholder' | translate" />
+            <label for="name" class="required-label">{{ 'beehives.form.name' | translate }}</label>
+            <input id="name" type="text" formControlName="name" [placeholder]="'beehives.form.namePlaceholder' | translate" required />
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
               <span class="field-error">{{ 'beehives.form.nameRequired' | translate }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label for="apiary_id">{{ 'beehives.form.apiary' | translate }}</label>
-            <select id="apiary_id" formControlName="apiary_id">
+            <label for="apiary_id" class="required-label">{{ 'beehives.form.apiary' | translate }}</label>
+            <select id="apiary_id" formControlName="apiary_id" required>
               <option [value]="null">{{ 'beehives.form.apiaryPlaceholder' | translate }}</option>
               @for (apiary of apiaries(); track apiary.id) {
                 <option [value]="apiary.id">{{ apiary.name }}</option>

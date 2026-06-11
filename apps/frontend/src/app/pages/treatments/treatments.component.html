@@ -11,15 +11,15 @@
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createTreatment()">
-      <label>{{ 'treatments.form.hive' | translate }}
-        <select formControlName="hive_id">
+      <label><span class="required-label">{{ 'treatments.form.hive' | translate }}</span>
+        <select formControlName="hive_id" required>
           <option [ngValue]="null">{{ 'treatments.form.chooseHive' | translate }}</option>
           @for (hive of hives(); track hive.id) { <option [ngValue]="hive.id">{{ hive.name }}</option> }
         </select>
       </label>
-      <label>{{ 'treatments.form.start' | translate }} <input type="date" formControlName="started_at" /></label>
+      <label><span class="required-label">{{ 'treatments.form.start' | translate }}</span> <input type="date" formControlName="started_at" required /></label>
       <label>{{ 'treatments.form.end' | translate }} <input type="date" formControlName="ended_at" /></label>
-      <label>{{ 'treatments.form.product' | translate }} <input formControlName="product" [placeholder]="'treatments.form.productPlaceholder' | translate" /></label>
+      <label><span class="required-label">{{ 'treatments.form.product' | translate }}</span> <input formControlName="product" [placeholder]="'treatments.form.productPlaceholder' | translate" required /></label>
       <label>{{ 'treatments.form.method' | translate }} <input formControlName="method" [placeholder]="'treatments.form.methodPlaceholder' | translate" /></label>
       <label>{{ 'treatments.form.dosage' | translate }} <input formControlName="dosage" placeholder="30 ml" /></label>
       <label class="wide">{{ 'treatments.form.reason' | translate }} <input formControlName="reason" [placeholder]="'treatments.form.reasonPlaceholder' | translate" /></label>

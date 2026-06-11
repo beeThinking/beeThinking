@@ -17,8 +17,8 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="name">{{ 'apiaries.form.name' | translate }}</label>
-            <input id="name" type="text" formControlName="name" [placeholder]="'apiaries.form.namePlaceholder' | translate" />
+            <label for="name" class="required-label">{{ 'apiaries.form.name' | translate }}</label>
+            <input id="name" type="text" formControlName="name" [placeholder]="'apiaries.form.namePlaceholder' | translate" required />
             @if (form.get('name')?.invalid && form.get('name')?.touched) {
               <span class="field-error">{{ 'apiaries.form.nameRequired' | translate }}</span>
             }

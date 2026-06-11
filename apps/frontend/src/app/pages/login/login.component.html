@@ -13,13 +13,14 @@
       }
 
       <div class="form-group">
-        <label for="username">{{ 'login.username' | translate }}</label>
+        <label for="username" class="required-label">{{ 'login.username' | translate }}</label>
         <input
           id="username"
           type="text"
           formControlName="username"
           [placeholder]="'login.usernamePlaceholder' | translate"
           [class.invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          required
         />
         @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
           <div class="field-error">
@@ -34,13 +35,14 @@
       </div>
 
       <div class="form-group">
-        <label for="password">{{ 'login.password' | translate }}</label>
+        <label for="password" class="required-label">{{ 'login.password' | translate }}</label>
         <input
           id="password"
           type="password"
           formControlName="password"
           [placeholder]="'login.passwordPlaceholder' | translate"
           [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          required
         />
         @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
           <div class="field-error">

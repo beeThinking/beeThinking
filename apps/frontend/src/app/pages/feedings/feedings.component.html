@@ -18,9 +18,9 @@
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createFeeding()">
-      <label>Datum <input type="date" formControlName="date" /></label>
-      <label>Futter <input formControlName="feed_type" placeholder="Sirup, Teig, Honigwasser" /></label>
-      <label>Menge <input type="number" step="0.1" formControlName="amount_kg_or_l" /></label>
+      <label><span class="required-label">Datum</span> <input type="date" formControlName="date" required /></label>
+      <label><span class="required-label">Futter</span> <input formControlName="feed_type" placeholder="Sirup, Teig, Honigwasser" required /></label>
+      <label><span class="required-label">Menge</span> <input type="number" step="0.1" formControlName="amount_kg_or_l" required /></label>
       <label>Volk
         <select formControlName="hive_id">
           <option [ngValue]="null">Alle Völker</option>

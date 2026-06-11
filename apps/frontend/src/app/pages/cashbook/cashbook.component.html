@@ -25,17 +25,17 @@
 
   @if (showForm()) {
     <form class="editor" [formGroup]="form" (ngSubmit)="createEntry()">
-      <label>Datum <input type="date" formControlName="booking_date"></label>
-      <label>Typ
-        <select formControlName="direction">
+      <label><span class="required-label">Datum</span> <input type="date" formControlName="booking_date" required></label>
+      <label><span class="required-label">Typ</span>
+        <select formControlName="direction" required>
           <option value="income">Einnahme</option>
           <option value="expense">Ausgabe</option>
         </select>
       </label>
-      <label>Kategorie <input formControlName="category" placeholder="Futter, Gläser, Honigverkauf"></label>
-      <label>Brutto <input type="number" step="0.01" formControlName="amount_gross"></label>
+      <label><span class="required-label">Kategorie</span> <input formControlName="category" placeholder="Futter, Gläser, Honigverkauf" required></label>
+      <label><span class="required-label">Brutto</span> <input type="number" step="0.01" formControlName="amount_gross" required></label>
       <label>Steuer % <input type="number" step="0.01" formControlName="tax_rate"></label>
-      <label>Netto <input type="number" step="0.01" formControlName="amount_net"></label>
+      <label><span class="required-label">Netto</span> <input type="number" step="0.01" formControlName="amount_net" required></label>
       <label>Gegenpartei <input formControlName="counterparty"></label>
       <label>Zahlart <input formControlName="payment_method" placeholder="bar, Karte, Überweisung"></label>
       <label>Imkerei

@@ -11,15 +11,15 @@
   }
 
   <form class="editor" [formGroup]="form" (ngSubmit)="createPage()">
-    <label>Slug <input formControlName="slug" placeholder="about"></label>
-    <label>Sprache <input formControlName="locale" placeholder="de"></label>
-    <label>Titel <input formControlName="title"></label>
+    <label><span class="required-label">Slug</span> <input formControlName="slug" placeholder="about" required></label>
+    <label><span class="required-label">Sprache</span> <input formControlName="locale" placeholder="de" required></label>
+    <label><span class="required-label">Titel</span> <input formControlName="title" required></label>
     <label>Eyebrow <input formControlName="eyebrow"></label>
     <label class="wide">Lead <textarea rows="3" formControlName="lead"></textarea></label>
     <label>CTA Label <input formControlName="cta_label"></label>
     <label>CTA Link <input formControlName="cta_link"></label>
-    <label>Status
-      <select formControlName="status">
+    <label><span class="required-label">Status</span>
+      <select formControlName="status" required>
         <option value="draft">Entwurf</option>
         <option value="published">Veröffentlicht</option>
       </select>
@@ -33,8 +33,8 @@
       @for (section of sections.controls; track $index) {
         <fieldset [formGroupName]="$index">
           <label>Reihenfolge <input type="number" formControlName="sort_order"></label>
-          <label>Überschrift <input formControlName="heading"></label>
-          <label class="wide">Text <textarea rows="4" formControlName="body"></textarea></label>
+          <label><span class="required-label">Überschrift</span> <input formControlName="heading" required></label>
+          <label class="wide"><span class="required-label">Text</span> <textarea rows="4" formControlName="body" required></textarea></label>
           <button type="button" class="danger" (click)="removeSection($index)">Entfernen</button>
         </fieldset>
       }

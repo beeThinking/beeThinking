@@ -100,6 +100,64 @@ button, a, [role="button"] {
 /* Inline links can stay smaller */
 p a, li a { min-height: unset; min-width: unset; }
 
+button:disabled,
+button[aria-disabled="true"],
+.btn:disabled,
+.primary-action:disabled,
+.secondary-action:disabled,
+.secondary:disabled,
+.danger:disabled,
+.upload-button:disabled,
+.login-button:disabled,
+.register-button:disabled {
+  position: relative;
+  cursor: not-allowed;
+  filter: grayscale(0.55);
+  opacity: 0.52;
+  box-shadow: none;
+  transform: none;
+}
+
+button:disabled::after,
+button[aria-disabled="true"]::after,
+.btn:disabled::after,
+.primary-action:disabled::after,
+.secondary-action:disabled::after,
+.secondary:disabled::after,
+.danger:disabled::after,
+.upload-button:disabled::after,
+.login-button:disabled::after,
+.register-button:disabled::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: inherit;
+  border: 1px dashed currentColor;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.required-label {
+  position: relative;
+}
+
+.required-label::after {
+  content: "*";
+  display: inline-block;
+  margin-left: 0.25rem;
+  color: currentColor;
+  font-size: 0.95em;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: text-top;
+}
+
+input[required],
+select[required],
+textarea[required] {
+  border-left: 4px solid #7a3b2e;
+}
+
 /* ─── Shared layout helpers ──────────────────────────────── */
 .page-container {
   padding: var(--space-md) var(--page-px);
