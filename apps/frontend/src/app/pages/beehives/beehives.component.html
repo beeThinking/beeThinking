@@ -32,7 +32,7 @@
             <select id="apiary_id" formControlName="apiary_id" required>
               <option [value]="null">{{ 'beehives.form.apiaryPlaceholder' | translate }}</option>
               @for (apiary of apiaries(); track apiary.id) {
-                <option [value]="apiary.id">{{ apiary.name }}</option>
+                <option [value]="apiary.id">{{ apiaryTitle(apiary) }}</option>
               }
             </select>
             @if (form.get('apiary_id')?.invalid && form.get('apiary_id')?.touched) {

@@ -31,6 +31,10 @@ pip install -r requirements.txt
 echo "Running database migrations..."
 alembic upgrade head
 
+# Import bundled BeeIntouch PDFs once per file hash
+echo "Running BeeIntouch PDF import..."
+python -m app.importers.beeintouch_pdf_import --source-dir import_sources/beeintouch
+
 # Start the server
 echo "🚀 Starting server on http://localhost:8000"
 echo "📖 API Documentation: http://localhost:8000/docs"

@@ -79,6 +79,11 @@ export class HarvestsComponent {
 
   protected apiaryName(id: number | null): string {
     if (!id) return this.translation.t('harvests.form.noApiary');
-    return this.apiaries().find(a => a.id === id)?.name ?? this.translation.t('common.apiaryRef', { id });
+    const apiary = this.apiaries().find(a => a.id === id);
+    return apiary ? this.apiaryTitle(apiary) : this.translation.t('common.apiaryRef', { id });
+  }
+
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
   }
 }

@@ -116,7 +116,12 @@ export class BeehivesComponent {
   }
 
   protected apiaryName(apiaryId: number): string {
-    return this.apiaries().find(a => a.id === apiaryId)?.name ?? this.translation.t('common.apiaryRef', { id: apiaryId });
+    const apiary = this.apiaries().find(a => a.id === apiaryId);
+    return apiary ? this.apiaryTitle(apiary) : this.translation.t('common.apiaryRef', { id: apiaryId });
+  }
+
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
   }
 
   protected statusLabel(status: HiveStatus): string {

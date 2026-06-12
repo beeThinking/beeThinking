@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { environment } from '../../../environments/environment';
 import {
   DashboardSummary,
   Article,
@@ -26,6 +27,15 @@ import {
   InventoryItem,
   InventoryItemCreate,
   InventoryItemUpdate,
+  OfficeDashboard,
+  OfficeDocument,
+  OfficeDocumentCreate,
+  OfficeDocumentType,
+  OfficeDocumentUpdate,
+  OfficePartner,
+  OfficePartnerCreate,
+  OfficePartnerType,
+  OfficePartnerUpdate,
   Photo,
   PhotoPreview,
   Task,
@@ -185,6 +195,54 @@ export class BeekeepingService {
     if (to) params.set('to_date', to);
     const query = params.toString();
     return this.api.get<CashbookSummary>(`/api/cashbook/summary${query ? `?${query}` : ''}`);
+  }
+
+  getOfficeDashboard(year: number, month?: number | null): Observable<OfficeDashboard> {
+    const params = new URLSearchParams({ year: String(year) });
+    if (month) params.set('month', String(month));
+    return this.api.get<OfficeDashboard>(`/api/office/dashboard?${params.toString()}`);
+  }
+
+  getOfficePartners(type?: OfficePartnerType): Observable<OfficePartner[]> {
+    const query = type ? `?partner_type=${type}` : '';
+    return this.api.get<OfficePartner[]>(`/api/office/partners${query}`);
+  }
+
+  createOfficePartner(partner: OfficePartnerCreate): Observable<OfficePartner> {
+    return this.api.post<OfficePartner>('/api/office/partners', partner);
+  }
+
+  updateOfficePartner(id: number, partner: OfficePartnerUpdate): Observable<OfficePartner> {
+    return this.api.put<OfficePartner>(`/api/office/partners/${id}`, partner);
+  }
+
+  deleteOfficePartner(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/office/partners/${id}`);
+  }
+
+  getOfficeDocuments(type?: OfficeDocumentType): Observable<OfficeDocument[]> {
+    const query = type ? `?document_type=${type}` : '';
+    return this.api.get<OfficeDocument[]>(`/api/office/documents${query}`);
+  }
+
+  createOfficeDocument(document: OfficeDocumentCreate): Observable<OfficeDocument> {
+    return this.api.post<OfficeDocument>('/api/office/documents', document);
+  }
+
+  updateOfficeDocument(id: number, document: OfficeDocumentUpdate): Observable<OfficeDocument> {
+    return this.api.put<OfficeDocument>(`/api/office/documents/${id}`, document);
+  }
+
+  deleteOfficeDocument(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/office/documents/${id}`);
+  }
+
+  officeCsvUrl(year: number): string {
+    return `${environment.apiUrl}/api/office/cashbook/export.csv?year=${year}`;
+  }
+
+  officePdfUrl(year: number): string {
+    return `${environment.apiUrl}/api/office/cashbook/report.pdf?year=${year}`;
   }
 
   getContentPages(): Observable<ContentPage[]> {

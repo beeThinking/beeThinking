@@ -8,7 +8,7 @@ from app.models.inspection import Inspection
 @pytest.fixture
 def apiary(authenticated_client):
     client, _ = authenticated_client
-    response = client.post("/api/apiaries", json={"name": "Test Apiary"})
+    response = client.post("/api/apiaries", json={"stock_number": "Test Apiary", "name": "Test Apiary"})
     assert response.status_code == 201
     return response.json()
 
@@ -46,7 +46,7 @@ class TestListInspections:
 
     def test_list_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -105,7 +105,7 @@ class TestCreateInspection:
         client, _ = authenticated_client
         apiary = client.post(
             "/api/apiaries",
-            json={"name": "Weather Apiary", "latitude": 48.1374, "longitude": 11.5755},
+            json={"stock_number": "Weather Apiary", "name": "Weather Apiary", "latitude": 48.1374, "longitude": 11.5755},
         ).json()
         hive = client.post("/api/hives", json={"name": "Weather Hive", "apiary_id": apiary["id"]}).json()
 
@@ -190,7 +190,7 @@ class TestCreateInspection:
 
     def test_create_on_other_user_hive_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -226,7 +226,7 @@ class TestGetInspection:
 
     def test_get_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -270,7 +270,7 @@ class TestUpdateInspection:
 
     def test_update_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -312,7 +312,7 @@ class TestDeleteInspection:
 
     def test_delete_other_user_inspection_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)

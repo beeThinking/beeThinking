@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.crud.ownership import user_can_access_apiary
+from app.crud.office import get_partner
 from app.models.cashbook import CashbookDirection, CashbookEntry, CashbookReceipt, CashbookReceiptSuggestion
 from app.schemas.cashbook import CashbookEntryCreate, CashbookEntryUpdate
 
@@ -20,6 +21,8 @@ def list_entries(db: Session, user_id: int, from_date: date | None = None, to_da
 def create_entry(db: Session, entry: CashbookEntryCreate, user_id: int) -> CashbookEntry | None:
     if entry.apiary_id is not None and not user_can_access_apiary(db, entry.apiary_id, user_id):
         return None
+    if entry.partner_id is not None and not get_partner(db, user_id, entry.partner_id):
+        return None
     data = entry.model_dump()
     db_entry = CashbookEntry(**data, owner_id=user_id, performed_by_user_id=user_id)
     db.add(db_entry)
@@ -34,6 +37,8 @@ def update_entry(db: Session, entry_id: int, update: CashbookEntryUpdate, user_i
         return None
     data = update.model_dump(exclude_unset=True)
     if "apiary_id" in data and data["apiary_id"] is not None and not user_can_access_apiary(db, data["apiary_id"], user_id):
+        return None
+    if "partner_id" in data and data["partner_id"] is not None and not get_partner(db, user_id, data["partner_id"]):
         return None
     for field, value in data.items():
         setattr(db_entry, field, value)

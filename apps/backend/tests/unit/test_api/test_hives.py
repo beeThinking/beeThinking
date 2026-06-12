@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def apiary(authenticated_client):
     client, _ = authenticated_client
-    response = client.post("/api/apiaries", json={"name": "Test Apiary"})
+    response = client.post("/api/apiaries", json={"stock_number": "Test Apiary", "name": "Test Apiary"})
     assert response.status_code == 201
     return response.json()
 
@@ -87,7 +87,7 @@ class TestGetHive:
         client, _ = authenticated_client
         from app.models.hive import Hive
         from app.models.apiary import Apiary
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -119,7 +119,7 @@ class TestUpdateHive:
         client, _ = authenticated_client
         from app.models.hive import Hive
         from app.models.apiary import Apiary
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -162,7 +162,7 @@ class TestDeleteHive:
         client, _ = authenticated_client
         from app.models.hive import Hive
         from app.models.apiary import Apiary
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)

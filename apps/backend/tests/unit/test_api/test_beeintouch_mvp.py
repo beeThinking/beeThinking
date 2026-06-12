@@ -4,7 +4,7 @@ import pytest
 @pytest.fixture
 def apiary_and_hives(authenticated_client):
     client, _ = authenticated_client
-    apiary = client.post("/api/apiaries", json={"name": "Stand Nord"}).json()
+    apiary = client.post("/api/apiaries", json={"stock_number": "Stand Nord", "name": "Stand Nord"}).json()
     hive_a = client.post("/api/hives", json={"name": "Volk 1", "apiary_id": apiary["id"]}).json()
     hive_b = client.post("/api/hives", json={"name": "Volk 2", "apiary_id": apiary["id"]}).json()
     return apiary, hive_a, hive_b

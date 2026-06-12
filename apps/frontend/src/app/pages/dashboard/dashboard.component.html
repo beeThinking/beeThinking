@@ -43,7 +43,7 @@
       <div class="section-title"><h2>Stände</h2><a routerLink="/stands">Alle</a></div>
       @for (apiary of summary().apiaries; track apiary.id) {
         <a class="hive-status" [routerLink]="['/stands', apiary.id]">
-          <strong>{{ apiary.name }}</strong>
+          <strong>{{ apiaryTitle(apiary) }}</strong>
           <span>{{ apiary.hive_count }} Völker</span>
           <span>{{ apiary.address || 'Ohne Adresse' }}</span>
         </a>

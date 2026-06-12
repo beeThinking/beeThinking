@@ -11,6 +11,9 @@ class CashbookEntryBase(BaseModel):
     booking_date: date
     direction: CashbookDirection
     category: str = Field(..., min_length=1, max_length=120)
+    title: Optional[str] = Field(None, max_length=200)
+    invoice_number: Optional[str] = Field(None, max_length=80)
+    partner_id: Optional[int] = None
     amount_gross: float = Field(..., ge=0)
     tax_rate: float = Field(0, ge=0, le=100)
     tax_amount: float = Field(0, ge=0)
@@ -38,6 +41,9 @@ class CashbookEntryUpdate(BaseModel):
     booking_date: Optional[date] = None
     direction: Optional[CashbookDirection] = None
     category: Optional[str] = Field(None, min_length=1, max_length=120)
+    title: Optional[str] = Field(None, max_length=200)
+    invoice_number: Optional[str] = Field(None, max_length=80)
+    partner_id: Optional[int] = None
     amount_gross: Optional[float] = Field(None, ge=0)
     tax_rate: Optional[float] = Field(None, ge=0, le=100)
     tax_amount: Optional[float] = Field(None, ge=0)

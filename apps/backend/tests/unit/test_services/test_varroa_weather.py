@@ -24,7 +24,7 @@ class TestVarroaWeather:
         assert rating == VarroaWeatherRating.unsuitable
 
     def test_windows_are_cached(self, db, test_user):
-        apiary = Apiary(name="Weather Stand", owner_id=test_user.id, latitude=50.0, longitude=8.0)
+        apiary = Apiary(stock_number="Weather Stand", name="Weather Stand", owner_id=test_user.id, latitude=50.0, longitude=8.0)
         db.add(apiary)
         db.commit()
         db.refresh(apiary)

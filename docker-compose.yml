@@ -35,7 +35,7 @@ services:
       - "8000:8000"
     volumes:
       - ./apps/backend:/app
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "alembic upgrade head && python -m app.importers.beeintouch_pdf_import --source-dir import_sources/beeintouch && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
     build: ./apps/frontend

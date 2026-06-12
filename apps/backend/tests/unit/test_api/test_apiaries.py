@@ -5,7 +5,7 @@ from app.models.apiary import Apiary
 @pytest.fixture
 def apiary(authenticated_client):
     client, _ = authenticated_client
-    response = client.post("/api/apiaries", json={"name": "Test Apiary"})
+    response = client.post("/api/apiaries", json={"stock_number": "Test Apiary", "name": "Test Apiary"})
     assert response.status_code == 201
     return response.json()
 
@@ -23,7 +23,7 @@ class TestListApiaries:
 
     def test_list_returns_only_own_apiaries(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        db.add(Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id))
+        db.add(Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id))
         db.commit()
 
         response = client.get("/api/apiaries")
@@ -36,7 +36,7 @@ class TestListApiaries:
 class TestCreateApiary:
     def test_create_minimal(self, authenticated_client):
         client, _ = authenticated_client
-        response = client.post("/api/apiaries", json={"name": "Garden"})
+        response = client.post("/api/apiaries", json={"stock_number": "Garden", "name": "Garden"})
         assert response.status_code == 201
         data = response.json()
         assert data["name"] == "Garden"
@@ -45,6 +45,7 @@ class TestCreateApiary:
     def test_create_full(self, authenticated_client):
         client, _ = authenticated_client
         payload = {
+            "stock_number": "Forest Stand",
             "name": "Forest Stand",
             "address": "Waldweg 1, 12345 Musterstadt",
             "latitude": 48.1374,
@@ -57,13 +58,13 @@ class TestCreateApiary:
         assert data["address"] == "Waldweg 1, 12345 Musterstadt"
         assert data["latitude"] == 48.1374
 
-    def test_create_empty_name_fails(self, authenticated_client):
+    def test_create_empty_stock_number_fails(self, authenticated_client):
         client, _ = authenticated_client
-        assert client.post("/api/apiaries", json={"name": ""}).status_code == 422
+        assert client.post("/api/apiaries", json={"stock_number": ""}).status_code == 422
 
     def test_create_invalid_gps_fails(self, authenticated_client):
         client, _ = authenticated_client
-        assert client.post("/api/apiaries", json={"name": "X", "latitude": 999}).status_code == 422
+        assert client.post("/api/apiaries", json={"stock_number": "X", "latitude": 999}).status_code == 422
 
 
 @pytest.mark.unit
@@ -80,7 +81,7 @@ class TestGetApiary:
 
     def test_get_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -100,11 +101,11 @@ class TestUpdateApiary:
 
     def test_update_not_found(self, authenticated_client):
         client, _ = authenticated_client
-        assert client.put("/api/apiaries/99999", json={"name": "X"}).status_code == 404
+        assert client.put("/api/apiaries/99999", json={"stock_number": "X"}).status_code == 404
 
     def test_update_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)
@@ -129,7 +130,7 @@ class TestDeleteApiary:
 
     def test_delete_other_user_apiary_returns_404(self, authenticated_client, multiple_test_users, db):
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other Apiary", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other Apiary", name="Other Apiary", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)

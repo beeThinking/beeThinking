@@ -97,7 +97,7 @@ def get_dashboard_summary(
         "latest_inspection_date": latest_inspection.date if latest_inspection else None,
         "hives": hive_statuses,
         "apiaries": [
-            {"id": apiary.id, "name": apiary.name, "hive_count": len(apiary.hives), "address": apiary.address}
+            {"id": apiary.id, "stock_number": apiary.stock_number, "name": apiary.name, "hive_count": len(apiary.hives), "address": apiary.address}
             for apiary in apiaries
         ],
         "open_tasks": [

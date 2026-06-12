@@ -250,6 +250,9 @@ export interface CashbookEntry {
   booking_date: string;
   direction: CashbookDirection;
   category: string;
+  title: string | null;
+  invoice_number: string | null;
+  partner_id: number | null;
   amount_gross: number;
   tax_rate: number;
   tax_amount: number;
@@ -267,6 +270,9 @@ export interface CashbookEntryCreate {
   booking_date: string;
   direction: CashbookDirection;
   category: string;
+  title?: string;
+  invoice_number?: string;
+  partner_id?: number | null;
   amount_gross: number;
   tax_rate?: number;
   tax_amount?: number;
@@ -283,6 +289,108 @@ export interface CashbookSummary {
   income: number;
   expenses: number;
   surplus: number;
+}
+
+export type OfficePartnerType = 'customer' | 'supplier';
+export type OfficeDocumentType = 'receipt' | 'invoice' | 'offer' | 'report';
+export type OfficeDocumentStatus = 'draft' | 'sent' | 'accepted' | 'paid' | 'cancelled';
+
+export interface OfficePartner {
+  id: number;
+  owner_id: number;
+  partner_type: OfficePartnerType;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  tax_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface OfficePartnerCreate {
+  partner_type: OfficePartnerType;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  tax_id?: string;
+  notes?: string;
+}
+
+export type OfficePartnerUpdate = Partial<OfficePartnerCreate>;
+
+export interface OfficeLineItem {
+  description: string;
+  quantity: number;
+  unit_price: number;
+  tax_rate: number;
+}
+
+export interface OfficeDocument {
+  id: number;
+  owner_id: number;
+  partner_id: number | null;
+  document_type: OfficeDocumentType;
+  status: OfficeDocumentStatus;
+  document_number: string;
+  title: string;
+  document_date: string;
+  due_date: string | null;
+  amount_gross: number;
+  tax_rate: number;
+  tax_amount: number;
+  amount_net: number;
+  line_items: OfficeLineItem[];
+  notes: string | null;
+  receipt_id: number | null;
+  cashbook_entry_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface OfficeDocumentCreate {
+  partner_id?: number | null;
+  document_type: OfficeDocumentType;
+  status?: OfficeDocumentStatus;
+  document_number: string;
+  title: string;
+  document_date: string;
+  due_date?: string | null;
+  amount_gross?: number;
+  tax_rate?: number;
+  tax_amount?: number;
+  amount_net?: number;
+  line_items?: OfficeLineItem[];
+  notes?: string;
+  receipt_id?: number | null;
+  cashbook_entry_id?: number | null;
+}
+
+export type OfficeDocumentUpdate = Partial<OfficeDocumentCreate>;
+
+export interface OfficeMonthlySummary {
+  month: number;
+  income: number;
+  expenses: number;
+  balance: number;
+}
+
+export interface OfficeCategorySummary {
+  category: string;
+  income: number;
+  expenses: number;
+}
+
+export interface OfficeDashboard {
+  year: number;
+  month: number | null;
+  income: number;
+  expenses: number;
+  balance: number;
+  monthly: OfficeMonthlySummary[];
+  categories: OfficeCategorySummary[];
 }
 
 export interface ContentSection {
@@ -359,7 +467,7 @@ export interface DashboardSummary {
   inventory_item_count: number;
   latest_inspection_date: string | null;
   hives: DashboardHiveStatus[];
-  apiaries: { id: number; name: string; hive_count: number; address: string | null }[];
+  apiaries: { id: number; stock_number: string; name: string | null; hive_count: number; address: string | null }[];
   open_tasks: { id: number; title: string; due_date: string | null; priority: TaskPriority; apiary_id: number | null; hive_id: number | null }[];
   upcoming_appointments: { id: number; title: string; due_date: string | null; start_at: string | null; apiary_id: number | null; hive_id: number | null }[];
   low_inventory: { id: number; name: string; category: ArticleCategory; quantity: number; unit: string }[];

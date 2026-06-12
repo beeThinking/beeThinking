@@ -1,6 +1,7 @@
 export interface Apiary {
   id: number;
-  name: string;
+  stock_number: string;
+  name: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -12,7 +13,8 @@ export interface Apiary {
 }
 
 export interface ApiaryCreate {
-  name: string;
+  stock_number: string;
+  name?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
@@ -20,6 +22,7 @@ export interface ApiaryCreate {
 }
 
 export interface ApiaryUpdate {
+  stock_number?: string;
   name?: string;
   address?: string;
   latitude?: number;

@@ -105,6 +105,10 @@ export class ApiaryDetailComponent {
     } as Record<string, string>)[rating] ?? rating;
   }
 
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
+  }
+
   protected toggleHive(id: number, checked: boolean): void {
     this.selectedHiveIds.update(ids => checked ? [...new Set([...ids, id])] : ids.filter(existing => existing !== id));
   }

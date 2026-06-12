@@ -17,16 +17,24 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="name" class="required-label">{{ 'apiaries.form.name' | translate }}</label>
-            <input id="name" type="text" formControlName="name" [placeholder]="'apiaries.form.namePlaceholder' | translate" required />
-            @if (form.get('name')?.invalid && form.get('name')?.touched) {
-              <span class="field-error">{{ 'apiaries.form.nameRequired' | translate }}</span>
+            <label for="stock_number" class="required-label">{{ 'apiaries.form.stockNumber' | translate }}</label>
+            <input id="stock_number" type="text" formControlName="stock_number" [placeholder]="'apiaries.form.stockNumberPlaceholder' | translate" required />
+            @if (form.get('stock_number')?.invalid && form.get('stock_number')?.touched) {
+              <span class="field-error">{{ 'apiaries.form.stockNumberRequired' | translate }}</span>
             }
+          </div>
+
+          <div class="form-group">
+            <label for="name">{{ 'apiaries.form.name' | translate }}</label>
+            <input id="name" type="text" formControlName="name" [placeholder]="'apiaries.form.namePlaceholder' | translate" />
           </div>
 
           <div class="form-group">
             <label for="address">{{ 'apiaries.form.address' | translate }}</label>
             <input id="address" type="text" formControlName="address" [placeholder]="'apiaries.form.addressPlaceholder' | translate" />
+            @if (addressLookupMessage()) {
+              <span class="field-hint" [class.is-pending]="addressLookupPending()">{{ addressLookupMessage() }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -82,13 +90,14 @@
       @for (apiary of apiaries(); track apiary.id) {
         <div class="apiary-card">
           <div class="apiary-card-header">
-            <h3>{{ apiary.name }}</h3>
+            <h3>{{ apiaryTitle(apiary) }}</h3>
             <span class="hive-count">{{ hiveCountLabel(apiary.hive_count) }}</span>
           </div>
           <div class="apiary-card-body">
             @if (apiary.address) {
               <p class="apiary-meta"><span class="label">{{ 'apiaries.meta.address' | translate }}</span> {{ apiary.address }}</p>
             }
+            <p class="apiary-meta"><span class="label">{{ 'apiaries.meta.stockNumber' | translate }}</span> {{ apiary.stock_number }}</p>
             @if (apiary.latitude !== null && apiary.longitude !== null) {
               <p class="apiary-meta">
                 <span class="label">{{ 'apiaries.meta.gps' | translate }}</span>

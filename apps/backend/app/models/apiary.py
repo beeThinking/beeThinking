@@ -8,7 +8,8 @@ class Apiary(Base):
     __tablename__ = "apiaries"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    stock_number = Column(String, nullable=False)
+    name = Column(String, nullable=True)
     address = Column(String, nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)

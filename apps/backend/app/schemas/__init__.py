@@ -1,6 +1,7 @@
 # This makes the schemas directory a Python package
 from app.schemas.harvest import HarvestCreate, HarvestResponse, HarvestUpdate
 from app.schemas.cashbook import CashbookEntryCreate, CashbookEntryResponse, CashbookEntryUpdate
+from app.schemas.office import OfficeDocumentCreate, OfficeDocumentResponse, OfficePartnerCreate, OfficePartnerResponse
 from app.schemas.content import ContentPageCreate, ContentPageResponse, ContentPageUpdate
 from app.schemas.photo import PhotoCreate, PhotoResponse
 from app.schemas.queen import QueenCreate, QueenResponse, QueenUpdate

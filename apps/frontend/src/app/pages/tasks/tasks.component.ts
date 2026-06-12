@@ -128,6 +128,10 @@ export class TasksComponent {
     return this.hives().find(h => h.id === id)?.name ?? this.translation.t('common.hiveRef', { id });
   }
 
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
+  }
+
   protected priorityLabel(priority: TaskPriority): string {
     const key = ({
       low: 'tasks.priority.low',

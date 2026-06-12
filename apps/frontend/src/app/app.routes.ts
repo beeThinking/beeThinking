@@ -153,6 +153,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'office',
+    loadComponent: () => import('./pages/cashbook/cashbook.component').then(m => m.CashbookComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'office/cashbook',
     loadComponent: () => import('./pages/cashbook/cashbook.component').then(m => m.CashbookComponent),
     canActivate: [authGuard]

@@ -6,7 +6,7 @@ import pytest
 @pytest.fixture
 def apiary(authenticated_client):
     client, _ = authenticated_client
-    response = client.post("/api/apiaries", json={"name": "Entity Apiary"})
+    response = client.post("/api/apiaries", json={"stock_number": "Entity Apiary", "name": "Entity Apiary"})
     assert response.status_code == 201
     return response.json()
 
@@ -66,7 +66,7 @@ class TestTasksApi:
         from app.models.hive import Hive
 
         client, _ = authenticated_client
-        other_apiary = Apiary(name="Other", owner_id=multiple_test_users[0].id)
+        other_apiary = Apiary(stock_number="Other", name="Other", owner_id=multiple_test_users[0].id)
         db.add(other_apiary)
         db.commit()
         db.refresh(other_apiary)

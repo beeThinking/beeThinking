@@ -44,4 +44,8 @@ export class DashboardComponent {
     if (!value) return this.translation.t('dashboard.noDate');
     return new Date(value).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit' });
   }
+
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
+  }
 }

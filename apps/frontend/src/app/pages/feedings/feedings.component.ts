@@ -81,6 +81,11 @@ export class FeedingsComponent {
 
   protected apiaryName(id: number | null): string {
     if (!id) return 'Kein Stand';
-    return this.apiaries().find(apiary => apiary.id === id)?.name ?? `Stand #${id}`;
+    const apiary = this.apiaries().find(item => item.id === id);
+    return apiary ? this.apiaryTitle(apiary) : `Stand #${id}`;
+  }
+
+  protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
+    return apiary.name?.trim() || apiary.stock_number;
   }
 }

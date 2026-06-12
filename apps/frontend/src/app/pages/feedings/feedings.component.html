@@ -33,7 +33,7 @@
         <select formControlName="apiary_id">
           <option [ngValue]="null">Kein Stand</option>
           @for (apiary of apiaries(); track apiary.id) {
-            <option [ngValue]="apiary.id">{{ apiary.name }}</option>
+            <option [ngValue]="apiary.id">{{ apiaryTitle(apiary) }}</option>
           }
         </select>
       </label>

@@ -2,70 +2,266 @@
   <header class="work-header">
     <div>
       <p class="eyebrow">Büro</p>
-      <h1>Kassenbuch</h1>
+      <h1>Kassenbuch & Dokumente</h1>
     </div>
-    <button type="button" class="primary-action" (click)="showForm.set(!showForm())">Buchung erfassen</button>
+    <div class="header-actions">
+      <button type="button" class="primary-action income" (click)="openBooking('income')">Einnahme buchen</button>
+      <button type="button" class="primary-action expense" (click)="openBooking('expense')">Ausgabe buchen</button>
+    </div>
   </header>
 
-  <section class="filters">
-    <input type="date" [value]="fromDate()" (input)="fromDate.set($any($event.target).value)">
-    <input type="date" [value]="toDate()" (input)="toDate.set($any($event.target).value)">
-    <button type="button" class="secondary" (click)="load()">Aktualisieren</button>
-  </section>
+  <nav class="tabbar" aria-label="Büro Bereiche">
+    @for (item of tabs; track item.id) {
+      <button type="button" [class.active]="tab() === item.id" (click)="setTab(item.id)">{{ item.label }}</button>
+    }
+  </nav>
 
-  <section class="summary-grid">
-    <article><span>Einnahmen</span><strong>{{ summary().income | currency:'EUR' }}</strong></article>
-    <article><span>Ausgaben</span><strong>{{ summary().expenses | currency:'EUR' }}</strong></article>
-    <article><span>Überschuss</span><strong>{{ summary().surplus | currency:'EUR' }}</strong></article>
+  <section class="filters">
+    <label>Monat
+      <select [value]="month() ?? ''" (change)="setMonth($any($event.target).value)">
+        <option value="">Ganzes Jahr</option>
+        @for (label of months; track $index) {
+          <option [value]="$index + 1">{{ label }}</option>
+        }
+      </select>
+    </label>
+    <label>Jahr
+      <select [value]="year()" (change)="setYear($any($event.target).value)">
+        @for (item of years(); track item) {
+          <option [value]="item">{{ item }}</option>
+        }
+      </select>
+    </label>
+    <button type="button" class="secondary" (click)="load()">Aktualisieren</button>
   </section>
 
   @if (errorMessage()) {
     <div class="alert">{{ errorMessage() }}</div>
   }
 
-  @if (showForm()) {
-    <form class="editor" [formGroup]="form" (ngSubmit)="createEntry()">
-      <label><span class="required-label">Datum</span> <input type="date" formControlName="booking_date" required></label>
-      <label><span class="required-label">Typ</span>
-        <select formControlName="direction" required>
-          <option value="income">Einnahme</option>
-          <option value="expense">Ausgabe</option>
+  @if (tab() === 'overview' || tab() === 'cashbook') {
+    <section class="summary-grid">
+      <article><span>Kontostand</span><strong [class.negative]="dashboard().balance < 0">{{ dashboard().balance | currency:'EUR' }}</strong></article>
+      <article><span>Einnahmen</span><strong>{{ dashboard().income | currency:'EUR' }}</strong></article>
+      <article><span>Ausgaben</span><strong class="negative">{{ dashboard().expenses | currency:'EUR' }}</strong></article>
+      <article><span>Buchungen</span><strong>{{ entries().length }}</strong></article>
+    </section>
+
+    <section class="analytics-grid">
+      <div class="panel monthly-panel">
+        <div class="panel-heading">
+          <h2>Monatsübersicht</h2>
+          <span>{{ year() }}</span>
+        </div>
+        <div class="month-bars">
+          @for (item of dashboard().monthly; track item.month) {
+            <button type="button" class="month-row" (click)="month.set(item.month); load(); setTab('cashbook')">
+              <span>{{ months[item.month - 1].slice(0, 3) }}</span>
+              <div class="bar-stack">
+                <i class="bar income-bar" [style.width]="barWidth(item.income)"></i>
+                <i class="bar expense-bar" [style.width]="barWidth(item.expenses)"></i>
+              </div>
+              <strong [class.negative]="item.balance < 0">{{ item.balance | currency:'EUR' }}</strong>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Monatsdetails</h2>
+          <span>{{ periodLabel() }}</span>
+        </div>
+        <div class="category-list">
+          @for (category of dashboard().categories; track category.category) {
+            <div class="category-row">
+              <strong>{{ categoryLabel(category.category) }}</strong>
+              <span>{{ category.income | currency:'EUR' }}</span>
+              <span class="negative">{{ category.expenses | currency:'EUR' }}</span>
+            </div>
+          } @empty {
+            <div class="empty-panel">Keine Kategorien im Zeitraum.</div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (showBookingForm()) {
+    <form class="editor" [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
+      <h2 class="wide">{{ showBookingForm() === 'income' ? 'Einnahme buchen' : 'Ausgabe buchen' }}</h2>
+      <label>Rechnungsdatum <input type="date" formControlName="booking_date" required></label>
+      <label>Rechnungsnummer <input formControlName="invoice_number"></label>
+      <label>Titel <input formControlName="title" required></label>
+      <label>{{ showBookingForm() === 'income' ? 'Kunde' : 'Lieferant' }}
+        <select formControlName="partner_id">
+          <option [ngValue]="null">Ohne Partner</option>
+          @for (partner of partnersForDirection(showBookingForm()); track partner.id) {
+            <option [ngValue]="partner.id">{{ partner.name }}</option>
+          }
         </select>
       </label>
-      <label><span class="required-label">Kategorie</span> <input formControlName="category" placeholder="Futter, Gläser, Honigverkauf" required></label>
-      <label><span class="required-label">Brutto</span> <input type="number" step="0.01" formControlName="amount_gross" required></label>
-      <label>Steuer % <input type="number" step="0.01" formControlName="tax_rate"></label>
-      <label><span class="required-label">Netto</span> <input type="number" step="0.01" formControlName="amount_net" required></label>
-      <label>Gegenpartei <input formControlName="counterparty"></label>
+      <label>Kategorie
+        <select formControlName="category" required>
+          @for (category of categories; track category) {
+            <option [value]="category">{{ categoryLabel(category) }}</option>
+          }
+        </select>
+      </label>
+      <label>inkl. MwSt. % <input type="number" step="0.01" formControlName="tax_rate"></label>
+      <label>Bruttobetrag <input type="number" step="0.01" formControlName="amount_gross" required></label>
+      <label>Nettobetrag <input type="number" step="0.01" formControlName="amount_net" required></label>
       <label>Zahlart <input formControlName="payment_method" placeholder="bar, Karte, Überweisung"></label>
       <label>Imkerei
         <select formControlName="apiary_id">
           <option [ngValue]="null">Keine Imkerei</option>
           @for (apiary of apiaries(); track apiary.id) {
-            <option [ngValue]="apiary.id">{{ apiary.name }}</option>
+            <option [ngValue]="apiary.id">{{ apiary.name || apiary.stock_number }}</option>
           }
         </select>
       </label>
-      <label class="wide">Beschreibung <textarea rows="3" formControlName="description"></textarea></label>
+      <label class="wide">Notiz <textarea rows="3" formControlName="description"></textarea></label>
       <div class="form-actions">
-        <button type="button" class="secondary" (click)="showForm.set(false)">Abbrechen</button>
-        <button type="submit" class="primary-action" [disabled]="form.invalid">Speichern</button>
+        <button type="button" class="secondary" (click)="showBookingForm.set(null)">Abbrechen</button>
+        <button type="submit" class="primary-action" [disabled]="bookingForm.invalid">Speichern</button>
       </div>
     </form>
   }
 
-  <section class="entry-list">
-    @for (entry of signedEntries(); track entry.id) {
-      <article class="entry">
-        <div>
-          <h2>{{ entry.category }}</h2>
-          <p>{{ entry.booking_date | date:'dd.MM.yyyy' }} · {{ apiaryName(entry.apiary_id) }} · {{ entry.counterparty || 'ohne Gegenpartei' }}</p>
+  @if (tab() === 'cashbook') {
+    <section class="panel booking-panel">
+      <div class="panel-heading">
+        <h2>Buchungen</h2>
+        <span>{{ entries().length }} Einträge</span>
+      </div>
+      <div class="booking-table">
+        <div class="table-head"><span>Einnahmen</span><span>Ausgaben</span></div>
+        @for (entry of signedEntries(); track entry.id) {
+          <article class="booking-row" [class.expense-row]="entry.direction === 'expense'">
+            <div class="booking-main">
+              <strong>{{ entry.title || categoryLabel(entry.category) }}</strong>
+              <small>{{ entry.booking_date | date:'dd.MM.yyyy' }} · {{ categoryLabel(entry.category) }} · {{ partnerName(entry.partner_id) }} · {{ apiaryName(entry.apiary_id) }}</small>
+            </div>
+            <strong [class.negative]="entry.signedAmount < 0">{{ entry.signedAmount | currency:'EUR' }}</strong>
+            <button type="button" class="danger" (click)="deleteEntry(entry)">Löschen</button>
+          </article>
+        } @empty {
+          <div class="empty-panel">Keine Buchungen im Zeitraum.</div>
+        }
+      </div>
+    </section>
+  }
+
+  @if (tab() === 'partners') {
+    <section class="panel">
+      <div class="panel-heading">
+        <h2>Kunden & Lieferanten</h2>
+        <div class="button-pair">
+          <button type="button" class="secondary" (click)="openPartner('customer')">Kunde anlegen</button>
+          <button type="button" class="secondary" (click)="openPartner('supplier')">Lieferant anlegen</button>
         </div>
-        <strong [class.negative]="entry.signedAmount < 0">{{ entry.signedAmount | currency:'EUR' }}</strong>
-        <button type="button" class="danger" (click)="deleteEntry(entry)">Löschen</button>
-      </article>
-    } @empty {
-      <div class="empty-panel">Keine Buchungen im Zeitraum.</div>
-    }
-  </section>
+      </div>
+      @if (showPartnerForm()) {
+        <form class="editor compact" [formGroup]="partnerForm" (ngSubmit)="savePartner()">
+          <label>Name <input formControlName="name" required></label>
+          <label>Typ
+            <select formControlName="partner_type" required>
+              <option value="customer">Kunde</option>
+              <option value="supplier">Lieferant</option>
+            </select>
+          </label>
+          <label>E-Mail <input formControlName="email"></label>
+          <label>Telefon <input formControlName="phone"></label>
+          <label class="wide">Adresse <textarea rows="2" formControlName="address"></textarea></label>
+          <label>Steuer-ID <input formControlName="tax_id"></label>
+          <label class="wide">Notiz <textarea rows="2" formControlName="notes"></textarea></label>
+          <div class="form-actions">
+            <button type="button" class="secondary" (click)="showPartnerForm.set(null)">Abbrechen</button>
+            <button type="submit" class="primary-action" [disabled]="partnerForm.invalid">Partner speichern</button>
+          </div>
+        </form>
+      }
+      <div class="card-grid">
+        @for (partner of partners(); track partner.id) {
+          <article class="office-card">
+            <strong>{{ partner.name }}</strong>
+            <span>{{ partner.partner_type === 'customer' ? 'Kunde' : 'Lieferant' }}</span>
+            <small>{{ partner.email || partner.phone || 'Keine Kontaktdaten' }}</small>
+            <button type="button" class="danger" (click)="deletePartner(partner)">Löschen</button>
+          </article>
+        } @empty {
+          <div class="empty-panel">Noch keine Partner.</div>
+        }
+      </div>
+    </section>
+  }
+
+  @if (tab() === 'receipts' || tab() === 'invoices' || tab() === 'offers') {
+    <section class="panel">
+      <div class="panel-heading">
+        <h2>{{ tab() === 'receipts' ? 'Belege' : tab() === 'invoices' ? 'Rechnungen' : 'Angebote' }}</h2>
+        <div class="button-pair">
+          <button type="button" class="secondary" (click)="openDocument(tab() === 'offers' ? 'offer' : tab() === 'invoices' ? 'invoice' : 'receipt')">Dokument anlegen</button>
+        </div>
+      </div>
+      @if (showDocumentForm()) {
+        <form class="editor compact" [formGroup]="documentForm" (ngSubmit)="saveDocument()">
+          <label>Nummer <input formControlName="document_number" required></label>
+          <label>Titel <input formControlName="title" required></label>
+          <label>Datum <input type="date" formControlName="document_date" required></label>
+          <label>Fällig am <input type="date" formControlName="due_date"></label>
+          <label>Partner
+            <select formControlName="partner_id">
+              <option [ngValue]="null">Ohne Partner</option>
+              @for (partner of partners(); track partner.id) {
+                <option [ngValue]="partner.id">{{ partner.name }}</option>
+              }
+            </select>
+          </label>
+          <label>Status
+            <select formControlName="status" required>
+              <option value="draft">Entwurf</option>
+              <option value="sent">Gesendet</option>
+              <option value="accepted">Angenommen</option>
+              <option value="paid">Bezahlt</option>
+              <option value="cancelled">Storniert</option>
+            </select>
+          </label>
+          <label>Brutto <input type="number" step="0.01" formControlName="amount_gross" required></label>
+          <label>MwSt. % <input type="number" step="0.01" formControlName="tax_rate"></label>
+          <label>Netto <input type="number" step="0.01" formControlName="amount_net" required></label>
+          <label class="wide">Notiz <textarea rows="3" formControlName="notes"></textarea></label>
+          <div class="form-actions">
+            <button type="button" class="secondary" (click)="showDocumentForm.set(null)">Abbrechen</button>
+            <button type="submit" class="primary-action" [disabled]="documentForm.invalid">Dokument speichern</button>
+          </div>
+        </form>
+      }
+      <div class="document-list">
+        @for (document of visibleDocuments(); track document.id) {
+          <article class="document-row">
+            <div>
+              <strong>{{ document.document_number }} · {{ document.title }}</strong>
+              <small>{{ documentTypeLabel(document.document_type) }} · {{ documentStatusLabel(document.status) }} · {{ partnerName(document.partner_id) }}</small>
+            </div>
+            <strong>{{ document.amount_gross | currency:'EUR' }}</strong>
+            <button type="button" class="danger" (click)="deleteDocument(document)">Löschen</button>
+          </article>
+        } @empty {
+          <div class="empty-panel">Noch keine Dokumente.</div>
+        }
+      </div>
+    </section>
+  }
+
+  @if (tab() === 'exports') {
+    <section class="panel exports">
+      <h2>Jahresreport {{ year() }}</h2>
+      <p>Exportiert Buchungen, Summen, Monatsübersicht und Kategorie-Summen für das gewählte Jahr.</p>
+      <div class="button-pair">
+        <a class="primary-action" [href]="pdfUrl()" target="_blank" rel="noopener">PDF Jahresreport</a>
+        <a class="secondary" [href]="csvUrl()">CSV Export</a>
+      </div>
+    </section>
+  }
 </div>

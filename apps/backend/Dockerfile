@@ -23,5 +23,5 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Run migrations before starting the application
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Run migrations and BeeIntouch import before starting the application
+CMD ["sh", "-c", "alembic upgrade head && python -m app.importers.beeintouch_pdf_import --source-dir import_sources/beeintouch && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

@@ -3,7 +3,7 @@
     <header class="detail-header">
       <div>
         <p class="eyebrow">{{ 'apiaryDetail.eyebrow' | translate }}</p>
-        <h1>{{ apiary.name }}</h1>
+        <h1>{{ apiaryTitle(apiary) }}</h1>
         @if (apiary.address) { <p>{{ apiary.address }}</p> }
       </div>
       <a class="primary-action" routerLink="/beehives">{{ 'apiaryDetail.createHive' | translate }}</a>
@@ -11,6 +11,7 @@
 
     <section class="facts">
       <div><span>{{ 'apiaryDetail.hives' | translate }}</span><strong>{{ apiaryHives().length }}</strong></div>
+      <div><span>Stocknummer</span><strong>{{ apiary.stock_number }}</strong></div>
       <div><span>{{ 'apiaryDetail.latitude' | translate }}</span><strong>{{ apiary.latitude ?? 0 | number:'1.4-4' }}</strong></div>
       <div><span>{{ 'apiaryDetail.longitude' | translate }}</span><strong>{{ apiary.longitude ?? 0 | number:'1.4-4' }}</strong></div>
     </section>

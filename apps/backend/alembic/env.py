@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
 from app.db.database import Base
-from app.models import apiary, apiary_member, cashbook, content, feeding, harvest, hive, inspection, inventory, task, treatment, user  # noqa: F401
+from app.models import apiary, apiary_member, beeintouch_import, cashbook, content, feeding, harvest, hive, inspection, inventory, office, task, treatment, user  # noqa: F401
 
 config = context.config
 

@@ -45,5 +45,10 @@ echo "Running database migrations..."
 alembic upgrade head
 echo ""
 
+# Import bundled BeeIntouch PDFs once per file hash
+echo "Running BeeIntouch PDF import..."
+python -m app.importers.beeintouch_pdf_import --source-dir import_sources/beeintouch
+echo ""
+
 # Start the server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

@@ -11,6 +11,8 @@ sqlalchemy>=2.0.36
 uvicorn[standard]>=0.32.0
 requests>=2.31.0
 minio>=7.2.0
+reportlab>=4.2.0
+pdfplumber>=0.11.5
 
 # Testing Dependencies
 pytest>=7.4.0
