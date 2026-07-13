@@ -1,32 +1,122 @@
-<div class="appointments-page">
+<main class="appointments-page">
   <header class="work-header">
     <div>
-      <p class="eyebrow">Büro</p>
-      <h1>Termine</h1>
+      <p class="eyebrow">{{ 'appointments.eyebrow' | translate }}</p>
+      <h1>{{ 'appointments.title' | translate }}</h1>
+      <p class="subtitle">{{ 'appointments.subtitle' | translate }}</p>
     </div>
+    <button type="button" class="primary-action" (click)="openCreate()">{{ 'appointments.add' | translate }}</button>
   </header>
 
-  <section class="form-panel">
-    <label>Titel <input [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="Standkontrolle"></label>
-    <label>Start <input type="datetime-local" [ngModel]="startAt()" (ngModelChange)="startAt.set($event)"></label>
-    <label>Notiz <input [ngModel]="description()" (ngModelChange)="description.set($event)"></label>
-    <button type="button" (click)="create()">Anlegen</button>
+  <section class="agenda-summary">
+    <span>{{ 'appointments.nextCount' | translate: { n: upcomingCount() } }}</span>
+    <i aria-hidden="true"></i>
   </section>
 
-  @if (message()) { <p class="message">{{ message() }}</p> }
+  @if (message()) {
+    <p class="message" aria-live="polite">{{ message() }}</p>
+  }
 
-  <section class="list">
-    @for (appointment of appointments(); track appointment.id) {
-      <article class="row">
+  <nav class="view-tabs" [attr.aria-label]="'appointments.filterLabel' | translate">
+    @for (item of views; track item.id) {
+      <button type="button" [class.active]="view() === item.id" (click)="setView(item.id)">
+        {{ item.labelKey | translate }}
+      </button>
+    }
+  </nav>
+
+  @if (editorOpen()) {
+    <form class="editor" [formGroup]="form" (ngSubmit)="save()">
+      <div class="editor-heading">
         <div>
-          <strong>{{ appointment.title }}</strong>
-          <span>{{ appointment.description || 'Ohne Notiz' }}</span>
+          <p class="eyebrow">{{ editingId() === null ? ('appointments.editor.new' | translate) : ('appointments.editor.edit' | translate) }}</p>
+          <h2>{{ 'appointments.editor.title' | translate }}</h2>
         </div>
-        <time>{{ (appointment.start_at || appointment.due_date) | date:'dd.MM.yyyy HH:mm' }}</time>
-        <button type="button" (click)="complete(appointment)">Erledigt</button>
+        <button type="button" class="close-editor" (click)="closeEditor()" [attr.aria-label]="'appointments.cancel' | translate">×</button>
+      </div>
+
+      <div class="editor-grid">
+        <label class="wide">{{ 'appointments.form.title' | translate }}
+          <input formControlName="title" [placeholder]="'appointments.form.titlePlaceholder' | translate" required>
+        </label>
+        <label>{{ 'appointments.form.start' | translate }}
+          <input type="datetime-local" formControlName="start_at" required>
+        </label>
+        <label>{{ 'appointments.form.end' | translate }}
+          <input type="datetime-local" formControlName="end_at">
+        </label>
+        <label>{{ 'appointments.form.apiary' | translate }}
+          <select formControlName="apiary_id">
+            <option [ngValue]="null">{{ 'appointments.form.noApiary' | translate }}</option>
+            @for (apiary of apiaries(); track apiary.id) {
+              <option [ngValue]="apiary.id">{{ apiary.name || apiary.stock_number }}</option>
+            }
+          </select>
+        </label>
+        <label>{{ 'appointments.form.hive' | translate }}
+          <select formControlName="hive_id">
+            <option [ngValue]="null">{{ 'appointments.form.noHive' | translate }}</option>
+            @for (hive of hives(); track hive.id) {
+              <option [ngValue]="hive.id">{{ hive.name }}</option>
+            }
+          </select>
+        </label>
+        <label>{{ 'appointments.form.priority' | translate }}
+          <select formControlName="priority">
+            @for (priority of priorities; track priority) {
+              <option [value]="priority">{{ priorityLabel(priority) }}</option>
+            }
+          </select>
+        </label>
+        <label class="wide">{{ 'appointments.form.notes' | translate }}
+          <textarea formControlName="description" rows="3" [placeholder]="'appointments.form.notesPlaceholder' | translate"></textarea>
+        </label>
+      </div>
+
+      <div class="editor-actions">
+        <button type="button" class="secondary-action" (click)="closeEditor()">{{ 'appointments.cancel' | translate }}</button>
+        <button type="submit" class="primary-action" [disabled]="form.invalid || saving()">
+          {{ saving() ? ('appointments.saving' | translate) : ('appointments.save' | translate) }}
+        </button>
+      </div>
+    </form>
+  }
+
+  <section class="agenda-list">
+    @for (appointment of visibleAppointments(); track appointment.id) {
+      <article class="appointment-card priority-{{ appointment.priority }}" [class.completed]="appointment.status === 'done'">
+        <time class="date-ticket" [attr.datetime]="appointment.start_at || appointment.due_date">
+          <strong>{{ (appointment.start_at || appointment.due_date) | date:'dd' }}</strong>
+          <span>{{ (appointment.start_at || appointment.due_date) | date:'MMM' }}</span>
+        </time>
+        <div class="appointment-body">
+          <div class="appointment-heading">
+            <h2>{{ appointment.title }}</h2>
+            <span>{{ priorityLabel(appointment.priority) }}</span>
+          </div>
+          <p class="appointment-meta">
+            {{ (appointment.start_at || appointment.due_date) | date:'EEE, dd.MM.yyyy · HH:mm' }}
+            @if (appointment.end_at) { – {{ appointment.end_at | date:'HH:mm' }} }
+          </p>
+          <p class="location">⌖ {{ locationLabel(appointment) }}</p>
+          @if (appointment.description) { <p class="notes">{{ appointment.description }}</p> }
+        </div>
+        <div class="card-actions">
+          @if (appointment.status === 'done') {
+            <button type="button" class="secondary-action" (click)="reopen(appointment)">{{ 'appointments.reopen' | translate }}</button>
+          } @else {
+            <button type="button" class="complete-action" (click)="complete(appointment)">{{ 'appointments.complete' | translate }}</button>
+            <button type="button" class="secondary-action" (click)="openEdit(appointment)">{{ 'appointments.edit' | translate }}</button>
+          }
+          <button type="button" class="delete-action" (click)="remove(appointment)">{{ 'appointments.delete' | translate }}</button>
+        </div>
       </article>
     } @empty {
-      <div class="empty-panel">Keine Termine.</div>
+      <div class="empty-panel">
+        <span aria-hidden="true">◎</span>
+        <strong>{{ 'appointments.empty' | translate }}</strong>
+        <p>{{ 'appointments.emptyHelp' | translate }}</p>
+      </div>
     }
   </section>
-</div>
+</main>

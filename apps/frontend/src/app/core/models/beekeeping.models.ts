@@ -92,7 +92,12 @@ export interface TaskCreate {
   source?: TaskSource;
 }
 
-export type TaskUpdate = Partial<TaskCreate>;
+export type TaskUpdate = Partial<Omit<TaskCreate, 'description' | 'due_date' | 'start_at' | 'end_at'>> & {
+  description?: string | null;
+  due_date?: string | null;
+  start_at?: string | null;
+  end_at?: string | null;
+};
 
 export interface Treatment {
   id: number;
