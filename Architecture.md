@@ -141,7 +141,7 @@ Important domain concepts:
 - Inventory has article definitions and concrete inventory items.
 - Cashbook and office modules model income, expenses, receipts, reports and EÜR-style summaries.
 - CMS content powers public/info pages and admin editing.
-- Apiary members provide groundwork for team access.
+- Apiary members support pending invitations and owner, admin, member and viewer roles.
 
 ## Authentication And Authorization
 
@@ -152,6 +152,8 @@ Backend dependencies:
 - `get_current_user`: validates bearer token and resolves user by username.
 - `get_current_active_user`: rejects inactive users.
 - `get_current_admin_user`: requires `user.is_admin` or email listed in `ADMIN_EMAILS`.
+
+Apiary invitations grant no stand or hive access until the invited user accepts them.
 
 Frontend guards:
 

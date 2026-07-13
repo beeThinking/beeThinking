@@ -18,7 +18,10 @@ def get_hives(db: Session, owner_id: int, apiary_id: Optional[int] = None, statu
         db.query(Hive)
         .join(Apiary, Apiary.id == Hive.apiary_id)
         .outerjoin(ApiaryMember, ApiaryMember.apiary_id == Apiary.id)
-        .filter((Apiary.owner_id == owner_id) | (ApiaryMember.user_id == owner_id))
+        .filter(
+            (Apiary.owner_id == owner_id)
+            | ((ApiaryMember.user_id == owner_id) & (ApiaryMember.accepted_at.is_not(None)))
+        )
         .distinct()
     )
     if status is not None:

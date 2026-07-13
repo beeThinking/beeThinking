@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.apiary import Apiary
@@ -10,7 +12,10 @@ def get_apiaries(db: Session, owner_id: int) -> list[Apiary]:
     return (
         db.query(Apiary)
         .outerjoin(ApiaryMember, ApiaryMember.apiary_id == Apiary.id)
-        .filter((Apiary.owner_id == owner_id) | (ApiaryMember.user_id == owner_id))
+        .filter(
+            (Apiary.owner_id == owner_id)
+            | ((ApiaryMember.user_id == owner_id) & (ApiaryMember.accepted_at.is_not(None)))
+        )
         .distinct()
         .all()
     )
@@ -21,7 +26,10 @@ def get_apiary(db: Session, apiary_id: int, owner_id: int) -> Optional[Apiary]:
         db.query(Apiary)
         .outerjoin(ApiaryMember, ApiaryMember.apiary_id == Apiary.id)
         .filter(Apiary.id == apiary_id)
-        .filter((Apiary.owner_id == owner_id) | (ApiaryMember.user_id == owner_id))
+        .filter(
+            (Apiary.owner_id == owner_id)
+            | ((ApiaryMember.user_id == owner_id) & (ApiaryMember.accepted_at.is_not(None)))
+        )
         .first()
     )
 
@@ -30,7 +38,12 @@ def create_apiary(db: Session, apiary: ApiaryCreate, owner_id: int) -> Apiary:
     db_apiary = Apiary(**apiary.model_dump(), owner_id=owner_id)
     db.add(db_apiary)
     db.flush()
-    db.add(ApiaryMember(apiary_id=db_apiary.id, user_id=owner_id, role=ApiaryMemberRole.owner))
+    db.add(ApiaryMember(
+        apiary_id=db_apiary.id,
+        user_id=owner_id,
+        role=ApiaryMemberRole.owner,
+        accepted_at=datetime.now(timezone.utc),
+    ))
     db.commit()
     db.refresh(db_apiary)
     return db_apiary

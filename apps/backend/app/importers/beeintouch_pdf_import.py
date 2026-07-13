@@ -630,7 +630,13 @@ def _get_or_create_apiary(db: Session, owner_id: int, name: str | None) -> Apiar
     apiary.created_at = _now()
     db.add(apiary)
     db.flush()
-    db.add(ApiaryMember(apiary_id=apiary.id, user_id=owner_id, role=ApiaryMemberRole.owner, created_at=_now()))
+    db.add(ApiaryMember(
+        apiary_id=apiary.id,
+        user_id=owner_id,
+        role=ApiaryMemberRole.owner,
+        accepted_at=_now(),
+        created_at=_now(),
+    ))
     db.flush()
     return apiary
 

@@ -7,7 +7,7 @@ A beekeeping management application — think like a bee.
 - Apiaries, hives, inspections and hive lifecycle history
 - Durchschau workflow with inspections, feeding, treatments and harvests
 - Tasks, appointments, inventory, photos and reports
-- Team apiary memberships with role-based collaboration groundwork
+- Team apiary invitations and role-based collaboration
 - CMS-backed public content pages with admin editing UI
 - Cashbook with income, expenses and EÜR summary
 - PWA shell and local inspection drafts

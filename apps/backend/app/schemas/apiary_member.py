@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.apiary_member import ApiaryMemberRole
 
@@ -14,7 +14,25 @@ class ApiaryMemberUpdate(BaseModel):
     role: ApiaryMemberRole
 
 
+class ApiaryMemberUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    email: str
+
+
+class ApiaryMemberApiaryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    stock_number: str
+    name: str | None = None
+
+
 class ApiaryMemberResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     apiary_id: int
     user_id: int
@@ -22,6 +40,5 @@ class ApiaryMemberResponse(BaseModel):
     invited_by_user_id: int | None = None
     accepted_at: datetime | None = None
     created_at: datetime
-
-    class Config:
-        from_attributes = True
+    user: ApiaryMemberUserResponse
+    apiary: ApiaryMemberApiaryResponse

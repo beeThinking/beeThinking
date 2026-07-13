@@ -15,7 +15,11 @@ def user_owns_apiary(db: Session, apiary_id: int, owner_id: int) -> bool:
 
 
 def get_apiary_member(db: Session, apiary_id: int, user_id: int) -> ApiaryMember | None:
-    return db.query(ApiaryMember).filter(ApiaryMember.apiary_id == apiary_id, ApiaryMember.user_id == user_id).first()
+    return db.query(ApiaryMember).filter(
+        ApiaryMember.apiary_id == apiary_id,
+        ApiaryMember.user_id == user_id,
+        ApiaryMember.accepted_at.is_not(None),
+    ).first()
 
 
 def user_can_access_apiary(db: Session, apiary_id: int, user_id: int) -> bool:

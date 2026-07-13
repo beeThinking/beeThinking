@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -7,7 +7,7 @@ from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
 from app.crud import user as user_crud
 from app.crud.ownership import user_can_admin_apiary, user_can_write_apiary
-from app.models.apiary_member import ApiaryMember
+from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
 from app.crud import feeding as feeding_crud
 from app.models.user import User
 from app.schemas.apiary_member import ApiaryMemberCreate, ApiaryMemberResponse, ApiaryMemberUpdate
@@ -63,6 +63,53 @@ def create_apiary(
     current_user: User = Depends(get_current_active_user)
 ):
     return apiary_crud.create_apiary(db, apiary=apiary, owner_id=current_user.id)
+
+
+@router.get("/invitations", response_model=list[ApiaryMemberResponse])
+def list_apiary_invitations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return db.query(ApiaryMember).filter(
+        ApiaryMember.user_id == current_user.id,
+        ApiaryMember.accepted_at.is_(None),
+    ).order_by(ApiaryMember.created_at.desc()).all()
+
+
+@router.post("/invitations/{member_id}/accept", response_model=ApiaryMemberResponse)
+def accept_apiary_invitation(
+    member_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    member = db.query(ApiaryMember).filter(
+        ApiaryMember.id == member_id,
+        ApiaryMember.user_id == current_user.id,
+        ApiaryMember.accepted_at.is_(None),
+    ).first()
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation not found")
+    member.accepted_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(member)
+    return member
+
+
+@router.delete("/invitations/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+def decline_apiary_invitation(
+    member_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    member = db.query(ApiaryMember).filter(
+        ApiaryMember.id == member_id,
+        ApiaryMember.user_id == current_user.id,
+        ApiaryMember.accepted_at.is_(None),
+    ).first()
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation not found")
+    db.delete(member)
+    db.commit()
 
 
 @router.get("/{apiary_id}", response_model=ApiaryResponse)
@@ -130,9 +177,15 @@ def add_apiary_member(
     user = user_crud.get_user_by_username(db, payload.username_or_email) or user_crud.get_user_by_email(db, payload.username_or_email)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Users cannot invite themselves")
+    if payload.role == ApiaryMemberRole.owner:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Owner role cannot be assigned")
     existing = db.query(ApiaryMember).filter(ApiaryMember.apiary_id == apiary_id, ApiaryMember.user_id == user.id).first()
     if existing:
         existing.role = payload.role
+        if existing.accepted_at is None:
+            existing.invited_by_user_id = current_user.id
         db.commit()
         db.refresh(existing)
         return existing
@@ -161,6 +214,8 @@ def update_apiary_member(
     member = db.query(ApiaryMember).filter(ApiaryMember.id == member_id, ApiaryMember.apiary_id == apiary_id).first()
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    if member.role == ApiaryMemberRole.owner or payload.role == ApiaryMemberRole.owner:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Owner role cannot be changed")
     member.role = payload.role
     db.commit()
     db.refresh(member)
@@ -179,6 +234,8 @@ def remove_apiary_member(
     member = db.query(ApiaryMember).filter(ApiaryMember.id == member_id, ApiaryMember.apiary_id == apiary_id).first()
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+    if member.role == ApiaryMemberRole.owner:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Apiary owner cannot be removed")
     db.delete(member)
     db.commit()
 

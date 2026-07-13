@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from app.models.apiary import Apiary
 from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
@@ -126,7 +128,7 @@ class TestUpdateApiary:
     def test_viewer_cannot_update_shared_apiary(self, authenticated_client, apiary, multiple_test_users, db):
         client, _ = authenticated_client
         viewer = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, viewer, "password0")
 
@@ -163,7 +165,7 @@ class TestDeleteApiary:
     def test_viewer_cannot_delete_shared_apiary(self, authenticated_client, apiary, multiple_test_users, db):
         client, _ = authenticated_client
         viewer = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, viewer, "password0")
 
@@ -181,3 +183,59 @@ class TestApiaryHiveCount:
         client.post("/api/hives", json={"name": "H2", "apiary_id": apiary["id"]})
         response = client.get(f"/api/apiaries/{apiary['id']}")
         assert response.json()["hive_count"] == 2
+
+
+@pytest.mark.unit
+class TestApiaryInvitations:
+    def test_invitation_requires_acceptance_before_access(self, authenticated_client, apiary, multiple_test_users):
+        client, _ = authenticated_client
+        invited_user = multiple_test_users[0]
+
+        invite_response = client.post(
+            f"/api/apiaries/{apiary['id']}/members",
+            json={"username_or_email": invited_user.email, "role": "member"},
+        )
+        assert invite_response.status_code == 201
+        invitation = invite_response.json()
+        assert invitation["accepted_at"] is None
+        assert invitation["user"]["username"] == invited_user.username
+
+        authenticate_as(client, invited_user, "password0")
+        assert client.get(f"/api/apiaries/{apiary['id']}").status_code == 404
+        invitations = client.get("/api/apiaries/invitations")
+        assert invitations.status_code == 200
+        assert invitations.json()[0]["apiary"]["stock_number"] == apiary["stock_number"]
+
+        accepted = client.post(f"/api/apiaries/invitations/{invitation['id']}/accept")
+        assert accepted.status_code == 200
+        assert accepted.json()["accepted_at"] is not None
+        assert client.get(f"/api/apiaries/{apiary['id']}").status_code == 200
+
+    def test_invitation_can_be_declined(self, authenticated_client, apiary, multiple_test_users):
+        client, _ = authenticated_client
+        invited_user = multiple_test_users[0]
+        invitation = client.post(
+            f"/api/apiaries/{apiary['id']}/members",
+            json={"username_or_email": invited_user.username, "role": "viewer"},
+        ).json()
+        authenticate_as(client, invited_user, "password0")
+
+        assert client.delete(f"/api/apiaries/invitations/{invitation['id']}").status_code == 204
+        assert client.get("/api/apiaries/invitations").json() == []
+        assert client.get(f"/api/apiaries/{apiary['id']}").status_code == 404
+
+    def test_owner_role_and_owner_membership_are_protected(self, authenticated_client, apiary, test_user):
+        client, _ = authenticated_client
+        members = client.get(f"/api/apiaries/{apiary['id']}/members").json()
+        owner_member = next(member for member in members if member["user_id"] == test_user.id)
+
+        self_invite = client.post(
+            f"/api/apiaries/{apiary['id']}/members",
+            json={"username_or_email": test_user.username, "role": "member"},
+        )
+        assert self_invite.status_code == 400
+        assert client.put(
+            f"/api/apiaries/{apiary['id']}/members/{owner_member['id']}",
+            json={"role": "viewer"},
+        ).status_code == 400
+        assert client.delete(f"/api/apiaries/{apiary['id']}/members/{owner_member['id']}").status_code == 400

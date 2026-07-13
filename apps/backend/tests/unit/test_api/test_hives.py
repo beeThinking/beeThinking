@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from fastapi.testclient import TestClient
 from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
@@ -40,7 +42,7 @@ class TestListHives:
         client, _ = authenticated_client
         hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
         member = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, member, "password0")
 
@@ -91,7 +93,7 @@ class TestCreateHive:
     def test_member_can_create_hive_for_shared_apiary_owner(self, authenticated_client, apiary, multiple_test_users, db, test_user):
         client, _ = authenticated_client
         member = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, member, "password0")
 
@@ -103,7 +105,7 @@ class TestCreateHive:
     def test_viewer_cannot_create_hive(self, authenticated_client, apiary, multiple_test_users, db):
         client, _ = authenticated_client
         viewer = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, viewer, "password0")
 
@@ -113,7 +115,7 @@ class TestCreateHive:
         client, _ = authenticated_client
         hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
         viewer = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, viewer, "password0")
 
@@ -231,7 +233,7 @@ class TestDeleteHive:
         client, _ = authenticated_client
         hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
         viewer = multiple_test_users[0]
-        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer, accepted_at=datetime.now(timezone.utc)))
         db.commit()
         authenticate_as(client, viewer, "password0")
 
