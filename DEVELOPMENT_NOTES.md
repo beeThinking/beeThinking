@@ -80,5 +80,5 @@ No HTML scraping is used. `official_varroawetter` is a stub until an official AP
 ## Current Verification Baseline
 
 - Backend unit suite: 163 tests.
-- Frontend unit suite: 15 tests across 4 spec files.
+- Frontend unit suite: 18 tests across 5 spec files.
 - Alembic `upgrade head` passes against a fresh SQLite database.

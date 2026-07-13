@@ -223,6 +223,8 @@ export const de: Record<TranslationKey, string> = {
   'appointments.eyebrow': 'Standkalender',
   'appointments.subtitle': 'Standbesuche, Fristen und Arbeiten mit vollständigem Kontext planen.',
   'appointments.add': '+ Termin',
+  'appointments.export': 'Kalender exportieren',
+  'appointments.export.empty': 'Keine kommenden Termine zum Exportieren.',
   'appointments.nextCount': '{{n}} kommende Termine',
   'appointments.filterLabel': 'Terminfilter',
   'appointments.view.upcoming': 'Kommend',

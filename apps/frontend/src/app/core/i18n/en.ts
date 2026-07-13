@@ -269,6 +269,8 @@ export const en = {
   'appointments.eyebrow': 'Field calendar',
   'appointments.subtitle': 'Plan apiary visits, deadlines and shared field work without losing context.',
   'appointments.add': '+ Appointment',
+  'appointments.export': 'Export calendar',
+  'appointments.export.empty': 'No upcoming appointments to export.',
   'appointments.nextCount': '{{n}} upcoming appointments',
   'appointments.filterLabel': 'Appointment filter',
   'appointments.view.upcoming': 'Upcoming',

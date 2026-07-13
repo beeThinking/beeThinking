@@ -4,7 +4,9 @@
 h1 { color: var(--amelie-text-dark); font-size: clamp(2.25rem, 11vw, 4.5rem); line-height: 0.95; }
 .subtitle { max-width: 36rem; margin-top: var(--space-xs); color: #6b604f; }
 button { min-height: 44px; font: inherit; }
+.header-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xs); }
 .primary-action { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; padding: var(--space-sm) var(--space-md); background: #2f6f5e; color: #fff; cursor: pointer; font-weight: 900; }
+.export-action { border: 1px solid #2f6f5e; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: transparent; color: #2f6f5e; cursor: pointer; font-weight: 900; }
 .primary-action:disabled { cursor: not-allowed; opacity: 0.55; }
 .agenda-summary { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); color: #6b604f; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
 .agenda-summary i { height: 1px; flex: 1; background: #d7c9ad; }
@@ -62,5 +64,6 @@ button { min-height: 44px; font: inherit; }
 @media (hover: hover) {
   .view-tabs button:hover, .secondary-action:hover { background: #eee4d0; }
   .primary-action:not(:disabled):hover, .complete-action:hover { background: #245749; }
+  .export-action:hover { background: #e4eee9; }
   .delete-action:hover { background: #fff0ed; }
 }

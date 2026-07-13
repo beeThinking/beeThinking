@@ -10,6 +10,7 @@ import { Hive } from '../../core/models/hive.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
+import { createICalendar } from '../../core/utils/calendar.utils';
 
 type AppointmentView = 'upcoming' | 'past' | 'done';
 
@@ -178,6 +179,30 @@ export class AppointmentsComponent {
       next: () => this.appointments.update(items => items.filter(item => item.id !== appointment.id)),
       error: () => this.message.set(this.translation.t('appointments.error.delete'))
     });
+  }
+
+  protected exportUpcoming(): void {
+    const appointments = this.appointments().filter(item =>
+      item.status === 'open' && !this.isPast(item) && !!(item.start_at ?? item.due_date)
+    );
+    if (!appointments.length) {
+      this.message.set(this.translation.t('appointments.export.empty'));
+      return;
+    }
+    const calendar = createICalendar(appointments.map(item => ({
+      uid: `appointment-${item.id}@beethinking`,
+      title: item.title,
+      description: item.description,
+      location: this.locationLabel(item),
+      start: item.start_at ?? item.due_date!,
+      end: item.end_at
+    })));
+    const url = URL.createObjectURL(new Blob([calendar], { type: 'text/calendar;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'beethinking-appointments.ics';
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   protected priorityLabel(priority: TaskPriority): string {
