@@ -1,5 +1,5 @@
 .office-page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-lg) var(--page-px) var(--space-2xl); }
-.work-header { display: flex; justify-content: space-between; align-items: end; gap: var(--space-md); margin-bottom: var(--space-md); }
+.work-header { display: grid; grid-template-columns: 1fr; justify-content: space-between; align-items: end; gap: var(--space-md); margin-bottom: var(--space-md); }
 .eyebrow { color: #2f6f5e; font-weight: 900; text-transform: uppercase; }
 h1 { font-size: 1.8rem; line-height: 1.05; }
 h2 { font-size: 1rem; }
@@ -23,18 +23,19 @@ input, select, textarea { border: 1px solid #cdbfaa; border-radius: 8px; padding
 .summary-grid span, small, .panel-heading span, .exports p { color: #6b604f; }
 .summary-grid strong { display: block; margin-top: 0.35rem; font-size: 1.45rem; color: #2f6f5e; }
 .negative { color: #b94133 !important; }
-.analytics-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr); gap: var(--space-md); margin-bottom: var(--space-md); }
+.analytics-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-md); margin-bottom: var(--space-md); }
 .panel { margin-bottom: var(--space-md); }
 .panel-heading { display: flex; justify-content: space-between; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-sm); }
 .month-bars, .category-list, .document-list, .card-grid { display: grid; gap: var(--space-sm); }
-.month-row { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) 7.5rem; gap: var(--space-sm); align-items: center; background: #fff; border: 1px solid #eadfce; border-radius: 8px; padding: 0.55rem; color: var(--amelie-text-dark); text-align: left; }
+.month-row { display: grid; grid-template-columns: 2.8rem 1fr; gap: var(--space-sm); align-items: center; background: #fff; border: 1px solid #eadfce; border-radius: 8px; padding: 0.55rem; color: var(--amelie-text-dark); text-align: left; }
+.month-row strong { grid-column: 2; }
 .bar-stack { display: grid; gap: 0.25rem; }
 .bar { display: block; min-height: 8px; border-radius: 999px; }
 .income-bar { background: #2f6f5e; }
 .expense-bar { background: #b94133; }
 .category-row, .document-row, .booking-row { display: grid; gap: var(--space-sm); background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-sm); }
-.category-row { grid-template-columns: minmax(0, 1fr) auto auto; }
-.booking-row, .document-row { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; }
+.category-row { grid-template-columns: 1fr; }
+.booking-row, .document-row { grid-template-columns: 1fr; align-items: center; }
 .booking-row { border-left: 5px solid #2f6f5e; }
 .booking-row.expense-row { border-left-color: #b94133; }
 .booking-main { min-width: 0; display: grid; gap: 0.15rem; }
@@ -49,14 +50,16 @@ input, select, textarea { border: 1px solid #cdbfaa; border-radius: 8px; padding
 .exports { display: grid; gap: var(--space-sm); }
 .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-lg); color: #6b604f; }
 
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   h1 { font-size: 2.6rem; }
   .editor { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 860px) {
-  .work-header, .analytics-grid { grid-template-columns: 1fr; display: grid; }
-  .booking-row, .document-row, .category-row { grid-template-columns: 1fr; }
-  .month-row { grid-template-columns: 2.8rem 1fr; }
-  .month-row strong { grid-column: 2; }
+@media (min-width: 1024px) {
+  .work-header { display: flex; }
+  .analytics-grid { grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr); }
+  .booking-row, .document-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .category-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .month-row { grid-template-columns: 3.5rem minmax(0, 1fr) 7.5rem; }
+  .month-row strong { grid-column: auto; }
 }

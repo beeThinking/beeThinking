@@ -35,15 +35,11 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str = "beethinking-minio-password"
     MINIO_BUCKET: str = "beethinking-photos"
     MINIO_SECURE: bool = False
+    PHOTO_UPLOAD_MAX_BYTES: int = 10 * 1024 * 1024
+    RECEIPT_UPLOAD_MAX_BYTES: int = 20 * 1024 * 1024
 
     # Varroa weather planning
     VARROA_WEATHER_PROVIDER: str = "open_meteo"
-    VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
-    VARROA_WEATHER_OFFICIAL_ENDPOINT: str = ""
-    VARROA_WEATHER_OFFICIAL_API_KEY: str = ""
-
-    # Varroa weather planning
-    VARROA_WEATHER_PROVIDER: str = "internal_rules"
     VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
     VARROA_WEATHER_OFFICIAL_ENDPOINT: str = ""
     VARROA_WEATHER_OFFICIAL_API_KEY: str = ""

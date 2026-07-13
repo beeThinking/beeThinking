@@ -23,7 +23,7 @@ input, select, textarea { border: 1px solid #cdbfaa; border-radius: 8px; padding
 .task-meta button { background: #233b4a; color: #fff; padding: 0.55rem 0.7rem; }
 .task-meta .danger { background: #b94133; }
 .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-lg); color: #6b604f; }
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   h1 { font-size: 2.6rem; }
   .editor { grid-template-columns: repeat(2, 1fr); }
   .editor .wide, .form-actions { grid-column: 1 / -1; }

@@ -4,9 +4,9 @@
 h1 { font-size: 2.4rem; line-height: 1.05; }
 .archive-list { display: grid; gap: var(--space-sm); }
 .archive-row, .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); }
-.archive-row { display: flex; justify-content: space-between; gap: var(--space-md); color: var(--amelie-text-dark); text-decoration: none; }
+.archive-row { display: grid; justify-content: space-between; gap: var(--space-md); color: var(--amelie-text-dark); text-decoration: none; }
 .archive-row div { display: grid; gap: 0.2rem; }
 .archive-row small, .archive-row span { color: #6b604f; }
-@media (max-width: 640px) {
-  .archive-row { display: grid; }
+@media (min-width: 768px) {
+  .archive-row { display: flex; }
 }

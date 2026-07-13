@@ -1,5 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
+from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
+
+
+def authenticate_as(client, user, password):
+    response = client.post("/api/auth/login", data={"username": user.username, "password": password})
+    assert response.status_code == 200
+    client.headers["Authorization"] = f"Bearer {response.json()['access_token']}"
 
 
 @pytest.fixture
@@ -28,6 +35,19 @@ class TestListHives:
     def test_list_hives_requires_auth(self, client: TestClient):
         response = client.get("/api/hives")
         assert response.status_code == 401
+
+    def test_member_can_list_shared_hives(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
+        member = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member))
+        db.commit()
+        authenticate_as(client, member, "password0")
+
+        response = client.get("/api/hives")
+
+        assert response.status_code == 200
+        assert [item["id"] for item in response.json()] == [hive["id"]]
 
 
 @pytest.mark.unit
@@ -67,6 +87,37 @@ class TestCreateHive:
     def test_create_hive_requires_auth(self, client: TestClient):
         response = client.post("/api/hives", json={"name": "No Auth", "apiary_id": 1})
         assert response.status_code == 401
+
+    def test_member_can_create_hive_for_shared_apiary_owner(self, authenticated_client, apiary, multiple_test_users, db, test_user):
+        client, _ = authenticated_client
+        member = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=member.id, role=ApiaryMemberRole.member))
+        db.commit()
+        authenticate_as(client, member, "password0")
+
+        response = client.post("/api/hives", json={"name": "Member Hive", "apiary_id": apiary["id"]})
+
+        assert response.status_code == 201
+        assert response.json()["owner_id"] == test_user.id
+
+    def test_viewer_cannot_create_hive(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        viewer = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.commit()
+        authenticate_as(client, viewer, "password0")
+
+        assert client.post("/api/hives", json={"name": "Forbidden", "apiary_id": apiary["id"]}).status_code == 404
+
+    def test_viewer_cannot_create_activity_for_shared_hive(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
+        viewer = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.commit()
+        authenticate_as(client, viewer, "password0")
+
+        assert client.post("/api/tasks", json={"title": "Forbidden", "hive_id": hive["id"]}).status_code == 404
 
 
 @pytest.mark.unit
@@ -175,6 +226,16 @@ class TestDeleteHive:
 
         assert response.status_code == 404
         assert db.get(Hive, other_hive.id) is not None
+
+    def test_viewer_cannot_delete_shared_hive(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        hive = client.post("/api/hives", json={"name": "Shared Hive", "apiary_id": apiary["id"]}).json()
+        viewer = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.commit()
+        authenticate_as(client, viewer, "password0")
+
+        assert client.delete(f"/api/hives/{hive['id']}").status_code == 404
 
     def test_hard_delete_rejects_hive_with_history(self, authenticated_client, apiary):
         client, _ = authenticated_client

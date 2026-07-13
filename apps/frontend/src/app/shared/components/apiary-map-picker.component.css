@@ -5,7 +5,8 @@
 
 .map-toolbar {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column;
   justify-content: space-between;
   gap: var(--space-sm);
 }
@@ -19,7 +20,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0.35rem 0.7rem;
   border: 1px solid rgba(108, 75, 13, 0.2);
   border-radius: 8px;
@@ -31,10 +32,20 @@
   font-weight: 800;
 }
 
-.map-action:hover,
 .map-action:focus-visible {
   border-color: var(--amelie-gold);
   color: var(--amelie-gold);
+}
+
+@media (hover: hover) {
+  .map-action:hover {
+    border-color: var(--amelie-gold);
+    color: var(--amelie-gold);
+  }
+}
+
+.map-action {
+  width: 100%;
 }
 
 .apiary-map {
@@ -89,13 +100,13 @@
   box-shadow: 0 4px 14px rgba(58, 47, 26, 0.35);
 }
 
-@media (max-width: 640px) {
+@media (min-width: 768px) {
   .map-toolbar {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
   .map-action {
-    width: 100%;
+    width: auto;
   }
 }

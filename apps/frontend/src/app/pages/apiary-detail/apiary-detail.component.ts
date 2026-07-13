@@ -11,6 +11,7 @@ import { ApiaryMapPickerComponent } from '../../shared/components/apiary-map-pic
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-apiary-detail',
@@ -39,7 +40,7 @@ export class ApiaryDetailComponent {
   protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
   protected readonly batchActionType = signal<'inspection' | 'treatment' | 'feeding' | 'harvest'>('inspection');
   protected readonly selectedHiveIds = signal<number[]>([]);
-  protected readonly batchDate = signal(new Date().toISOString().slice(0, 10));
+  protected readonly batchDate = signal(localDateString());
   protected readonly batchNotes = signal('');
   protected readonly batchAmount = signal<number | null>(null);
   protected readonly batchLabel = signal('');

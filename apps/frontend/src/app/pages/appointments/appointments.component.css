@@ -11,7 +11,7 @@ button { border: 0; border-radius: 8px; background: #2f6f5e; color: white; curso
 .row { display: grid; gap: 0.5rem; align-items: center; }
 .row strong { display: block; }
 .row span, .row time { color: #6b604f; }
-@media (min-width: 820px) {
+@media (min-width: 1024px) {
   .form-panel { grid-template-columns: repeat(4, 1fr); align-items: end; }
   .row { grid-template-columns: 1fr auto auto; }
 }

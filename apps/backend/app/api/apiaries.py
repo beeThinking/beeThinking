@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.api.dependencies import get_current_active_user
 from app.crud import user as user_crud
-from app.crud.ownership import user_can_admin_apiary
+from app.crud.ownership import user_can_admin_apiary, user_can_write_apiary
 from app.models.apiary_member import ApiaryMember
 from app.crud import feeding as feeding_crud
 from app.models.user import User
@@ -191,10 +191,12 @@ def create_batch_action(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
+    if not user_can_write_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
     db_apiary = apiary_crud.get_apiary(db, apiary_id=apiary_id, owner_id=current_user.id)
     if not db_apiary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
-    hives_by_id = {hive.id: hive for hive in db_apiary.hives if hive.owner_id == current_user.id}
+    hives_by_id = {hive.id: hive for hive in db_apiary.hives}
     missing = [hive_id for hive_id in payload.hive_ids if hive_id not in hives_by_id]
     if missing:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Hives not found in apiary: {missing}")
@@ -219,7 +221,7 @@ def create_batch_action(
                 dosage=payload.dosage,
                 reason=payload.notes,
                 notes=payload.notes,
-            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
+            ), owner_id=db_apiary.owner_id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         elif action_type == "feeding":
@@ -230,7 +232,7 @@ def create_batch_action(
                 feed_type=payload.feed_type or "Futter",
                 amount_kg_or_l=payload.amount_kg_or_l or 0.1,
                 notes=payload.notes,
-            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
+            ), owner_id=db_apiary.owner_id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         elif action_type == "harvest":
@@ -242,7 +244,7 @@ def create_batch_action(
                 amount_kg=payload.amount_kg or 0,
                 batch_code=payload.batch_code,
                 notes=payload.notes,
-            ), owner_id=current_user.id, performed_by_user_id=current_user.id)
+            ), owner_id=db_apiary.owner_id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
         else:
@@ -259,10 +261,13 @@ def list_varroa_weather(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    db_apiary = apiary_crud.get_apiary(db, apiary_id=apiary_id, owner_id=current_user.id)
+    if not db_apiary:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
     windows = get_varroa_weather_window(
         db,
         apiary_id=apiary_id,
-        owner_id=current_user.id,
+        owner_id=db_apiary.owner_id,
         treatment_type=treatment_type,
         start_date=start_date or date.today(),
         days=days,
@@ -279,10 +284,15 @@ def refresh_varroa_weather(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    if not user_can_write_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    db_apiary = apiary_crud.get_apiary(db, apiary_id=apiary_id, owner_id=current_user.id)
+    if not db_apiary:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
     windows = refresh_varroa_weather_windows(
         db,
         apiary_id=apiary_id,
-        owner_id=current_user.id,
+        owner_id=db_apiary.owner_id,
         days=days,
     )
     if not windows:

@@ -259,8 +259,8 @@
       <h2>Jahresreport {{ year() }}</h2>
       <p>Exportiert Buchungen, Summen, Monatsübersicht und Kategorie-Summen für das gewählte Jahr.</p>
       <div class="button-pair">
-        <a class="primary-action" [href]="pdfUrl()" target="_blank" rel="noopener">PDF Jahresreport</a>
-        <a class="secondary" [href]="csvUrl()">CSV Export</a>
+        <button type="button" class="primary-action" (click)="downloadPdf()" [disabled]="exportPending()">PDF Jahresreport</button>
+        <button type="button" class="secondary" (click)="downloadCsv()" [disabled]="exportPending()">CSV Export</button>
       </div>
     </section>
   }

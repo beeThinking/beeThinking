@@ -71,6 +71,7 @@ export class CashbookComponent {
   protected readonly showPartnerForm = signal<OfficePartnerType | null>(null);
   protected readonly showDocumentForm = signal<OfficeDocumentType | null>(null);
   protected readonly errorMessage = signal('');
+  protected readonly exportPending = signal(false);
 
   protected readonly signedEntries = computed(() =>
     this.entries().map(entry => ({
@@ -338,12 +339,38 @@ export class CashbookComponent {
     return `${Math.max(3, Math.round((value / this.maxMonthlyValue()) * 100))}%`;
   }
 
-  protected csvUrl(): string {
-    return this.beekeeping.officeCsvUrl(this.year());
+  protected downloadCsv(): void {
+    this.downloadExport('csv');
   }
 
-  protected pdfUrl(): string {
-    return this.beekeeping.officePdfUrl(this.year());
+  protected downloadPdf(): void {
+    this.downloadExport('pdf');
+  }
+
+  private downloadExport(type: 'csv' | 'pdf'): void {
+    if (this.exportPending()) return;
+    this.exportPending.set(true);
+    this.errorMessage.set('');
+    const request = type === 'csv'
+      ? this.beekeeping.downloadOfficeCsv(this.year())
+      : this.beekeeping.downloadOfficePdf(this.year());
+    request.subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `kassenbuch-${this.year()}.${type}`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        this.exportPending.set(false);
+      },
+      error: () => {
+        this.errorMessage.set('Export konnte nicht heruntergeladen werden.');
+        this.exportPending.set(false);
+      }
+    });
   }
 
   private localDate(value: Date): string {

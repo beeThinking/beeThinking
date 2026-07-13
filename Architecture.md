@@ -185,8 +185,6 @@ Common:
 
 Production validation rejects known insecure `SECRET_KEY` values when `APP_ENV=production`.
 
-Note: `apps/backend/app/core/config.py` currently declares the Varroa weather setting block twice with different defaults. Python keeps the later declarations.
-
 ## Database And Migrations
 
 Database schema is managed by Alembic. FastAPI does not create tables on import.
@@ -342,4 +340,3 @@ Production-sensitive settings:
 - use persistent PostgreSQL and MinIO volumes
 - run Alembic migrations before serving traffic
 - avoid committing `.env` secrets
-

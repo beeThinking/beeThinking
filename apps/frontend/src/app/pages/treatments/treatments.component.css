@@ -20,7 +20,7 @@ input, select, textarea { border: 1px solid #cdbfaa; border-radius: 8px; padding
 .record h2 { font-size: 1rem; }
 .record p, .record small { color: #6b604f; }
 .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-lg); color: #6b604f; }
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   h1 { font-size: 2.6rem; }
   .editor { grid-template-columns: repeat(2, 1fr); }
   .editor .wide, .form-actions { grid-column: 1 / -1; }

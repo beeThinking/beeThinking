@@ -8,6 +8,7 @@ import { ApiaryService } from '../../core/services/apiary.service';
 import { Harvest } from '../../core/models/beekeeping.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-harvests',
@@ -34,7 +35,7 @@ export class HarvestsComponent {
   protected readonly totalKg = computed(() => this.harvests().reduce((sum, harvest) => sum + harvest.amount_kg, 0));
 
   protected readonly form = this.fb.group({
-    harvest_date: [new Date().toISOString().slice(0, 10), Validators.required],
+    harvest_date: [localDateString(), Validators.required],
     amount_kg: [0, [Validators.required, Validators.min(0)]],
     crop_type: [''],
     batch_code: [''],
@@ -58,7 +59,7 @@ export class HarvestsComponent {
       next: harvest => {
         this.localHarvests.update(list => [harvest, ...(list ?? this.remoteHarvests())]);
         this.showForm.set(false);
-        this.form.reset({ harvest_date: new Date().toISOString().slice(0, 10), amount_kg: 0 });
+        this.form.reset({ harvest_date: localDateString(), amount_kg: 0 });
       },
       error: () => this.errorMessage.set(this.translation.t('harvests.error.save'))
     });

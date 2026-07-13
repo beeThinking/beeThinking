@@ -1,5 +1,12 @@
 import pytest
 from app.models.apiary import Apiary
+from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
+
+
+def authenticate_as(client, user, password):
+    response = client.post("/api/auth/login", data={"username": user.username, "password": password})
+    assert response.status_code == 200
+    client.headers["Authorization"] = f"Bearer {response.json()['access_token']}"
 
 
 @pytest.fixture
@@ -116,6 +123,19 @@ class TestUpdateApiary:
         assert response.status_code == 404
         assert other_apiary.name == "Other Apiary"
 
+    def test_viewer_cannot_update_shared_apiary(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        viewer = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.commit()
+        authenticate_as(client, viewer, "password0")
+
+        assert client.get(f"/api/apiaries/{apiary['id']}").status_code == 200
+        response = client.put(f"/api/apiaries/{apiary['id']}", json={"name": "Forbidden"})
+
+        assert response.status_code == 404
+        assert db.get(Apiary, apiary["id"]).name == apiary["name"]
+
 
 @pytest.mark.unit
 class TestDeleteApiary:
@@ -139,6 +159,18 @@ class TestDeleteApiary:
 
         assert response.status_code == 404
         assert db.get(Apiary, other_apiary.id) is not None
+
+    def test_viewer_cannot_delete_shared_apiary(self, authenticated_client, apiary, multiple_test_users, db):
+        client, _ = authenticated_client
+        viewer = multiple_test_users[0]
+        db.add(ApiaryMember(apiary_id=apiary["id"], user_id=viewer.id, role=ApiaryMemberRole.viewer))
+        db.commit()
+        authenticate_as(client, viewer, "password0")
+
+        response = client.delete(f"/api/apiaries/{apiary['id']}")
+
+        assert response.status_code == 404
+        assert db.get(Apiary, apiary["id"]) is not None
 
 
 @pytest.mark.unit

@@ -13,7 +13,7 @@ button, .primary-action, .secondary { border: 0; border-radius: 8px; font-weight
 .alert { border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); font-weight: 700; }
 .alert.error { background: #fff3f0; border: 1px solid #dfb6ad; }
 .alert.success { background: #eef8f2; border: 1px solid #a9d3b9; color: #245c3c; }
-.split-view { display: grid; grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.35fr); gap: var(--space-md); align-items: start; }
+.split-view { display: grid; grid-template-columns: 1fr; gap: var(--space-md); align-items: start; }
 .list-panel, .editor, .user-panel { background: #fffaf0; border: 1px solid #e3d7c4; border-radius: 8px; padding: var(--space-md); }
 .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-sm); }
 .search, .filters input { min-width: 0; width: 100%; }
@@ -36,19 +36,19 @@ fieldset { display: grid; gap: var(--space-sm); border: 1px solid #e3d7c4; borde
 .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-lg); color: #6b604f; }
 .text-row { margin-bottom: var(--space-sm); }
 .row-actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); align-items: center; }
-.filters { display: grid; grid-template-columns: 1fr auto; gap: var(--space-sm); margin-bottom: var(--space-md); }
+.filters { display: grid; grid-template-columns: 1fr; gap: var(--space-sm); margin-bottom: var(--space-md); }
 .user-table { display: grid; gap: var(--space-sm); }
-.user-table article { grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(110px, auto)); align-items: center; }
+.user-table article { grid-template-columns: 1fr; align-items: center; }
 .user-table button { background: #eee2d0; color: #6b604f; padding: 0.55rem 0.75rem; }
 .user-table button.enabled { background: #dceddf; color: #245c3c; }
 
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   h1 { font-size: 2.5rem; }
   .editor { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 900px) {
-  .split-view { grid-template-columns: 1fr; }
-  .user-table article { grid-template-columns: 1fr; }
-  .filters { grid-template-columns: 1fr; }
+@media (min-width: 1024px) {
+  .split-view { grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.35fr); }
+  .user-table article { grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(110px, auto)); }
+  .filters { grid-template-columns: 1fr auto; }
 }

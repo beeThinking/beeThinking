@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { environment } from '../../../environments/environment';
 import {
   DashboardSummary,
   Article,
@@ -237,12 +236,12 @@ export class BeekeepingService {
     return this.api.delete<void>(`/api/office/documents/${id}`);
   }
 
-  officeCsvUrl(year: number): string {
-    return `${environment.apiUrl}/api/office/cashbook/export.csv?year=${year}`;
+  downloadOfficeCsv(year: number): Observable<Blob> {
+    return this.api.getBlob(`/api/office/cashbook/export.csv?year=${year}`);
   }
 
-  officePdfUrl(year: number): string {
-    return `${environment.apiUrl}/api/office/cashbook/report.pdf?year=${year}`;
+  downloadOfficePdf(year: number): Observable<Blob> {
+    return this.api.getBlob(`/api/office/cashbook/report.pdf?year=${year}`);
   }
 
   getContentPages(): Observable<ContentPage[]> {

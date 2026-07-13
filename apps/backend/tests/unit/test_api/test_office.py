@@ -1,4 +1,5 @@
 import pytest
+from app.models.cashbook import CashbookReceipt
 
 
 @pytest.mark.unit
@@ -64,3 +65,40 @@ def test_office_partner_document_and_exports(authenticated_client):
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
     assert pdf_response.content.startswith(b"%PDF")
+
+
+@pytest.mark.unit
+@pytest.mark.api
+def test_receipt_upload_persists_object_and_returns_preview(authenticated_client, db, monkeypatch):
+    from app.api import cashbook as cashbook_api
+
+    client, _ = authenticated_client
+    uploaded = []
+    monkeypatch.setattr(cashbook_api, "upload_object", lambda key, file, size, content_type: uploaded.append(key))
+    monkeypatch.setattr(cashbook_api, "get_object_url", lambda key: f"https://storage.example/{key}")
+
+    response = client.post(
+        "/api/cashbook/receipts",
+        files={"file": ("receipt.pdf", b"%PDF-test", "application/pdf")},
+    )
+
+    assert response.status_code == 201
+    receipt = db.get(CashbookReceipt, response.json()["id"])
+    assert receipt.file_object_key == uploaded[0]
+    assert receipt.file_object_key.startswith("users/")
+    preview = client.get(f"/api/cashbook/receipts/{receipt.id}/preview")
+    assert preview.status_code == 200
+    assert preview.json()["url"].endswith(receipt.file_object_key)
+
+
+@pytest.mark.unit
+@pytest.mark.api
+def test_receipt_upload_rejects_unsupported_type(authenticated_client):
+    client, _ = authenticated_client
+
+    response = client.post(
+        "/api/cashbook/receipts",
+        files={"file": ("receipt.txt", b"plain text", "text/plain")},
+    )
+
+    assert response.status_code == 415

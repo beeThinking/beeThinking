@@ -139,7 +139,7 @@
   color: #6a604d;
 }
 
-@media (min-width: 720px) {
+@media (min-width: 768px) {
   .work-header h1 {
     font-size: 3rem;
   }

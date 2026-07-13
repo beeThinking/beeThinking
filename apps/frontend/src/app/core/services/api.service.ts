@@ -14,6 +14,10 @@ export class ApiService {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, options);
   }
 
+  getBlob(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${endpoint}`, { responseType: 'blob' });
+  }
+
   post<T>(endpoint: string, data: unknown, options?: { headers?: HttpHeaders }): Observable<T> {
     if (typeof data === 'string') {
       const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });

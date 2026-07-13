@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime } from 'rxjs';
@@ -7,6 +8,7 @@ import { InspectionCreate } from '../../core/models/inspection.models';
 import { InspectionDraftService } from '../../core/services/inspection-draft.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-hive-inspect',
@@ -23,13 +25,14 @@ export class HiveInspectComponent {
   private readonly inspectionService = inject(InspectionService);
   private readonly fb = inject(FormBuilder);
   private readonly translation = inject(TranslationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly saving = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly draftMessage = signal('');
   protected readonly isOnline = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
   protected readonly hiveId = Number(this.route.snapshot.paramMap.get('id'));
-  protected readonly today = new Date().toISOString().slice(0, 10);
+  protected readonly today = localDateString();
 
   protected readonly form = this.fb.group({
     date: [this.today],
@@ -51,17 +54,23 @@ export class HiveInspectComponent {
       this.draftMessage.set(this.translation.t('inspect.draftLoaded', { date: this.formatDateTime(draft.updated_at) }));
     }
 
-    this.form.valueChanges.pipe(debounceTime(400)).subscribe(() => {
+    this.form.valueChanges.pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.persistDraft(this.translation.t('inspect.draftSaved'));
     });
 
-    window.addEventListener('online', () => {
+    const onOnline = () => {
       this.isOnline.set(true);
-      this.draftMessage.set(this.translation.t('inspect.online'));
-    });
-    window.addEventListener('offline', () => {
+      this.syncDraft();
+    };
+    const onOffline = () => {
       this.isOnline.set(false);
       this.persistDraft(this.translation.t('inspect.offlineSaved'));
+    };
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
     });
   }
 
@@ -73,9 +82,23 @@ export class HiveInspectComponent {
       return;
     }
 
+    this.submit(payload);
+  }
+
+  private syncDraft(): void {
+    const draft = this.draftService.getDraft(this.hiveId);
+    if (!draft) {
+      this.draftMessage.set(this.translation.t('inspect.online'));
+      return;
+    }
+    this.submit(draft.data);
+  }
+
+  private submit(payload: InspectionCreate): void {
+    if (this.saving()) return;
     this.saving.set(true);
     this.errorMessage.set('');
-    this.inspectionService.createInspection(this.hiveId, payload).subscribe({
+    this.inspectionService.createInspection(this.hiveId, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.draftService.clearDraft(this.hiveId);
         this.router.navigate(['/beehives', this.hiveId]);

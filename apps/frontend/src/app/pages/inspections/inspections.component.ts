@@ -11,6 +11,7 @@ import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-inspections',
@@ -55,7 +56,7 @@ export class InspectionsComponent {
   protected readonly photoCaption = signal('');
   protected readonly photoUploadPending = signal(false);
 
-  protected readonly today = new Date().toISOString().split('T')[0];
+  protected readonly today = localDateString();
 
   protected readonly form = this.fb.group({
     date: [this.today, Validators.required],

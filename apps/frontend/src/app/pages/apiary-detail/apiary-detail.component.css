@@ -37,7 +37,7 @@ h1 { font-size: 2rem; line-height: 1.05; }
 .hive-row span { font-weight: 900; }
 .hive-row small { color: #6b604f; }
 .stock-link { justify-content: center; color: #2f6f5e; font-weight: 900; }
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   h1 { font-size: 3rem; }
   .facts { grid-template-columns: repeat(3, 1fr); }
   .batch-grid { grid-template-columns: repeat(4, 1fr); }

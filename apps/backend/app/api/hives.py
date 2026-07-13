@@ -18,6 +18,7 @@ from app.schemas.hive import HiveCreate, HiveEventResponse, HiveLifecycleRequest
 from app.models.hive import HiveStatus
 from app.services.hive_lifecycle import archive_hive, dissolve_hive, get_hive_timeline as get_lifecycle_timeline, merge_hives
 from app.crud import hive as hive_crud
+from app.crud.ownership import user_can_admin_apiary
 from datetime import date
 
 router = APIRouter()
@@ -86,7 +87,7 @@ def get_hive_timeline(
             "notes": inspection.notes,
             "warnings": get_inspection_warnings(inspection),
         })
-    for task in db.query(Task).filter(Task.owner_id == current_user.id, Task.hive_id == hive_id).all():
+    for task in db.query(Task).filter(Task.hive_id == hive_id).all():
         events.append({
             "type": "task",
             "id": task.id,
@@ -94,7 +95,7 @@ def get_hive_timeline(
             "title": task.title,
             "status": task.status,
         })
-    for treatment in db.query(Treatment).filter(Treatment.owner_id == current_user.id, Treatment.hive_id == hive_id).all():
+    for treatment in db.query(Treatment).filter(Treatment.hive_id == hive_id).all():
         events.append({
             "type": "treatment",
             "id": treatment.id,
@@ -102,7 +103,7 @@ def get_hive_timeline(
             "title": treatment.product,
             "notes": treatment.reason,
         })
-    for harvest in db.query(Harvest).filter(Harvest.owner_id == current_user.id, Harvest.hive_id == hive_id).all():
+    for harvest in db.query(Harvest).filter(Harvest.hive_id == hive_id).all():
         events.append({
             "type": "harvest",
             "id": harvest.id,
@@ -110,7 +111,7 @@ def get_hive_timeline(
             "title": harvest.crop_type or "Harvest",
             "amount_kg": harvest.amount_kg,
         })
-    for feeding in db.query(Feeding).filter(Feeding.owner_id == current_user.id, Feeding.hive_id == hive_id).all():
+    for feeding in db.query(Feeding).filter(Feeding.hive_id == hive_id).all():
         events.append({
             "type": "feeding",
             "id": feeding.id,
@@ -119,7 +120,7 @@ def get_hive_timeline(
             "amount_kg_or_l": feeding.amount_kg_or_l,
             "notes": feeding.notes,
         })
-    for photo in db.query(Photo).filter(Photo.owner_id == current_user.id, Photo.hive_id == hive_id).all():
+    for photo in db.query(Photo).filter(Photo.hive_id == hive_id).all():
         events.append({
             "type": "photo",
             "id": photo.id,
@@ -213,7 +214,7 @@ def get_varroa_assistant(
     windows = get_varroa_weather_window(
         db,
         apiary_id=db_hive.apiary_id,
-        owner_id=current_user.id,
+        owner_id=db_hive.owner_id,
         treatment_type=treatment_type,
         start_date=date.today(),
         days=days,
@@ -250,6 +251,8 @@ def delete_hive(
 ):
     exists = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
     if not exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    if not user_can_admin_apiary(db, exists.apiary_id, current_user.id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     success = hive_crud.delete_hive(db, hive_id=hive_id, owner_id=current_user.id)
     if not success:

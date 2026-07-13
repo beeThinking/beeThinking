@@ -72,6 +72,7 @@ def create_receipt(
     filename: str,
     content_type: str,
     size_bytes: int,
+    file_object_key: str,
     ocr_text: str | None = None,
 ) -> CashbookReceipt:
     receipt = CashbookReceipt(
@@ -79,6 +80,7 @@ def create_receipt(
         filename=filename,
         content_type=content_type,
         size_bytes=size_bytes,
+        file_object_key=file_object_key,
         ocr_text=ocr_text,
         ocr_status="parsed" if ocr_text else "pending",
         ocr_provider="manual" if ocr_text else None,
@@ -104,6 +106,13 @@ def list_receipts(db: Session, user_id: int) -> list[CashbookReceipt]:
         .order_by(CashbookReceipt.created_at.desc())
         .all()
     )
+
+
+def get_receipt(db: Session, user_id: int, receipt_id: int) -> CashbookReceipt | None:
+    return db.query(CashbookReceipt).filter(
+        CashbookReceipt.id == receipt_id,
+        CashbookReceipt.owner_id == user_id,
+    ).first()
 
 
 def _suggest_from_text(text: str) -> dict[str, str]:

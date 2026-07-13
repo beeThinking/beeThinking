@@ -11,6 +11,7 @@ import { HiveService } from '../../core/services/hive.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-hive-detail',
@@ -62,7 +63,7 @@ export class HiveDetailComponent {
   protected readonly uploadError = signal('');
   protected readonly uploadPending = signal(false);
   protected readonly lifecycleError = signal('');
-  protected readonly lifecycleDate = signal(new Date().toISOString().slice(0, 10));
+  protected readonly lifecycleDate = signal(localDateString());
   protected readonly lifecycleNote = signal('');
   protected readonly mergeTargetId = signal<number | null>(null);
 

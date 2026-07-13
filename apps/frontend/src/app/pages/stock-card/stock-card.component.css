@@ -15,4 +15,4 @@ h1 { color: var(--amelie-text-dark); font-size: 2.4rem; line-height: 1.05; }
 .event time { color: #6b604f; font-weight: 900; }
 .event strong { display: block; font-size: 1.05rem; }
 .event span, .event p, .event li { color: #6b604f; }
-@media (min-width: 760px) { .filters { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px) { .filters { grid-template-columns: repeat(3, 1fr); } }

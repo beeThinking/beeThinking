@@ -7,6 +7,7 @@ import { ApiaryService } from '../../core/services/apiary.service';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { Feeding } from '../../core/models/beekeeping.models';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-feedings',
@@ -35,7 +36,7 @@ export class FeedingsComponent {
   );
 
   protected readonly form = this.fb.group({
-    date: [new Date().toISOString().slice(0, 10), Validators.required],
+    date: [localDateString(), Validators.required],
     feed_type: ['', [Validators.required, Validators.maxLength(120)]],
     amount_kg_or_l: [0, [Validators.required, Validators.min(0)]],
     hive_id: [null as number | null],
@@ -58,7 +59,7 @@ export class FeedingsComponent {
       next: feeding => {
         this.localFeedings.update(list => [feeding, ...(list ?? this.remoteFeedings())]);
         this.showForm.set(false);
-        this.form.reset({ date: new Date().toISOString().slice(0, 10), amount_kg_or_l: 0 });
+        this.form.reset({ date: localDateString(), amount_kg_or_l: 0 });
       },
       error: () => this.errorMessage.set('Fütterung konnte nicht gespeichert werden.')
     });

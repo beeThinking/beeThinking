@@ -7,6 +7,7 @@ import { HiveService } from '../../core/services/hive.service';
 import { Treatment, VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { localDateString } from '../../core/utils/date.utils';
 
 @Component({
   selector: 'app-treatments',
@@ -34,7 +35,7 @@ export class TreatmentsComponent {
 
   protected readonly form = this.fb.group({
     hive_id: [null as number | null, Validators.required],
-    started_at: [new Date().toISOString().slice(0, 10), Validators.required],
+    started_at: [localDateString(), Validators.required],
     ended_at: [''],
     product: ['', [Validators.required, Validators.maxLength(200)]],
     method: [''],
@@ -71,7 +72,7 @@ export class TreatmentsComponent {
       next: treatment => {
         this.localTreatments.update(list => [treatment, ...(list ?? this.remoteTreatments())]);
         this.showForm.set(false);
-        this.form.reset({ started_at: new Date().toISOString().slice(0, 10) });
+        this.form.reset({ started_at: localDateString() });
       },
       error: () => this.errorMessage.set(this.translation.t('treatments.error.save'))
     });

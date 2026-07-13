@@ -201,6 +201,37 @@ class TestPhotosApi:
         assert client.get(f"/api/photos/{photo['id']}").status_code == 200
         assert client.delete(f"/api/photos/{photo['id']}").status_code == 204
 
+    def test_photo_upload_validates_and_deletes_object(self, authenticated_client, hive, monkeypatch):
+        from app.api import photos as photos_api
+
+        client, _ = authenticated_client
+        uploaded = []
+        deleted = []
+        monkeypatch.setattr(photos_api, "upload_photo_object", lambda key, file, size, content_type: uploaded.append(key))
+        monkeypatch.setattr(photos_api, "delete_object", deleted.append)
+
+        response = client.post(
+            "/api/photos/upload",
+            data={"hive_id": str(hive["id"])},
+            files={"file": ("hive.jpg", b"image-data", "image/jpeg")},
+        )
+
+        assert response.status_code == 201
+        assert uploaded == [response.json()["object_key"]]
+        assert client.delete(f"/api/photos/{response.json()['id']}").status_code == 204
+        assert deleted == uploaded
+
+    def test_photo_upload_rejects_unsupported_type(self, authenticated_client, hive):
+        client, _ = authenticated_client
+
+        response = client.post(
+            "/api/photos/upload",
+            data={"hive_id": str(hive["id"])},
+            files={"file": ("payload.txt", b"not-an-image", "text/plain")},
+        )
+
+        assert response.status_code == 415
+
 
 @pytest.mark.unit
 class TestDashboardAndTimeline:

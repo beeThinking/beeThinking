@@ -13,7 +13,7 @@ button { border: 0; border-radius: 8px; background: #2f6f5e; color: white; curso
 .row strong { display: block; }
 .row span { color: #6b604f; }
 .row button { background: #7a3b2e; }
-@media (min-width: 820px) {
+@media (min-width: 1024px) {
   .form-panel { grid-template-columns: repeat(3, 1fr); align-items: end; }
   .row { grid-template-columns: 1fr auto auto auto; }
 }
