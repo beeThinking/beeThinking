@@ -6,6 +6,7 @@ import { ApiaryService } from '../../core/services/apiary.service';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { TranslationService } from '../../core/services/translation.service';
+import { GoogleCalendarService } from '../../core/services/google-calendar.service';
 import { AppointmentsComponent } from './appointments.component';
 
 describe('AppointmentsComponent', () => {
@@ -44,6 +45,15 @@ describe('AppointmentsComponent', () => {
         { provide: BeekeepingService, useValue: beekeeping },
         { provide: HiveService, useValue: { getHives: vi.fn(() => of([])) } },
         { provide: ApiaryService, useValue: { getApiaries: vi.fn(() => of([])) } },
+        {
+          provide: GoogleCalendarService,
+          useValue: {
+            getStatus: vi.fn(() => of({ enabled: false, connected: false, calendar_name: null, last_sync_at: null, last_error: null })),
+            startConnection: vi.fn(),
+            sync: vi.fn(),
+            disconnect: vi.fn()
+          }
+        },
         { provide: TranslationService, useValue: { t: (key: string) => key } }
       ]
     });

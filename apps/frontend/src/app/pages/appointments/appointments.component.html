@@ -11,6 +11,15 @@
     </div>
   </header>
 
+  @if (googleStatus().enabled) {
+    <app-google-calendar-bridge
+      [status]="googleStatus()"
+      [loading]="googleLoading()"
+      (connectRequested)="connectGoogle()"
+      (syncRequested)="syncGoogle()"
+      (disconnectRequested)="disconnectGoogle()" />
+  }
+
   <section class="agenda-summary">
     <span>{{ 'appointments.nextCount' | translate: { n: upcomingCount() } }}</span>
     <i aria-hidden="true"></i>

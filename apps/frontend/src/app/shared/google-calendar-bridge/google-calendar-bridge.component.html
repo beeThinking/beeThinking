@@ -1,0 +1,28 @@
+<section class="google-bridge" [class.connected]="status().connected">
+  <div class="google-mark" aria-hidden="true"><span>G</span></div>
+  <div class="google-copy">
+    <p class="eyebrow">{{ 'appointments.google.eyebrow' | translate }}</p>
+    @if (status().connected) {
+      <h2>{{ 'appointments.google.connectedTitle' | translate: { name: status().calendar_name || 'BeeThinking' } }}</h2>
+      @if (status().last_sync_at; as lastSync) {
+        <p>{{ 'appointments.google.lastSync' | translate: { date: (lastSync | date:'dd.MM.yyyy HH:mm') ?? '' } }}</p>
+      } @else {
+        <p>{{ 'appointments.google.neverSynced' | translate }}</p>
+      }
+      @if (status().last_error) { <small>{{ status().last_error }}</small> }
+    } @else {
+      <h2>{{ 'appointments.google.title' | translate }}</h2>
+      <p>{{ 'appointments.google.help' | translate }}</p>
+    }
+  </div>
+  <div class="google-actions">
+    @if (status().connected) {
+      <button type="button" class="google-sync" [disabled]="loading()" (click)="syncRequested.emit()">
+        {{ loading() ? ('appointments.google.syncing' | translate) : ('appointments.google.sync' | translate) }}
+      </button>
+      <button type="button" class="google-disconnect" [disabled]="loading()" (click)="disconnectRequested.emit()">{{ 'appointments.google.disconnect' | translate }}</button>
+    } @else {
+      <button type="button" class="google-connect" [disabled]="loading()" (click)="connectRequested.emit()">{{ 'appointments.google.connect' | translate }}</button>
+    }
+  </div>
+</section>

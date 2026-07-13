@@ -94,5 +94,5 @@ Google calendar and its events.
 ## Current Verification Baseline
 
 - Backend unit suite: 168 tests.
-- Frontend unit suite: 18 tests across 5 spec files.
+- Frontend unit suite: 22 tests across 6 spec files.
 - Alembic `upgrade head` passes against a fresh SQLite database.

@@ -11,13 +11,16 @@ import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
 import { createICalendar } from '../../core/utils/calendar.utils';
+import { GoogleCalendarService } from '../../core/services/google-calendar.service';
+import { GoogleCalendarStatus } from '../../core/models/google-calendar.models';
+import { GoogleCalendarBridgeComponent } from '../../shared/google-calendar-bridge/google-calendar-bridge.component';
 
 type AppointmentView = 'upcoming' | 'past' | 'done';
 
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, TranslatePipe],
+  imports: [DatePipe, ReactiveFormsModule, TranslatePipe, GoogleCalendarBridgeComponent],
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -27,6 +30,7 @@ export class AppointmentsComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly translation = inject(TranslationService);
+  private readonly googleCalendar = inject(GoogleCalendarService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly appointments = signal<Task[]>([]);
@@ -37,6 +41,14 @@ export class AppointmentsComponent {
   protected readonly editingId = signal<number | null>(null);
   protected readonly saving = signal(false);
   protected readonly message = signal('');
+  protected readonly googleStatus = signal<GoogleCalendarStatus>({
+    enabled: false,
+    connected: false,
+    calendar_name: null,
+    last_sync_at: null,
+    last_error: null
+  });
+  protected readonly googleLoading = signal(false);
   protected readonly priorities: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
   protected readonly views: { id: AppointmentView; labelKey: TranslationKey }[] = [
     { id: 'upcoming', labelKey: 'appointments.view.upcoming' },
@@ -65,7 +77,9 @@ export class AppointmentsComponent {
   });
 
   constructor() {
+    this.handleGoogleCallback();
     this.load();
+    this.loadGoogleStatus();
     this.hiveService.getHives().subscribe(hives => this.hives.set(hives));
     this.apiaryService.getApiaries().subscribe(apiaries => this.apiaries.set(apiaries));
   }
@@ -151,6 +165,7 @@ export class AppointmentsComponent {
         this.message.set(this.translation.t(editingId === null ? 'appointments.created' : 'appointments.updated'));
         this.saving.set(false);
         this.closeEditor();
+        this.syncGoogle(false);
       },
       error: () => {
         this.message.set(this.translation.t('appointments.error.save'));
@@ -161,14 +176,20 @@ export class AppointmentsComponent {
 
   protected complete(appointment: Task): void {
     this.beekeeping.completeTask(appointment.id).subscribe({
-      next: updated => this.replace(updated),
+      next: updated => {
+        this.replace(updated);
+        this.syncGoogle(false);
+      },
       error: () => this.message.set(this.translation.t('appointments.error.complete'))
     });
   }
 
   protected reopen(appointment: Task): void {
     this.beekeeping.updateTask(appointment.id, { status: 'open' }).subscribe({
-      next: updated => this.replace(updated),
+      next: updated => {
+        this.replace(updated);
+        this.syncGoogle(false);
+      },
       error: () => this.message.set(this.translation.t('appointments.error.reopen'))
     });
   }
@@ -176,7 +197,10 @@ export class AppointmentsComponent {
   protected remove(appointment: Task): void {
     if (!confirm(this.translation.t('appointments.delete.confirm', { title: appointment.title }))) return;
     this.beekeeping.deleteTask(appointment.id).subscribe({
-      next: () => this.appointments.update(items => items.filter(item => item.id !== appointment.id)),
+      next: () => {
+        this.appointments.update(items => items.filter(item => item.id !== appointment.id));
+        this.syncGoogle(false);
+      },
       error: () => this.message.set(this.translation.t('appointments.error.delete'))
     });
   }
@@ -205,6 +229,57 @@ export class AppointmentsComponent {
     URL.revokeObjectURL(url);
   }
 
+  protected connectGoogle(): void {
+    if (this.googleLoading()) return;
+    this.googleLoading.set(true);
+    this.googleCalendar.startConnection().subscribe({
+      next: result => window.location.assign(result.authorization_url),
+      error: () => {
+        this.message.set(this.translation.t('appointments.google.error.connect'));
+        this.googleLoading.set(false);
+      }
+    });
+  }
+
+  protected syncGoogle(showSuccess = true): void {
+    if (!this.googleStatus().connected || this.googleLoading()) return;
+    this.googleLoading.set(true);
+    this.googleCalendar.sync().subscribe({
+      next: result => {
+        this.googleStatus.update(status => ({ ...status, last_sync_at: result.synced_at, last_error: null }));
+        if (showSuccess) {
+          this.message.set(this.translation.t('appointments.google.synced', {
+            created: result.created,
+            updated: result.updated,
+            deleted: result.deleted
+          }));
+        }
+        this.googleLoading.set(false);
+      },
+      error: () => {
+        this.message.set(this.translation.t('appointments.google.error.sync'));
+        this.googleStatus.update(status => ({ ...status, last_error: this.translation.t('appointments.google.error.sync') }));
+        this.googleLoading.set(false);
+      }
+    });
+  }
+
+  protected disconnectGoogle(): void {
+    if (!confirm(this.translation.t('appointments.google.disconnect.confirm'))) return;
+    this.googleLoading.set(true);
+    this.googleCalendar.disconnect().subscribe({
+      next: () => {
+        this.googleStatus.update(status => ({ ...status, connected: false, calendar_name: null, last_sync_at: null, last_error: null }));
+        this.message.set(this.translation.t('appointments.google.disconnected'));
+        this.googleLoading.set(false);
+      },
+      error: () => {
+        this.message.set(this.translation.t('appointments.google.error.disconnect'));
+        this.googleLoading.set(false);
+      }
+    });
+  }
+
   protected priorityLabel(priority: TaskPriority): string {
     return this.translation.t(`tasks.priority.${priority}` as TranslationKey);
   }
@@ -218,6 +293,26 @@ export class AppointmentsComponent {
 
   private replace(updated: Task): void {
     this.appointments.update(items => items.map(item => item.id === updated.id ? updated : item));
+  }
+
+  private loadGoogleStatus(): void {
+    this.googleCalendar.getStatus().subscribe({
+      next: status => this.googleStatus.set(status),
+      error: () => this.message.set(this.translation.t('appointments.google.error.status'))
+    });
+  }
+
+  private handleGoogleCallback(): void {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get('google');
+    if (!result) return;
+    this.message.set(this.translation.t(result === 'connected'
+      ? 'appointments.google.connected'
+      : 'appointments.google.error.connect'));
+    params.delete('google');
+    params.delete('reason');
+    const query = params.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }
 
   private isPast(appointment: Task): boolean {
