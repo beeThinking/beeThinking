@@ -5,6 +5,7 @@ from app.models.cashbook import CashbookDirection, CashbookEntry, CashbookReceip
 from app.models.content import ContentPage, ContentSection
 from app.models.feeding import Feeding
 from app.models.harvest import Harvest
+from app.models.google_calendar import GoogleCalendarConnection, GoogleCalendarEvent, GoogleOAuthState
 from app.models.hive import Hive, HiveStatus, HiveType
 from app.models.hive_event import HiveEvent
 from app.models.inspection import HiveMood, HiveStrength, Inspection, SwarmCells
@@ -33,6 +34,9 @@ __all__ = [
     "ArticleCategory",
     "Feeding",
     "Harvest",
+    "GoogleCalendarConnection",
+    "GoogleCalendarEvent",
+    "GoogleOAuthState",
     "Hive",
     "HiveStatus",
     "HiveType",

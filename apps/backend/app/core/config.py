@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "noreply@beethinking.com"
     EMAIL_CONFIRMATION_ENABLED: bool = False
 
+    # Google Calendar sync (optional)
+    GOOGLE_CALENDAR_CLIENT_ID: str = ""
+    GOOGLE_CALENDAR_CLIENT_SECRET: str = ""
+    GOOGLE_CALENDAR_REDIRECT_URI: str = "http://localhost:8000/api/google-calendar/oauth/callback"
+    GOOGLE_CALENDAR_FRONTEND_URL: str = "http://localhost:4200/appointments"
+    GOOGLE_CALENDAR_TOKEN_KEY: str = ""
+
     # Object storage
     MINIO_ENDPOINT: str = "localhost:9000"
     MINIO_ACCESS_KEY: str = "beethinking"
@@ -54,7 +61,17 @@ class Settings(BaseSettings):
         }
         if self.APP_ENV.lower() == "production" and self.SECRET_KEY in insecure_secrets:
             raise ValueError("SECRET_KEY must be set to a secure random value in production")
+        if (
+            self.APP_ENV.lower() == "production"
+            and self.GOOGLE_CALENDAR_CLIENT_ID
+            and not self.GOOGLE_CALENDAR_TOKEN_KEY
+        ):
+            raise ValueError("GOOGLE_CALENDAR_TOKEN_KEY must be set when Google Calendar is enabled in production")
         return self
+
+    @property
+    def google_calendar_enabled(self) -> bool:
+        return bool(self.GOOGLE_CALENDAR_CLIENT_ID and self.GOOGLE_CALENDAR_CLIENT_SECRET)
 
     @property
     def cors_origins_list(self) -> list[str]:

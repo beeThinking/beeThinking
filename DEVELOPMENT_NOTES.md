@@ -77,8 +77,22 @@ Allowed providers: `open_meteo`, `internal_rules`, `official_varroawetter`, `dis
 
 No HTML scraping is used. `official_varroawetter` is a stub until an official API endpoint is configured and documented.
 
+## Google Calendar
+
+Appointment mirroring uses a dedicated secondary Google Calendar and the least-privilege
+`calendar.app.created` OAuth scope. Configure a Google OAuth web client with this redirect URI:
+
+```text
+http://localhost:8000/api/google-calendar/oauth/callback
+```
+
+Set `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, and
+`GOOGLE_CALENDAR_TOKEN_KEY` in the backend `.env`. Production requires a separate token key.
+Refresh tokens are encrypted at rest. Disconnecting revokes the token but keeps the mirrored
+Google calendar and its events.
+
 ## Current Verification Baseline
 
-- Backend unit suite: 163 tests.
+- Backend unit suite: 168 tests.
 - Frontend unit suite: 18 tests across 5 spec files.
 - Alembic `upgrade head` passes against a fresh SQLite database.

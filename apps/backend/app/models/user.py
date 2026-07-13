@@ -32,3 +32,6 @@ class User(Base):
     content_updates = relationship("ContentPage", back_populates="updated_by")
     cashbook_entries = relationship("CashbookEntry", foreign_keys="CashbookEntry.owner_id", back_populates="owner", cascade="all, delete-orphan")
     cashbook_receipts = relationship("CashbookReceipt", back_populates="owner", cascade="all, delete-orphan")
+    google_calendar_connection = relationship("GoogleCalendarConnection", cascade="all, delete-orphan", uselist=False)
+    google_calendar_events = relationship("GoogleCalendarEvent", cascade="all, delete-orphan")
+    google_oauth_states = relationship("GoogleOAuthState", cascade="all, delete-orphan")
