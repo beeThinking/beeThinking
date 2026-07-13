@@ -12,6 +12,8 @@ import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
 import { localDateString } from '../../core/utils/date.utils';
+import { ApiaryMember, ApiaryMemberRole } from '../../core/models/apiary.models';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-apiary-detail',
@@ -26,6 +28,7 @@ export class ApiaryDetailComponent {
   private readonly apiaryService = inject(ApiaryService);
   private readonly hiveService = inject(HiveService);
   private readonly translation = inject(TranslationService);
+  private readonly auth = inject(AuthService);
 
   protected readonly apiaryId = Number(this.route.snapshot.paramMap.get('id'));
   protected readonly apiary = toSignal(
@@ -46,6 +49,20 @@ export class ApiaryDetailComponent {
   protected readonly batchLabel = signal('');
   protected readonly batchSaving = signal(false);
   protected readonly batchMessage = signal('');
+  protected readonly team = signal<ApiaryMember[]>([]);
+  protected readonly teamLoading = signal(false);
+  protected readonly teamMessage = signal('');
+  protected readonly inviteIdentity = signal('');
+  protected readonly inviteRole = signal<Exclude<ApiaryMemberRole, 'owner'>>('member');
+  protected readonly invitePending = signal(false);
+  protected readonly currentRole = computed<ApiaryMemberRole | null>(() => {
+    const apiary = this.apiary();
+    const user = this.auth.currentUser();
+    if (!apiary || !user) return null;
+    if (apiary.owner_id === user.id) return 'owner';
+    return this.team().find(member => member.user_id === user.id && member.accepted_at)?.role ?? null;
+  });
+  protected readonly canManageTeam = computed(() => ['owner', 'admin'].includes(this.currentRole() ?? ''));
 
   protected readonly treatmentOptions: { value: VarroaTreatmentType; labelKey: TranslationKey }[] = [
     { value: 'formic_acid_short', labelKey: 'apiaryDetail.treatment.formicShort' },
@@ -59,6 +76,68 @@ export class ApiaryDetailComponent {
 
   constructor() {
     this.loadTreatment(this.selectedTreatment());
+    this.loadTeam();
+  }
+
+  protected loadTeam(): void {
+    this.teamLoading.set(true);
+    this.apiaryService.getMembers(this.apiaryId).subscribe({
+      next: members => {
+        this.team.set(members);
+        this.teamLoading.set(false);
+      },
+      error: () => {
+        this.teamMessage.set(this.translation.t('team.error.load'));
+        this.teamLoading.set(false);
+      }
+    });
+  }
+
+  protected inviteMember(): void {
+    const identity = this.inviteIdentity().trim();
+    if (!identity || this.invitePending()) return;
+    this.invitePending.set(true);
+    this.teamMessage.set('');
+    this.apiaryService.inviteMember(this.apiaryId, identity, this.inviteRole()).subscribe({
+      next: member => {
+        this.team.update(members => {
+          const existing = members.findIndex(item => item.id === member.id);
+          return existing === -1
+            ? [...members, member]
+            : members.map(item => item.id === member.id ? member : item);
+        });
+        this.inviteIdentity.set('');
+        this.teamMessage.set(this.translation.t('team.invite.sent'));
+        this.invitePending.set(false);
+      },
+      error: () => {
+        this.teamMessage.set(this.translation.t('team.error.invite'));
+        this.invitePending.set(false);
+      }
+    });
+  }
+
+  protected changeMemberRole(member: ApiaryMember, role: Exclude<ApiaryMemberRole, 'owner'>): void {
+    this.apiaryService.updateMemberRole(this.apiaryId, member.id, role).subscribe({
+      next: updated => this.team.update(members => members.map(item => item.id === updated.id ? updated : item)),
+      error: () => this.teamMessage.set(this.translation.t('team.error.role'))
+    });
+  }
+
+  protected removeMember(member: ApiaryMember): void {
+    if (!confirm(this.translation.t('team.remove.confirm', { name: member.user.username }))) return;
+    this.apiaryService.removeMember(this.apiaryId, member.id).subscribe({
+      next: () => this.team.update(members => members.filter(item => item.id !== member.id)),
+      error: () => this.teamMessage.set(this.translation.t('team.error.remove'))
+    });
+  }
+
+  protected roleLabel(role: ApiaryMemberRole): string {
+    return this.translation.t(`team.role.${role}` as TranslationKey);
+  }
+
+  protected memberInitials(member: ApiaryMember): string {
+    return member.user.username.slice(0, 2).toUpperCase();
   }
 
   protected loadTreatment(value: VarroaTreatmentType): void {

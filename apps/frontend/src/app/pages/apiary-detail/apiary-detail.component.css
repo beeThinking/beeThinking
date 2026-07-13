@@ -9,6 +9,29 @@ h1 { font-size: 2rem; line-height: 1.05; }
 .facts div, .note-panel, .empty-panel, .hive-row, .batch-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); }
 .facts span { display: block; color: #6b604f; font-size: 0.85rem; }
 .note-panel { margin-bottom: var(--space-md); color: #5f5444; }
+.team-panel { display: grid; gap: var(--space-md); margin-bottom: var(--space-lg); padding: var(--space-md); background: #f8f1df; border: 1px solid #ddcda9; border-radius: 12px; }
+.team-heading { display: grid; gap: var(--space-sm); }
+.team-heading h2 { font-size: clamp(1.35rem, 5vw, 1.8rem); }
+.role-stamp { display: inline-flex; align-items: center; justify-content: center; width: fit-content; min-height: 44px; padding: var(--space-xs) var(--space-sm); color: #fff; background: #52645d; border-radius: 999px; font-size: 0.8rem; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; }
+.role-owner { background: #7d5b0d; }
+.role-admin { background: #2f6f5e; }
+.invite-bar { display: grid; gap: var(--space-sm); padding: var(--space-sm); background: rgba(255, 255, 255, 0.74); border: 1px dashed #b99a51; border-radius: 8px; }
+.invite-bar label { display: grid; gap: var(--space-xs); color: #665b47; font-weight: 800; }
+.invite-bar input, .invite-bar select, .role-select { width: 100%; min-height: 44px; border: 1px solid #cbb98d; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: #fff; color: var(--amelie-text-dark); font: inherit; font-size: 1rem; }
+.invite-bar .primary-action { border: 0; cursor: pointer; }
+.invite-bar .primary-action:disabled { cursor: not-allowed; opacity: 0.55; }
+.team-message { padding: var(--space-sm); background: #fff8d9; border-left: 4px solid #dcae36; color: #594a27; font-weight: 800; }
+.crew-grid { display: grid; gap: var(--space-sm); }
+.crew-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--space-sm); padding: var(--space-sm); background: #fff; border: 1px solid #e1d4b7; border-radius: 8px; }
+.crew-card.pending { border-style: dashed; background: #fffaf0; }
+.crew-avatar { display: grid; place-items: center; width: 44px; height: 44px; color: #fff; background: #233b4a; border-radius: 50%; font-weight: 900; }
+.crew-identity { display: grid; min-width: 0; }
+.crew-identity strong, .crew-identity small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crew-identity small { color: #6b604f; }
+.crew-identity span { color: #2f6f5e; font-size: 0.78rem; font-weight: 900; text-transform: uppercase; }
+.crew-card.pending .crew-identity span { color: #9b6e0c; }
+.role-select, .remove-member, .crew-card > .role-stamp { grid-column: 1 / -1; }
+.remove-member { min-height: 44px; border: 1px solid #b64b42; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: transparent; color: #98352f; cursor: pointer; font-weight: 900; }
 .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); }
 .section-title p { color: #6b604f; max-width: 48rem; }
 .section-title a, .hive-row { color: var(--amelie-text-dark); text-decoration: none; }
@@ -40,5 +63,15 @@ h1 { font-size: 2rem; line-height: 1.05; }
 @media (min-width: 768px) {
   h1 { font-size: 3rem; }
   .facts { grid-template-columns: repeat(3, 1fr); }
+  .team-heading { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  .invite-bar { grid-template-columns: minmax(0, 1.5fr) minmax(10rem, 0.6fr) auto; align-items: end; }
+  .crew-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crew-card { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .role-select, .remove-member, .crew-card > .role-stamp { grid-column: auto; }
   .batch-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (hover: hover) {
+  .remove-member:hover { background: #fff0ed; }
+  .invite-bar .primary-action:not(:disabled):hover { background: #245749; }
 }

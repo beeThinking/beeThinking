@@ -20,6 +20,75 @@
       <section class="note-panel">{{ apiary.notes }}</section>
     }
 
+    <section class="team-panel">
+      <div class="team-heading">
+        <div>
+          <p class="eyebrow">{{ 'team.eyebrow' | translate }}</p>
+          <h2>{{ 'team.title' | translate }}</h2>
+          <p>{{ 'team.help' | translate }}</p>
+        </div>
+        @if (currentRole(); as role) {
+          <span class="role-stamp role-{{ role }}">{{ roleLabel(role) }}</span>
+        }
+      </div>
+
+      @if (canManageTeam()) {
+        <div class="invite-bar">
+          <label>
+            <span>{{ 'team.invite.identity' | translate }}</span>
+            <input
+              type="text"
+              autocomplete="off"
+              [ngModel]="inviteIdentity()"
+              (ngModelChange)="inviteIdentity.set($event)"
+              [placeholder]="'team.invite.placeholder' | translate">
+          </label>
+          <label>
+            <span>{{ 'team.role.label' | translate }}</span>
+            <select [ngModel]="inviteRole()" (ngModelChange)="inviteRole.set($event)">
+              <option value="admin">{{ 'team.role.admin' | translate }}</option>
+              <option value="member">{{ 'team.role.member' | translate }}</option>
+              <option value="viewer">{{ 'team.role.viewer' | translate }}</option>
+            </select>
+          </label>
+          <button type="button" class="primary-action" [disabled]="invitePending() || !inviteIdentity().trim()" (click)="inviteMember()">
+            {{ 'team.invite.send' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (teamMessage()) { <p class="team-message">{{ teamMessage() }}</p> }
+
+      <div class="crew-grid" [attr.aria-busy]="teamLoading()">
+        @for (member of team(); track member.id) {
+          <article class="crew-card" [class.pending]="!member.accepted_at">
+            <div class="crew-avatar" aria-hidden="true">{{ memberInitials(member) }}</div>
+            <div class="crew-identity">
+              <strong>{{ member.user.username }}</strong>
+              <small>{{ member.user.email }}</small>
+              <span>{{ member.accepted_at ? ('team.status.active' | translate) : ('team.status.pending' | translate) }}</span>
+            </div>
+            @if (canManageTeam() && member.role !== 'owner') {
+              <select
+                class="role-select"
+                [attr.aria-label]="'team.role.forUser' | translate: { name: member.user.username }"
+                [ngModel]="member.role"
+                (ngModelChange)="changeMemberRole(member, $event)">
+                <option value="admin">{{ 'team.role.admin' | translate }}</option>
+                <option value="member">{{ 'team.role.member' | translate }}</option>
+                <option value="viewer">{{ 'team.role.viewer' | translate }}</option>
+              </select>
+              <button type="button" class="remove-member" (click)="removeMember(member)">{{ 'team.remove' | translate }}</button>
+            } @else {
+              <span class="role-stamp role-{{ member.role }}">{{ roleLabel(member.role) }}</span>
+            }
+          </article>
+        } @empty {
+          <div class="empty-panel">{{ 'team.empty' | translate }}</div>
+        }
+      </div>
+    </section>
+
     <section class="batch-panel">
       <div class="section-title">
         <div>

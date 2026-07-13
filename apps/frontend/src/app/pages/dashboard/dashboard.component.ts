@@ -1,10 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { ApiaryService } from '../../core/services/apiary.service';
+import { ApiaryMember, ApiaryMemberRole } from '../../core/models/apiary.models';
+import { TranslationKey } from '../../core/i18n/en';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,6 +19,13 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 export class DashboardComponent {
   private readonly beekeepingService = inject(BeekeepingService);
   private readonly translation = inject(TranslationService);
+  private readonly apiaryService = inject(ApiaryService);
+  protected readonly invitations = signal<ApiaryMember[]>([]);
+  protected readonly invitationMessage = signal('');
+
+  constructor() {
+    this.loadInvitations();
+  }
 
   protected readonly summary = toSignal(this.beekeepingService.getDashboardSummary(), {
     initialValue: {
@@ -47,5 +57,33 @@ export class DashboardComponent {
 
   protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
     return apiary.name?.trim() || apiary.stock_number;
+  }
+
+  protected acceptInvitation(invitation: ApiaryMember): void {
+    this.apiaryService.acceptInvitation(invitation.id).subscribe({
+      next: () => {
+        this.invitations.update(items => items.filter(item => item.id !== invitation.id));
+        this.invitationMessage.set(this.translation.t('team.invitation.accepted'));
+      },
+      error: () => this.invitationMessage.set(this.translation.t('team.error.accept'))
+    });
+  }
+
+  protected declineInvitation(invitation: ApiaryMember): void {
+    this.apiaryService.declineInvitation(invitation.id).subscribe({
+      next: () => this.invitations.update(items => items.filter(item => item.id !== invitation.id)),
+      error: () => this.invitationMessage.set(this.translation.t('team.error.decline'))
+    });
+  }
+
+  protected roleLabel(role: ApiaryMemberRole): string {
+    return this.translation.t(`team.role.${role}` as TranslationKey);
+  }
+
+  private loadInvitations(): void {
+    this.apiaryService.getInvitations().subscribe({
+      next: invitations => this.invitations.set(invitations),
+      error: () => this.invitationMessage.set(this.translation.t('team.error.invitations'))
+    });
   }
 }

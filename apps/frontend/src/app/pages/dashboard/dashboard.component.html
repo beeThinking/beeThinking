@@ -7,6 +7,31 @@
     <a class="primary-action" routerLink="/beehives">{{ 'dashboard.startInspection' | translate }}</a>
   </header>
 
+  @if (invitations().length || invitationMessage()) {
+    <section class="invitation-dock" aria-live="polite">
+      <div class="invitation-heading">
+        <span class="invitation-mark" aria-hidden="true">✦</span>
+        <div>
+          <p class="eyebrow">{{ 'team.invitation.eyebrow' | translate }}</p>
+          <h2>{{ 'team.invitation.title' | translate }}</h2>
+        </div>
+      </div>
+      @for (invitation of invitations(); track invitation.id) {
+        <article class="invitation-card">
+          <div>
+            <strong>{{ invitation.apiary.name || invitation.apiary.stock_number }}</strong>
+            <span>{{ 'team.invitation.asRole' | translate: { role: roleLabel(invitation.role) } }}</span>
+          </div>
+          <div class="invitation-actions">
+            <button type="button" class="accept-invite" (click)="acceptInvitation(invitation)">{{ 'team.invitation.accept' | translate }}</button>
+            <button type="button" class="decline-invite" (click)="declineInvitation(invitation)">{{ 'team.invitation.decline' | translate }}</button>
+          </div>
+        </article>
+      }
+      @if (invitationMessage()) { <p class="invitation-message">{{ invitationMessage() }}</p> }
+    </section>
+  }
+
   <section class="metric-grid" [attr.aria-label]="'dashboard.summaryLabel' | translate">
     <a class="metric danger" routerLink="/tasks">
       <span class="metric-value">{{ summary().overdue_task_count }}</span>
