@@ -23,7 +23,8 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - ./apps/backend/.env
+      - path: ./apps/backend/.env
+        required: false
     environment:
       DATABASE_URL: postgresql://beethinking:beethinking@db:5432/beethinking
       MINIO_ENDPOINT: minio:9000
