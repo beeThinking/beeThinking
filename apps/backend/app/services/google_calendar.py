@@ -152,6 +152,7 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
                 )
                 if response.status_code == 404:
                     db.delete(mapping)
+                    db.flush()
                     mapping = None
                 elif not response.ok:
                     raise GoogleCalendarError(_google_error(response))
@@ -193,13 +194,14 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
         return {"created": created, "updated": updated, "deleted": deleted, "synced_at": synced_at}
     except (GoogleCalendarError, requests.RequestException, InvalidToken) as exc:
         db.rollback()
+        message = str(exc) or "Google Calendar request failed"
         connection = db.query(GoogleCalendarConnection).filter_by(user_id=user_id).first()
         if connection:
-            connection.last_error = str(exc)
+            connection.last_error = message
             db.commit()
         if isinstance(exc, GoogleCalendarError):
             raise
-        raise GoogleCalendarError("Google Calendar request failed") from exc
+        raise GoogleCalendarError(message) from exc
 
 
 def disconnect_calendar(db: Session, user_id: int, settings: Settings | None = None) -> bool:

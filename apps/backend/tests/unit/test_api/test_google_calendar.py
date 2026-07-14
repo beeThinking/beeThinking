@@ -150,3 +150,44 @@ def test_sync_creates_updates_and_removes_google_events(db: Session, test_user: 
     deleted = sync_calendar(db, test_user.id, settings)
     assert deleted["deleted"] == 1
     assert db.query(GoogleCalendarEvent).count() == 0
+
+
+def test_sync_recreates_event_deleted_on_google(db: Session, test_user: User, monkeypatch):
+    settings = google_settings()
+    authorization_url = create_authorization_url(db, test_user.id, settings)
+    state = parse_qs(urlparse(authorization_url).query)["state"][0]
+    created_event_ids = iter(["google-event-1", "google-event-2"])
+
+    def request(method, url, **kwargs):
+        if url.endswith("/token") and kwargs.get("data", {}).get("grant_type") == "authorization_code":
+            return FakeResponse({"access_token": "first-access", "refresh_token": "refresh-token"})
+        if url.endswith("/token"):
+            return FakeResponse({"access_token": "refreshed-access"})
+        if url.endswith("/calendars"):
+            return FakeResponse({"id": "bee-calendar@example.com"})
+        if url.endswith("/events"):
+            return FakeResponse({"id": next(created_event_ids)})
+        raise AssertionError(f"Unexpected Google request: {method} {url}")
+
+    monkeypatch.setattr("app.services.google_calendar.requests.request", request)
+    complete_authorization(db, state, "auth-code", settings)
+    task = Task(
+        owner_id=test_user.id,
+        title="Hive inspection",
+        start_at=datetime(2026, 7, 20, 8, 0, tzinfo=timezone.utc),
+        kind=TaskKind.appointment,
+    )
+    db.add(task)
+    db.commit()
+    sync_calendar(db, test_user.id, settings)
+
+    monkeypatch.setattr(
+        "app.services.google_calendar.requests.put",
+        lambda *args, **kwargs: FakeResponse(status_code=404),
+    )
+    result = sync_calendar(db, test_user.id, settings)
+
+    assert result["created"] == 1
+    assert result["updated"] == 0
+    mapping = db.query(GoogleCalendarEvent).one()
+    assert mapping.google_event_id == "google-event-2"
