@@ -48,8 +48,6 @@ class Settings(BaseSettings):
     # Varroa weather planning
     VARROA_WEATHER_PROVIDER: str = "open_meteo"
     VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
-    VARROA_WEATHER_OFFICIAL_ENDPOINT: str = ""
-    VARROA_WEATHER_OFFICIAL_API_KEY: str = ""
 
     @model_validator(mode="after")
     def validate_production_security(self):
@@ -61,12 +59,12 @@ class Settings(BaseSettings):
         }
         if self.APP_ENV.lower() == "production" and self.SECRET_KEY in insecure_secrets:
             raise ValueError("SECRET_KEY must be set to a secure random value in production")
-        if (
-            self.APP_ENV.lower() == "production"
-            and self.GOOGLE_CALENDAR_CLIENT_ID
-            and not self.GOOGLE_CALENDAR_TOKEN_KEY
-        ):
-            raise ValueError("GOOGLE_CALENDAR_TOKEN_KEY must be set when Google Calendar is enabled in production")
+        if self.GOOGLE_CALENDAR_CLIENT_ID and not self.GOOGLE_CALENDAR_TOKEN_KEY:
+            raise ValueError(
+                "GOOGLE_CALENDAR_TOKEN_KEY must be set when Google Calendar is enabled. "
+                "Refresh tokens are encrypted with this key; falling back to SECRET_KEY would "
+                "break stored tokens whenever SECRET_KEY rotates."
+            )
         return self
 
     @property
