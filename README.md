@@ -13,6 +13,8 @@ A beekeeping management application — think like a bee.
 - Cashbook with income, expenses and EÜR summary
 - PWA shell and local inspection drafts
 
+See [ROADMAP.md](ROADMAP.md) for the development plan.
+
 ## Structure
 
 ```
