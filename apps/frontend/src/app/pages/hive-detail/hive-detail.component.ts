@@ -57,7 +57,7 @@ export class HiveDetailComponent {
     })
   ), { initialValue: [] });
 
-  protected readonly inspectLink = computed(() => ['/beehives', this.hiveId(), 'inspect']);
+  protected readonly inspectLink = computed(() => ['/hives', this.hiveId(), 'inspect']);
   protected readonly caption = signal('');
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly uploadError = signal('');

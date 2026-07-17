@@ -23,8 +23,8 @@
 
       <ul class="navbar-menu" [class.open]="menuOpen()">
         <li><a routerLink="/dashboard"   routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.dashboard' | translate }}</a></li>
-        <li><a routerLink="/stands"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">Stände</a></li>
-        <li><a routerLink="/beehives"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.beehives' | translate }}</a></li>
+        <li><a routerLink="/apiaries"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">Stände</a></li>
+        <li><a routerLink="/hives"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.beehives' | translate }}</a></li>
         <li><a routerLink="/tasks"       routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.tasks' | translate }}</a></li>
         <li class="nav-group" [class.open]="inspectionMenuOpen()">
           <button

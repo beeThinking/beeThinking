@@ -13,7 +13,7 @@
   <div class="hive-selector">
     <h2>{{ 'inspections.selectHive' | translate }}</h2>
     @if (hives().length === 0) {
-      <p class="hint">{{ 'inspections.noHives' | translate }} <a href="/beehives">{{ 'inspections.noHives.cta' | translate }}</a></p>
+      <p class="hint">{{ 'inspections.noHives' | translate }} <a href="/hives">{{ 'inspections.noHives.cta' | translate }}</a></p>
     } @else {
       <div class="hive-tabs">
         @for (hive of hives(); track hive.id) {

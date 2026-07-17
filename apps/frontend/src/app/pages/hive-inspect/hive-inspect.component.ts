@@ -101,7 +101,7 @@ export class HiveInspectComponent {
     this.inspectionService.createInspection(this.hiveId, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.draftService.clearDraft(this.hiveId);
-        this.router.navigate(['/beehives', this.hiveId]);
+        this.router.navigate(['/hives', this.hiveId]);
       },
       error: () => {
         this.draftService.saveDraft(this.hiveId, payload);

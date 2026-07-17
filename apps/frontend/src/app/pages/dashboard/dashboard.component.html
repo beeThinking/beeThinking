@@ -4,7 +4,7 @@
       <p class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</p>
       <h1>{{ 'dashboard.title' | translate }}</h1>
     </div>
-    <a class="primary-action" routerLink="/beehives">{{ 'dashboard.startInspection' | translate }}</a>
+    <a class="primary-action" routerLink="/hives">{{ 'dashboard.startInspection' | translate }}</a>
   </header>
 
   @if (invitations().length || invitationMessage()) {
@@ -41,7 +41,7 @@
       <span class="metric-value">{{ summary().open_task_count }}</span>
       <span class="metric-label">{{ 'dashboard.openTasks' | translate }}</span>
     </a>
-    <a class="metric" routerLink="/beehives">
+    <a class="metric" routerLink="/hives">
       <span class="metric-value">{{ summary().hive_count }}</span>
       <span class="metric-label">{{ 'dashboard.colonies' | translate }}</span>
     </a>
@@ -56,8 +56,8 @@
   </section>
 
   <section class="action-strip">
-    <a routerLink="/stands">Stände</a>
-    <a routerLink="/beehives">{{ 'dashboard.colonies' | translate }}</a>
+    <a routerLink="/apiaries">Stände</a>
+    <a routerLink="/hives">{{ 'dashboard.colonies' | translate }}</a>
     <a routerLink="/treatments">{{ 'dashboard.treatments' | translate }}</a>
     <a routerLink="/harvests">{{ 'dashboard.harvests' | translate }}</a>
     <a routerLink="/office/reports">Reports</a>
@@ -65,9 +65,9 @@
 
   <section class="overview-grid">
     <article class="overview-panel">
-      <div class="section-title"><h2>Stände</h2><a routerLink="/stands">Alle</a></div>
+      <div class="section-title"><h2>Stände</h2><a routerLink="/apiaries">Alle</a></div>
       @for (apiary of summary().apiaries; track apiary.id) {
-        <a class="hive-status" [routerLink]="['/stands', apiary.id]">
+        <a class="hive-status" [routerLink]="['/apiaries', apiary.id]">
           <strong>{{ apiaryTitle(apiary) }}</strong>
           <span>{{ apiary.hive_count }} Völker</span>
           <span>{{ apiary.address || 'Ohne Adresse' }}</span>
@@ -119,7 +119,7 @@
     } @else {
       <div class="hive-status-list">
         @for (hive of attentionHives(); track hive.hive_id) {
-          <a class="hive-status" [routerLink]="['/beehives', hive.hive_id]">
+          <a class="hive-status" [routerLink]="['/hives', hive.hive_id]">
             <strong>{{ hive.name }}</strong>
             <span>{{ 'dashboard.status' | translate: { value: hive.status } }}</span>
             <span>{{ 'dashboard.swarmRisk' | translate: { value: hive.swarm_risk } }}</span>
