@@ -146,27 +146,26 @@ Goal: stable base before parity work. Debt list is grounded in a July 2026 code 
 Goal: the Stockkarte becomes the central object with a complete typed chronicle,
 matching the app-verified Stand → Volk → Stockkarte → Chronik model.
 
-- ⬜ **Stockkarte header parity**: Stocknummer, Volkart (Wirtschaftsvolk/Ableger/…),
-  Jahresfarbe Königin (color-dot picker), Königin-Zeichen, Volk erstellt,
-  Königin zugesetzt — extend hive model where fields are missing
-- ⬜ **Queens UI**: queen data editable on the stock card (API already complete);
-  crown-in-year-color shown on colony cards in the apiary view
-- ⬜ **Varroakontrolle** as separate chronicle event type (mite count/Gemülldiagnose,
-  distinct from Varroabehandlung) — new model + endpoints + dialog
-- ⬜ **Treatment payload parity**: Mittel (official medication name), Methode
-  (Träufeln, Verdunster, …), Menge + unit — prerequisite for Bestandsbuch (M5)
-- ⬜ **Umweiselung (requeening)** as chronicle event: old queen out, new queen in,
-  reason, date — auto-entry in hive timeline
-- ⬜ **Wandern (migration)**: move hive between apiaries with automatic chronicle
-  documentation (from/to, date); batch move for whole-stand migration
-- ⬜ **Kopieren**: duplicate colony (new Stocknummer, copied master data)
-- ⬜ **Auflösen polish**: dissolution reason field, dissolved colonies in a
-  Bienenvolk-Archiv view (backend `dissolve` + archive exist — verify reason + filter)
-- ⬜ **Colony tags**: free-form tags on hives, filterable in lists
-- ⬜ Unified chronicle view: all event types (Durchschau, Fütterung, Behandlung,
-  Kontrolle, Ernte, Umweiselung, Wanderung, Auflösung) in one chronological stream,
-  typed, filterable — extend existing `timeline` endpoint; two-column timeline layout
-  on desktop, single column mobile
+- ✅ **Stockkarte header parity**: Stocknummer, Volkart, Volk erstellt and tags on the
+  hive model and form (Jahresfarbe lives on the queen; Königin-Zeichen still open)
+- ✅ **Queens UI**: active queen shown on hive detail with year/color/origin;
+  requeening creates the successor (crown on apiary cards still open)
+- ✅ **Varroakontrolle** as separate chronicle event type with own entity, CRUD API,
+  quick-entry form and timeline integration
+- ✅ **Treatment payload parity**: product/method/dosage fields already exist on the
+  treatment model — verified sufficient as Bestandsbuch input (M5)
+- ✅ **Umweiselung (requeening)** as chronicle event: deactivates the old queen,
+  creates the new one, documents reason and date in the timeline
+- ✅ **Wandern (migration)**: single move endpoint + apiary batch action, from/to
+  documented as chronicle event, UI on hive detail
+- ✅ **Kopieren**: duplicate colony endpoint + UI (copied master data, chronicle event)
+- ✅ **Auflösen polish**: reason was already captured in the event metadata; archive
+  view now filters by final status (dissolved/merged/sold/dead/lost)
+- 🔄 **Colony tags**: tags on the hive model and form, shown on hive detail —
+  list filtering still open
+- 🔄 Unified chronicle view: timeline endpoint now merges all event types incl.
+  Varroakontrolle, Umweiselung, Wanderung — type filter and two-column desktop
+  layout still open
 - ⬜ Colony card grid on apiary detail: status traffic light, Volkart, last action +
   date, drag-sortable order; batch bar (Auflösen, Wandern, Kopieren)
 - ⬜ Swipe-to-delete / quick-edit on chronicle entries (mobile-first interaction)

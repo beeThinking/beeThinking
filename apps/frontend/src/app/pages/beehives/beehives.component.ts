@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
-import { Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
+import { ColonyKind, Hive, HiveCreate, HiveUpdate, HiveStatus, HiveType } from '../../core/models/hive.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
@@ -34,19 +34,24 @@ export class BeehivesComponent {
   protected readonly editingHive = signal<Hive | null>(null);
 
   protected readonly hiveTypes: HiveType[] = ['langstroth', 'dadant', 'zander', 'other'];
+  protected readonly colonyKinds: ColonyKind[] = ['wirtschaftsvolk', 'ableger', 'schwarm', 'kunstschwarm', 'other'];
   protected readonly hiveStatuses: HiveStatus[] = ['active', 'inactive', 'lost', 'created_by_mistake'];
 
   protected readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
     apiary_id: [null as number | null, [Validators.required]],
+    stock_number: [''],
     type: ['langstroth' as HiveType],
+    colony_kind: ['wirtschaftsvolk' as ColonyKind],
     status: ['active' as HiveStatus],
+    established_at: [''],
+    tags: [''],
     notes: ['']
   });
 
   protected openCreateForm(): void {
     this.editingHive.set(null);
-    this.form.reset({ type: 'langstroth', status: 'active' });
+    this.form.reset({ type: 'langstroth', colony_kind: 'wirtschaftsvolk', status: 'active' });
     this.showForm.set(true);
   }
 
@@ -55,8 +60,12 @@ export class BeehivesComponent {
     this.form.setValue({
       name: hive.name,
       apiary_id: hive.apiary_id,
+      stock_number: hive.stock_number ?? '',
       type: hive.type,
+      colony_kind: hive.colony_kind,
       status: hive.status,
+      established_at: hive.established_at ?? '',
+      tags: hive.tags?.join(', ') ?? '',
       notes: hive.notes ?? ''
     });
     this.showForm.set(true);
@@ -78,8 +87,12 @@ export class BeehivesComponent {
       const update: HiveUpdate = {
         name: values.name ?? undefined,
         apiary_id: values.apiary_id ?? undefined,
+        stock_number: values.stock_number || null,
         type: values.type as HiveType,
+        colony_kind: values.colony_kind as ColonyKind,
         status: values.status as HiveStatus,
+        established_at: values.established_at || null,
+        tags: this.parseTags(values.tags),
         notes: values.notes || undefined
       };
       this.hiveService.updateHive(editing.id, update).subscribe({
@@ -93,8 +106,12 @@ export class BeehivesComponent {
       const create: HiveCreate = {
         name: values.name!,
         apiary_id: values.apiary_id!,
+        stock_number: values.stock_number || null,
         type: values.type as HiveType,
+        colony_kind: values.colony_kind as ColonyKind,
         status: values.status as HiveStatus,
+        established_at: values.established_at || null,
+        tags: this.parseTags(values.tags),
         notes: values.notes || undefined
       };
       this.hiveService.createHive(create).subscribe({
@@ -105,6 +122,23 @@ export class BeehivesComponent {
         error: () => this.errorMessage.set(this.translation.t('beehives.error.create'))
       });
     }
+  }
+
+  private parseTags(value: string | null | undefined): string[] | null {
+    if (!value) return null;
+    const tags = value.split(',').map(tag => tag.trim()).filter(Boolean);
+    return tags.length ? tags : null;
+  }
+
+  protected colonyKindLabel(kind: ColonyKind): string {
+    const key = ({
+      wirtschaftsvolk: 'colonyKind.wirtschaftsvolk',
+      ableger: 'colonyKind.ableger',
+      schwarm: 'colonyKind.schwarm',
+      kunstschwarm: 'colonyKind.kunstschwarm',
+      other: 'colonyKind.other'
+    } satisfies Record<ColonyKind, TranslationKey>)[kind];
+    return this.translation.t(key);
   }
 
   protected deleteHive(hive: Hive): void {

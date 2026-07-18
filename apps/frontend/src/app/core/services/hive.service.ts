@@ -1,7 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Hive, HiveCreate, HiveEvent, HiveLifecycleRequest, HiveStatus, HiveUpdate } from '../models/hive.models';
+import {
+  Hive,
+  HiveCopyRequest,
+  HiveCreate,
+  HiveEvent,
+  HiveLifecycleRequest,
+  HiveMoveRequest,
+  HiveRequeenRequest,
+  HiveStatus,
+  HiveUpdate,
+  Queen,
+  VarroaCheck,
+  VarroaCheckCreate
+} from '../models/hive.models';
 import { StockCard, TimelineEvent, VarroaAssistant, VarroaTreatmentType } from '../models/beekeeping.models';
 
 @Injectable({
@@ -56,5 +69,33 @@ export class HiveService {
 
   mergeHive(id: number, payload: HiveLifecycleRequest): Observable<Hive> {
     return this.api.post<Hive>(`/api/hives/${id}/merge`, payload);
+  }
+
+  moveHive(id: number, payload: HiveMoveRequest): Observable<Hive> {
+    return this.api.post<Hive>(`/api/hives/${id}/move`, payload);
+  }
+
+  copyHive(id: number, payload: HiveCopyRequest): Observable<Hive> {
+    return this.api.post<Hive>(`/api/hives/${id}/copy`, payload);
+  }
+
+  requeenHive(id: number, payload: HiveRequeenRequest): Observable<Queen> {
+    return this.api.post<Queen>(`/api/hives/${id}/requeen`, payload);
+  }
+
+  getQueens(hiveId: number): Observable<Queen[]> {
+    return this.api.get<Queen[]>(`/api/queens?hive_id=${hiveId}`);
+  }
+
+  getVarroaChecks(hiveId: number): Observable<VarroaCheck[]> {
+    return this.api.get<VarroaCheck[]>(`/api/varroa-checks?hive_id=${hiveId}`);
+  }
+
+  createVarroaCheck(payload: VarroaCheckCreate): Observable<VarroaCheck> {
+    return this.api.post<VarroaCheck>('/api/varroa-checks', payload);
+  }
+
+  deleteVarroaCheck(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/varroa-checks/${id}`);
   }
 }
