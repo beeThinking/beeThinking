@@ -7,8 +7,11 @@ from app.models.queen import Queen
 from app.schemas.queen import QueenCreate, QueenUpdate
 
 
-def get_queens(db: Session, owner_id: int) -> list[Queen]:
-    return db.query(Queen).filter(Queen.owner_id == owner_id).all()
+def get_queens(db: Session, owner_id: int, hive_id: int | None = None) -> list[Queen]:
+    query = db.query(Queen).filter(Queen.owner_id == owner_id)
+    if hive_id is not None:
+        query = query.filter(Queen.hive_id == hive_id)
+    return query.order_by(Queen.is_active.desc(), Queen.year.desc()).all()
 
 
 def get_queen(db: Session, queen_id: int, owner_id: int) -> Optional[Queen]:

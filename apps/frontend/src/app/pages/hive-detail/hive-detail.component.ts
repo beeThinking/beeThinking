@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, combineLatest, forkJoin, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { PhotoWithPreview } from '../../core/models/beekeeping.models';
-import { HiveEvent } from '../../core/models/hive.models';
+import { ColonyKind, HiveEvent, Queen } from '../../core/models/hive.models';
 import { HiveStatus, HiveType } from '../../core/models/hive.models';
+import { ApiaryService } from '../../core/services/apiary.service';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { TranslationService } from '../../core/services/translation.service';
@@ -23,11 +24,14 @@ import { localDateString } from '../../core/utils/date.utils';
 })
 export class HiveDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly beekeepingService = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
+  private readonly apiaryService = inject(ApiaryService);
   private readonly translation = inject(TranslationService);
   private readonly hiveId = computed(() => Number(this.route.snapshot.paramMap.get('id')));
   private readonly photoRefresh$ = new Subject<void>();
+  private readonly queenRefresh$ = new Subject<void>();
 
   protected readonly hive = toSignal(this.route.paramMap.pipe(
     switchMap(params => this.hiveService.getHive(Number(params.get('id'))))
@@ -38,6 +42,13 @@ export class HiveDetailComponent {
   protected readonly history = toSignal(this.route.paramMap.pipe(
     switchMap(params => this.hiveService.getHiveHistory(Number(params.get('id'))))
   ), { initialValue: [] as HiveEvent[] });
+  protected readonly queens = toSignal(combineLatest([
+    this.route.paramMap,
+    this.queenRefresh$.pipe(startWith(undefined))
+  ]).pipe(
+    switchMap(([params]) => this.hiveService.getQueens(Number(params.get('id'))))
+  ), { initialValue: [] as Queen[] });
+  protected readonly apiaries = toSignal(this.apiaryService.getApiaries(), { initialValue: [] });
   protected readonly photos = toSignal(combineLatest([
     this.route.paramMap,
     this.photoRefresh$.pipe(startWith(undefined))
@@ -57,6 +68,11 @@ export class HiveDetailComponent {
     })
   ), { initialValue: [] });
 
+  protected readonly activeQueen = computed(() => this.queens().find(queen => queen.is_active) ?? null);
+  protected readonly moveTargets = computed(() =>
+    this.apiaries().filter(apiary => apiary.id !== this.hive()?.apiary_id)
+  );
+
   protected readonly inspectLink = computed(() => ['/hives', this.hiveId(), 'inspect']);
   protected readonly caption = signal('');
   protected readonly selectedFile = signal<File | null>(null);
@@ -66,6 +82,15 @@ export class HiveDetailComponent {
   protected readonly lifecycleDate = signal(localDateString());
   protected readonly lifecycleNote = signal('');
   protected readonly mergeTargetId = signal<number | null>(null);
+  protected readonly actionError = signal('');
+  protected readonly moveTargetApiaryId = signal<number | null>(null);
+  protected readonly copyName = signal('');
+  protected readonly requeenYear = signal(new Date().getFullYear());
+  protected readonly requeenColor = signal('');
+  protected readonly requeenReason = signal('');
+  protected readonly varroaMethod = signal('');
+  protected readonly varroaMiteCount = signal<number | null>(null);
+  protected readonly varroaPerDay = signal<number | null>(null);
 
   protected formatDate(value: string): string {
     return new Date(value).toLocaleDateString(this.translation.currentLang() === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -159,6 +184,68 @@ export class HiveDetailComponent {
     });
   }
 
+  protected moveHive(): void {
+    const target = this.moveTargetApiaryId();
+    if (!target) {
+      this.actionError.set(this.translation.t('hiveDetail.error.moveTargetMissing'));
+      return;
+    }
+    this.hiveService.moveHive(this.hiveId(), {
+      target_apiary_id: target,
+      date: this.lifecycleDate(),
+      note: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: () => window.location.reload(),
+      error: () => this.actionError.set(this.translation.t('hiveDetail.error.move'))
+    });
+  }
+
+  protected copyHive(): void {
+    this.hiveService.copyHive(this.hiveId(), {
+      date: this.lifecycleDate(),
+      name: this.copyName() || undefined,
+      note: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: copy => this.router.navigate(['/hives', copy.id]),
+      error: () => this.actionError.set(this.translation.t('hiveDetail.error.copy'))
+    });
+  }
+
+  protected requeenHive(): void {
+    this.hiveService.requeenHive(this.hiveId(), {
+      date: this.lifecycleDate(),
+      year: this.requeenYear(),
+      marking_color: this.requeenColor() || undefined,
+      reason: this.requeenReason() || undefined,
+      note: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: () => {
+        this.requeenReason.set('');
+        this.queenRefresh$.next();
+        window.location.reload();
+      },
+      error: () => this.actionError.set(this.translation.t('hiveDetail.error.requeen'))
+    });
+  }
+
+  protected addVarroaCheck(): void {
+    if (this.varroaMiteCount() === null && this.varroaPerDay() === null) {
+      this.actionError.set(this.translation.t('hiveDetail.error.varroaCheckEmpty'));
+      return;
+    }
+    this.hiveService.createVarroaCheck({
+      hive_id: this.hiveId(),
+      date: this.lifecycleDate(),
+      method: this.varroaMethod() || undefined,
+      mite_count: this.varroaMiteCount(),
+      mites_per_day: this.varroaPerDay(),
+      notes: this.lifecycleNote() || undefined
+    }).subscribe({
+      next: () => window.location.reload(),
+      error: () => this.actionError.set(this.translation.t('hiveDetail.error.varroaCheck'))
+    });
+  }
+
   protected statusLabel(status: HiveStatus): string {
     const key = ({
       active: 'beehives.status.active',
@@ -181,6 +268,17 @@ export class HiveDetailComponent {
       zander: 'beehives.type.zander',
       other: 'beehives.type.other'
     } satisfies Record<HiveType, TranslationKey>)[type];
+    return this.translation.t(key);
+  }
+
+  protected colonyKindLabel(kind: ColonyKind): string {
+    const key = ({
+      wirtschaftsvolk: 'colonyKind.wirtschaftsvolk',
+      ableger: 'colonyKind.ableger',
+      schwarm: 'colonyKind.schwarm',
+      kunstschwarm: 'colonyKind.kunstschwarm',
+      other: 'colonyKind.other'
+    } satisfies Record<ColonyKind, TranslationKey>)[kind];
     return this.translation.t(key);
   }
 }

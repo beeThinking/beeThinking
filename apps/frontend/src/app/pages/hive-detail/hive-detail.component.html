@@ -3,8 +3,18 @@
     <header class="detail-header">
       <div>
         <a routerLink="/hives" class="back-link">{{ 'common.back' | translate }}</a>
-        <h1>{{ hive.name }}</h1>
-        <p>{{ typeLabel(hive.type) }} · {{ statusLabel(hive.status) }}</p>
+        <h1>{{ hive.name }}@if (hive.stock_number) { <span class="stock-number">#{{ hive.stock_number }}</span> }</h1>
+        <p>{{ colonyKindLabel(hive.colony_kind) }} · {{ typeLabel(hive.type) }} · {{ statusLabel(hive.status) }}</p>
+        @if (hive.established_at) {
+          <p class="established">{{ 'hiveDetail.establishedAt' | translate }}: {{ formatDate(hive.established_at) }}</p>
+        }
+        @if (hive.tags?.length) {
+          <div class="tag-list">
+            @for (tag of hive.tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        }
       </div>
       <a class="inspect-action" [routerLink]="inspectLink()">{{ 'dashboard.startInspection' | translate }}</a>
     </header>
@@ -12,6 +22,71 @@
     @if (hive.notes) {
       <section class="notes">{{ hive.notes }}</section>
     }
+
+    <section class="queen-panel">
+      <div class="section-heading">
+        <div>
+          <h2>{{ 'hiveDetail.queen' | translate }}</h2>
+          <p>{{ 'hiveDetail.queenHelp' | translate }}</p>
+        </div>
+      </div>
+      @if (activeQueen(); as queen) {
+        <p class="queen-info">
+          <span class="queen-year queen-color-{{ queen.marking_color || 'none' }}">{{ queen.year }}</span>
+          @if (queen.marking_color) { <span>{{ queen.marking_color }}</span> }
+          @if (queen.name) { <span>· {{ queen.name }}</span> }
+          @if (queen.origin) { <span>· {{ queen.origin }}</span> }
+        </p>
+      } @else {
+        <p class="queen-info empty">{{ 'hiveDetail.queenNone' | translate }}</p>
+      }
+      <div class="requeen-grid">
+        <label>{{ 'hiveDetail.requeenYear' | translate }}
+          <input type="number" [ngModel]="requeenYear()" (ngModelChange)="requeenYear.set(+$event)">
+        </label>
+        <label>{{ 'hiveDetail.requeenColor' | translate }}
+          <input [ngModel]="requeenColor()" (ngModelChange)="requeenColor.set($event)" [placeholder]="'hiveDetail.requeenColorPlaceholder' | translate">
+        </label>
+        <label>{{ 'hiveDetail.requeenReason' | translate }}
+          <input [ngModel]="requeenReason()" (ngModelChange)="requeenReason.set($event)">
+        </label>
+        <button type="button" (click)="requeenHive()">{{ 'hiveDetail.requeen' | translate }}</button>
+      </div>
+    </section>
+
+    <section class="actions-panel">
+      <div class="section-heading">
+        <div>
+          <h2>{{ 'hiveDetail.actions' | translate }}</h2>
+          <p>{{ 'hiveDetail.actionsHelp' | translate }}</p>
+        </div>
+      </div>
+      @if (actionError()) { <p class="form-error">{{ actionError() }}</p> }
+      <div class="action-grid">
+        <div class="action-block">
+          <h3>{{ 'hiveDetail.move' | translate }}</h3>
+          <select [ngModel]="moveTargetApiaryId()" (ngModelChange)="moveTargetApiaryId.set($event ? +$event : null)">
+            <option [ngValue]="null">{{ 'hiveDetail.moveTarget' | translate }}</option>
+            @for (apiary of moveTargets(); track apiary.id) {
+              <option [ngValue]="apiary.id">{{ apiary.name || apiary.stock_number }}</option>
+            }
+          </select>
+          <button type="button" (click)="moveHive()">{{ 'hiveDetail.move' | translate }}</button>
+        </div>
+        <div class="action-block">
+          <h3>{{ 'hiveDetail.copy' | translate }}</h3>
+          <input [ngModel]="copyName()" (ngModelChange)="copyName.set($event)" [placeholder]="'hiveDetail.copyName' | translate">
+          <button type="button" (click)="copyHive()">{{ 'hiveDetail.copy' | translate }}</button>
+        </div>
+        <div class="action-block">
+          <h3>{{ 'hiveDetail.varroaCheck' | translate }}</h3>
+          <input [ngModel]="varroaMethod()" (ngModelChange)="varroaMethod.set($event)" [placeholder]="'hiveDetail.varroaMethod' | translate">
+          <input type="number" min="0" [ngModel]="varroaMiteCount()" (ngModelChange)="varroaMiteCount.set($event === null || $event === '' ? null : +$event)" [placeholder]="'hiveDetail.varroaMiteCount' | translate">
+          <input type="number" min="0" step="0.1" [ngModel]="varroaPerDay()" (ngModelChange)="varroaPerDay.set($event === null || $event === '' ? null : +$event)" [placeholder]="'hiveDetail.varroaPerDay' | translate">
+          <button type="button" (click)="addVarroaCheck()">{{ 'hiveDetail.varroaCheckSave' | translate }}</button>
+        </div>
+      </div>
+    </section>
 
     <section class="lifecycle-panel">
       <div class="section-heading">

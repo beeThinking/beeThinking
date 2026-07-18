@@ -111,6 +111,124 @@ def merge_hives(db: Session, source_hive_id: int, target_hive_id: int, owner_id:
     return source
 
 
+def move_hive(db: Session, hive_id: int, owner_id: int, target_apiary_id: int, event_date: date, note: str | None = None):
+    hive = _get_writable_hive(db, hive_id, owner_id)
+    if not hive or not user_can_write_apiary(db, target_apiary_id, owner_id):
+        return None
+    if hive.apiary_id == target_apiary_id:
+        return hive
+    source_apiary = hive.apiary
+    hive.apiary_id = target_apiary_id
+    db.flush()
+    db.refresh(hive)
+    create_hive_event(
+        db,
+        owner_id,
+        hive_id,
+        "moved",
+        event_date,
+        f"Gewandert: {source_apiary.name or source_apiary.stock_number} → {hive.apiary.name or hive.apiary.stock_number}",
+        note,
+        related_entity_type="apiary",
+        related_entity_id=target_apiary_id,
+        metadata_json={"from_apiary_id": source_apiary.id, "to_apiary_id": target_apiary_id},
+    )
+    db.commit()
+    db.refresh(hive)
+    return hive
+
+
+def copy_hive(
+    db: Session,
+    hive_id: int,
+    owner_id: int,
+    event_date: date,
+    name: str | None = None,
+    stock_number: str | None = None,
+    note: str | None = None,
+):
+    source = _get_writable_hive(db, hive_id, owner_id)
+    if not source:
+        return None
+    copy = Hive(
+        name=name or f"{source.name} (Kopie)",
+        stock_number=stock_number,
+        location=source.location,
+        type=source.type,
+        colony_kind=source.colony_kind,
+        established_at=event_date,
+        tags=list(source.tags) if source.tags else None,
+        notes=source.notes,
+        owner_id=source.owner_id,
+        apiary_id=source.apiary_id,
+    )
+    db.add(copy)
+    db.flush()
+    create_hive_event(
+        db,
+        owner_id,
+        copy.id,
+        "copied",
+        event_date,
+        f"Kopiert von {source.name}",
+        note,
+        related_entity_type="hive",
+        related_entity_id=source.id,
+    )
+    db.commit()
+    db.refresh(copy)
+    return copy
+
+
+def requeen_hive(
+    db: Session,
+    hive_id: int,
+    owner_id: int,
+    event_date: date,
+    year: int,
+    marking_color: str | None = None,
+    name: str | None = None,
+    origin: str | None = None,
+    reason: str | None = None,
+    note: str | None = None,
+):
+    from app.models.queen import Queen
+
+    hive = _get_writable_hive(db, hive_id, owner_id)
+    if not hive:
+        return None
+    db.query(Queen).filter(Queen.hive_id == hive_id, Queen.is_active.is_(True)).update(
+        {"is_active": False},
+        synchronize_session=False,
+    )
+    queen = Queen(
+        owner_id=hive.owner_id,
+        hive_id=hive_id,
+        name=name,
+        year=year,
+        origin=origin,
+        marking_color=marking_color,
+        is_active=True,
+    )
+    db.add(queen)
+    db.flush()
+    create_hive_event(
+        db,
+        owner_id,
+        hive_id,
+        "requeened",
+        event_date,
+        f"Umgeweiselt: Königin {year}" + (f" ({marking_color})" if marking_color else ""),
+        note,
+        related_entity_type="queen",
+        related_entity_id=queen.id,
+        metadata_json={"reason": reason, "year": year, "marking_color": marking_color},
+    )
+    db.commit()
+    db.refresh(queen)
+    return queen
+
+
 def can_hard_delete_hive(db: Session, hive_id: int, owner_id: int) -> bool:
     hive = _get_hive(db, hive_id)
     if not hive:

@@ -14,9 +14,28 @@ from app.models.varroa_weather import VarroaTreatmentType
 from app.schemas.varroa_weather import VarroaAssistantResponse
 from app.services.beekeeping_rules import get_inspection_warnings
 from app.services.varroa_weather import get_varroa_weather_window
-from app.schemas.hive import HiveCreate, HiveEventResponse, HiveLifecycleRequest, HiveUpdate, HiveResponse
+from app.schemas.hive import (
+    HiveCopyRequest,
+    HiveCreate,
+    HiveEventResponse,
+    HiveLifecycleRequest,
+    HiveMoveRequest,
+    HiveRequeenRequest,
+    HiveUpdate,
+    HiveResponse,
+)
+from app.schemas.queen import QueenResponse
 from app.models.hive import HiveStatus
-from app.services.hive_lifecycle import archive_hive, dissolve_hive, get_hive_timeline as get_lifecycle_timeline, merge_hives
+from app.models.varroa_check import VarroaCheck
+from app.services.hive_lifecycle import (
+    archive_hive,
+    copy_hive,
+    dissolve_hive,
+    get_hive_timeline as get_lifecycle_timeline,
+    merge_hives,
+    move_hive,
+    requeen_hive,
+)
 from app.crud import hive as hive_crud
 from app.crud.ownership import user_can_admin_apiary
 from datetime import date
@@ -128,6 +147,16 @@ def get_hive_timeline(
             "title": photo.filename,
             "caption": photo.caption,
         })
+    for check in db.query(VarroaCheck).filter(VarroaCheck.hive_id == hive_id).all():
+        events.append({
+            "type": "varroa_check",
+            "id": check.id,
+            "date": check.date,
+            "title": check.method or "Varroakontrolle",
+            "mite_count": check.mite_count,
+            "mites_per_day": check.mites_per_day,
+            "notes": check.notes,
+        })
 
     return sorted(events, key=lambda event: event["date"], reverse=True)
 
@@ -198,6 +227,64 @@ def merge_hive_endpoint(
     if not hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return hive
+
+
+@router.post("/{hive_id}/move", response_model=HiveResponse)
+def move_hive_endpoint(
+    hive_id: int,
+    payload: HiveMoveRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    hive = move_hive(db, hive_id, current_user.id, payload.target_apiary_id, payload.date, payload.note)
+    if not hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive or target apiary not found")
+    return hive
+
+
+@router.post("/{hive_id}/copy", response_model=HiveResponse, status_code=status.HTTP_201_CREATED)
+def copy_hive_endpoint(
+    hive_id: int,
+    payload: HiveCopyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    hive = copy_hive(
+        db,
+        hive_id,
+        current_user.id,
+        payload.date,
+        name=payload.name,
+        stock_number=payload.stock_number,
+        note=payload.note,
+    )
+    if not hive:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return hive
+
+
+@router.post("/{hive_id}/requeen", response_model=QueenResponse, status_code=status.HTTP_201_CREATED)
+def requeen_hive_endpoint(
+    hive_id: int,
+    payload: HiveRequeenRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    queen = requeen_hive(
+        db,
+        hive_id,
+        current_user.id,
+        payload.date,
+        payload.year,
+        marking_color=payload.marking_color,
+        name=payload.name,
+        origin=payload.origin,
+        reason=payload.reason,
+        note=payload.note,
+    )
+    if not queen:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return queen
 
 
 @router.get("/{hive_id}/varroa-assistant", response_model=VarroaAssistantResponse)

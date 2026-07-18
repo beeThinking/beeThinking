@@ -19,6 +19,7 @@ from app.schemas.apiary import ApiaryCreate, ApiaryUpdate, ApiaryResponse
 from app.schemas.treatment import TreatmentCreate
 from app.schemas.varroa_weather import VarroaWeatherWindowResponse
 from app.crud import apiary as apiary_crud, harvest as harvest_crud, inspection as inspection_crud, treatment as treatment_crud
+from app.services.hive_lifecycle import move_hive
 from app.services.varroa_weather import get_varroa_weather_window, refresh_varroa_weather_windows
 
 router = APIRouter()
@@ -40,6 +41,7 @@ class BatchActionRequest(BaseModel):
     crop_type: str | None = Field(None, max_length=100)
     amount_kg: float | None = Field(None, ge=0)
     batch_code: str | None = Field(None, max_length=100)
+    target_apiary_id: int | None = None
 
 
 @router.get("", response_model=list[ApiaryResponse])
@@ -304,6 +306,12 @@ def create_batch_action(
             ), owner_id=db_apiary.owner_id, performed_by_user_id=current_user.id)
             if created_item:
                 created.append(created_item)
+        elif action_type == "move":
+            if not payload.target_apiary_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="target_apiary_id required")
+            moved = move_hive(db, hive_id, current_user.id, payload.target_apiary_id, payload.date, payload.notes)
+            if moved:
+                created.append(moved)
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported batch action")
     return {"action_type": action_type, "created": len(created), "hive_ids": payload.hive_ids}

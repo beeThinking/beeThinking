@@ -9,14 +9,19 @@ export type HiveStatus =
   | 'lost'
   | 'created_by_mistake';
 export type HiveType = 'langstroth' | 'dadant' | 'zander' | 'other';
+export type ColonyKind = 'wirtschaftsvolk' | 'ableger' | 'schwarm' | 'kunstschwarm' | 'other';
 
 export interface Hive {
   id: number;
   name: string;
+  stock_number: string | null;
   type: HiveType;
+  colony_kind: ColonyKind;
   status: HiveStatus;
   is_active: boolean;
   archived_at: string | null;
+  established_at: string | null;
+  tags: string[] | null;
   merged_into_hive_id: number | null;
   notes: string | null;
   owner_id: number;
@@ -51,15 +56,82 @@ export interface HiveEvent {
 export interface HiveCreate {
   name: string;
   apiary_id: number;
+  stock_number?: string | null;
   type?: HiveType;
+  colony_kind?: ColonyKind;
   status?: HiveStatus;
+  established_at?: string | null;
+  tags?: string[] | null;
   notes?: string;
 }
 
 export interface HiveUpdate {
   name?: string;
   apiary_id?: number;
+  stock_number?: string | null;
   type?: HiveType;
+  colony_kind?: ColonyKind;
   status?: HiveStatus;
+  established_at?: string | null;
+  tags?: string[] | null;
+  notes?: string;
+}
+
+export interface HiveMoveRequest {
+  target_apiary_id: number;
+  date: string;
+  note?: string;
+}
+
+export interface HiveCopyRequest {
+  date: string;
+  name?: string;
+  stock_number?: string;
+  note?: string;
+}
+
+export interface HiveRequeenRequest {
+  date: string;
+  year: number;
+  marking_color?: string;
+  name?: string;
+  origin?: string;
+  reason?: string;
+  note?: string;
+}
+
+export interface Queen {
+  id: number;
+  owner_id: number;
+  hive_id: number | null;
+  name: string | null;
+  year: number;
+  origin: string | null;
+  marking_color: string | null;
+  is_active: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface VarroaCheck {
+  id: number;
+  owner_id: number;
+  hive_id: number;
+  date: string;
+  method: string | null;
+  mite_count: number | null;
+  mites_per_day: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface VarroaCheckCreate {
+  hive_id: number;
+  date: string;
+  method?: string;
+  mite_count?: number | null;
+  mites_per_day?: number | null;
   notes?: string;
 }

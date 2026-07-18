@@ -4,6 +4,14 @@
       <a routerLink="/hives" class="back-link">{{ 'common.back' | translate }}</a>
       <h1>{{ 'archive.title' | translate }}</h1>
     </div>
+    <label class="status-filter">
+      {{ 'archive.filter' | translate }}
+      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        @for (option of filterOptions; track option) {
+          <option [ngValue]="option">{{ filterLabel(option) }}</option>
+        }
+      </select>
+    </label>
   </header>
 
   <section class="archive-list">
