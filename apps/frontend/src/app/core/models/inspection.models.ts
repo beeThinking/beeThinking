@@ -17,6 +17,8 @@ export interface Inspection {
   weather_code: number | null;
   weather_source: string | null;
   weather_fetched_at: string | null;
+  hive_weight_kg: number | null;
+  criteria_values: Record<string, unknown> | null;
   next_steps: string | null;
   notes: string | null;
   created_at: string;
@@ -39,6 +41,8 @@ export interface InspectionCreate {
   weather_code?: number;
   weather_source?: string;
   weather_fetched_at?: string;
+  hive_weight_kg?: number | null;
+  criteria_values?: Record<string, unknown> | null;
   next_steps?: string;
   notes?: string;
 }
@@ -62,4 +66,38 @@ export interface InspectionUpdate {
   weather_fetched_at?: string;
   next_steps?: string;
   notes?: string;
+}
+
+export type CriterionSection = 'allg_befund' | 'verhalten' | 'klima' | 'verschiedenes';
+export type CriterionValueType = 'stars' | 'bool' | 'number' | 'text' | 'select';
+
+export interface InspectionCriterion {
+  id: number;
+  owner_id: number;
+  name: string;
+  section: CriterionSection;
+  value_type: CriterionValueType;
+  options: string[] | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface InspectionCriterionCreate {
+  name: string;
+  section?: CriterionSection;
+  value_type?: CriterionValueType;
+  options?: string[] | null;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface InspectionCriterionUpdate {
+  name?: string;
+  section?: CriterionSection;
+  value_type?: CriterionValueType;
+  options?: string[] | null;
+  sort_order?: number;
+  is_active?: boolean;
 }

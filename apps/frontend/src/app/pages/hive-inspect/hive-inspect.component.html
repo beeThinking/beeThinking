@@ -34,11 +34,136 @@
       <label><input type="radio" value="strong" formControlName="strength" /> {{ 'inspect.strength.strong' | translate }}</label>
     </div>
 
+    <label>{{ 'inspect.form.hiveWeight' | translate }} <input type="number" min="0" step="0.1" formControlName="hive_weight_kg" /></label>
+
+    @for (group of activeSections(); track group.section) {
+      <fieldset class="criteria-section">
+        <legend>{{ sectionLabel(group.section) }}</legend>
+        @for (criterion of group.criteria; track criterion.id) {
+          <div class="criterion">
+            <span class="criterion-name">{{ criterion.name }}</span>
+            @switch (criterion.value_type) {
+              @case ('stars') {
+                <div class="star-row">
+                  @for (star of stars; track star) {
+                    <button
+                      type="button"
+                      class="star"
+                      [class.filled]="+(criterionValue(criterion.id) ?? 0) >= star"
+                      (click)="toggleStar(criterion, star)"
+                      [attr.aria-label]="criterion.name + ' ' + star"
+                    >★</button>
+                  }
+                </div>
+              }
+              @case ('bool') {
+                <input
+                  type="checkbox"
+                  [ngModel]="criterionValue(criterion.id) === true"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setCriterionValue(criterion.id, $event)"
+                >
+              }
+              @case ('number') {
+                <input
+                  type="number"
+                  [ngModel]="criterionValue(criterion.id)"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setCriterionValue(criterion.id, $event === '' ? null : +$event)"
+                >
+              }
+              @case ('select') {
+                <select
+                  [ngModel]="criterionValue(criterion.id) ?? ''"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setCriterionValue(criterion.id, $event)"
+                >
+                  <option value="">–</option>
+                  @for (option of criterion.options ?? []; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              }
+              @default {
+                <input
+                  type="text"
+                  [ngModel]="criterionValue(criterion.id) ?? ''"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setCriterionValue(criterion.id, $event)"
+                >
+              }
+            }
+          </div>
+        }
+      </fieldset>
+    }
+
     <label>{{ 'inspect.form.weather' | translate }} <input formControlName="weather" [placeholder]="'inspect.form.weatherPlaceholder' | translate" /></label>
     <p class="weather-hint">{{ 'inspect.form.weatherHint' | translate }}</p>
     <label>{{ 'inspect.form.nextSteps' | translate }} <textarea formControlName="next_steps"></textarea></label>
     <label>{{ 'inspect.form.notes' | translate }} <textarea formControlName="notes"></textarea></label>
 
+    <label class="file-row">{{ 'inspect.form.photo' | translate }}
+      <input type="file" accept="image/*" (change)="selectPhoto($event)">
+    </label>
+
+    <label class="toggle">
+      <input type="checkbox" [ngModel]="createTodo()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="createTodo.set($event)">
+      {{ 'inspect.form.createTodo' | translate }}
+    </label>
+    @if (createTodo()) {
+      <label>{{ 'inspect.form.todoTitle' | translate }}
+        <input [ngModel]="todoTitle()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="todoTitle.set($event)" [placeholder]="'inspect.form.todoTitlePlaceholder' | translate">
+      </label>
+    }
+
     <button type="submit" [disabled]="saving()">{{ (isOnline() ? 'inspect.save' : 'inspect.keepDraft') | translate }}</button>
   </form>
+
+  <section class="criteria-editor">
+    <button type="button" class="editor-toggle" (click)="showEditor.set(!showEditor())">
+      {{ (showEditor() ? 'inspect.editor.hide' : 'inspect.editor.show') | translate }}
+    </button>
+    @if (showEditor()) {
+      @if (editorError()) { <p class="alert">{{ editorError() }}</p> }
+      <ul class="editor-list">
+        @for (criterion of criteria(); track criterion.id) {
+          <li>
+            <label class="toggle">
+              <input type="checkbox" [ngModel]="criterion.is_active" [ngModelOptions]="{ standalone: true }" (ngModelChange)="toggleCriterionActive(criterion)">
+              {{ criterion.name }}
+              <small>({{ sectionLabel(criterion.section) }} · {{ valueTypeLabel(criterion.value_type) }})</small>
+            </label>
+            @if (criterion.value_type === 'select') {
+              <input
+                class="options-input"
+                [ngModel]="criterion.options?.join(', ') ?? ''"
+                [ngModelOptions]="{ standalone: true }"
+                (change)="updateCriterionOptions(criterion, $any($event.target).value)"
+                [placeholder]="'inspect.editor.optionsPlaceholder' | translate"
+              >
+            }
+            <button type="button" class="delete-criterion" (click)="deleteCriterion(criterion)">{{ 'beehives.delete' | translate }}</button>
+          </li>
+        }
+      </ul>
+      <div class="editor-add">
+        <input [ngModel]="newCriterionName()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="newCriterionName.set($event)" [placeholder]="'inspect.editor.namePlaceholder' | translate">
+        <select [ngModel]="newCriterionSection()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="newCriterionSection.set($event)">
+          @for (section of sections; track section) {
+            <option [ngValue]="section">{{ sectionLabel(section) }}</option>
+          }
+        </select>
+        <select [ngModel]="newCriterionType()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="newCriterionType.set($event)">
+          @for (type of valueTypes; track type) {
+            <option [ngValue]="type">{{ valueTypeLabel(type) }}</option>
+          }
+        </select>
+        @if (newCriterionType() === 'select') {
+          <input [ngModel]="newCriterionOptions()" [ngModelOptions]="{ standalone: true }" (ngModelChange)="newCriterionOptions.set($event)" [placeholder]="'inspect.editor.optionsPlaceholder' | translate">
+        }
+        <button type="button" (click)="addCriterion()">{{ 'inspect.editor.add' | translate }}</button>
+      </div>
+    }
+  </section>
 </div>

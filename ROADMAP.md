@@ -175,22 +175,21 @@ matching the app-verified Stand → Volk → Stockkarte → Chronik model.
 Goal: match BeeInTouch's configurable inspection form (app-verified structure:
 sections allg. Befund / Verhalten / Klima / Verschiedenes; star ratings + toggles).
 
-- ⬜ Criteria catalog: predefined inspection criteria (Sanftmut, Volksstärke,
-  Waben/Brut, Abgeschwärmt, Königin gesehen, Vitalität, Schwarmtrieb, …) as data,
-  not hardcoded form fields; each criterion typed (star rating 1–6, yes/no, number, text)
-  and grouped into sections
-- ⬜ Per-user inspection form configuration: choose which criteria appear
-  (schema: `inspection_criteria` + `user_inspection_config` tables)
-- ⬜ Editable Auswahllisten: user-extensible pick-list values per criterion
-- ⬜ Custom fields: user-defined criteria beyond the catalog
-- ⬜ **Auto weather on inspection**: prefill Temperatur + weather snapshot (condition,
-  pressure, humidity) per Stand at inspection time — reuse the Open-Meteo provider;
-  store snapshot on the inspection record
-- ⬜ Beutengewicht (hive weight) field on inspections
-- ⬜ Photo upload directly in the inspection dialog (dropzone; photos API exists)
-- ⬜ **Inline To-Do**: "To-Do anlegen" toggle in the inspection dialog creates a
-  follow-up task on save
-- ⬜ Migration path: existing fixed inspection fields map onto catalog criteria
+- ✅ Criteria catalog: per-user criteria as data, typed (stars 1–6, yes/no, number,
+  text, pick list), grouped into sections; default set seeded on first access
+- ✅ Per-user inspection form configuration: activate/deactivate and order criteria
+  (single `inspection_criteria` table per user — no separate config table needed)
+- ✅ Editable Auswahllisten: pick-list options editable per criterion in the form editor
+- ✅ Custom fields: user-defined criteria (any type/section) via the form editor
+- ✅ **Auto weather on inspection**: server attaches an Open-Meteo snapshot
+  (condition, temperature, humidity, wind, precipitation) on create — was already
+  implemented in `inspection_weather.py`, verified
+- ✅ Beutengewicht (hive weight) field on inspections
+- ✅ Photo upload directly in the inspection dialog (file picker, uploaded on save)
+- ✅ **Inline To-Do**: toggle in the inspection dialog creates a follow-up task on
+  save (title defaults to next steps)
+- 🔄 Migration path: fixed fields (queen seen, food, varroa, swarm cells, strength)
+  stay as structured columns for now; full remap onto catalog criteria still open
 
 ## Milestone 4 — QR Tagging & Offline Field Capture
 
