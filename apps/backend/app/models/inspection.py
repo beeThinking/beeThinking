@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, Float, Date, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, JSON, String, Boolean, Float, Date, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -46,6 +46,8 @@ class Inspection(Base):
     weather_code = Column(Integer, nullable=True)
     weather_source = Column(String, nullable=True)
     weather_fetched_at = Column(DateTime(timezone=True), nullable=True)
+    hive_weight_kg = Column(Float, nullable=True)
+    criteria_values = Column(JSON, nullable=True)
     next_steps = Column(String, nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
