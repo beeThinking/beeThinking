@@ -1,13 +1,17 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date, datetime
-from app.models.hive import HiveStatus, HiveType
+from app.models.hive import ColonyKind, HiveStatus, HiveType
 
 
 class HiveBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
+    stock_number: Optional[str] = Field(None, max_length=50)
     type: HiveType = HiveType.langstroth
+    colony_kind: ColonyKind = ColonyKind.wirtschaftsvolk
     status: HiveStatus = HiveStatus.active
+    established_at: Optional[date] = None
+    tags: Optional[list[str]] = None
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: int
 
@@ -18,8 +22,12 @@ class HiveCreate(HiveBase):
 
 class HiveUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
+    stock_number: Optional[str] = Field(None, max_length=50)
     type: Optional[HiveType] = None
+    colony_kind: Optional[ColonyKind] = None
     status: Optional[HiveStatus] = None
+    established_at: Optional[date] = None
+    tags: Optional[list[str]] = None
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: Optional[int] = None
 
@@ -43,6 +51,29 @@ class HiveLifecycleRequest(BaseModel):
     date: date
     note: Optional[str] = Field(None, max_length=1000)
     target_hive_id: Optional[int] = None
+
+
+class HiveMoveRequest(BaseModel):
+    target_apiary_id: int
+    date: date
+    note: Optional[str] = Field(None, max_length=1000)
+
+
+class HiveCopyRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    stock_number: Optional[str] = Field(None, max_length=50)
+    date: date
+    note: Optional[str] = Field(None, max_length=1000)
+
+
+class HiveRequeenRequest(BaseModel):
+    date: date
+    year: int = Field(..., ge=1900, le=2100)
+    marking_color: Optional[str] = Field(None, max_length=50)
+    name: Optional[str] = Field(None, max_length=100)
+    origin: Optional[str] = Field(None, max_length=200)
+    reason: Optional[str] = Field(None, max_length=200)
+    note: Optional[str] = Field(None, max_length=1000)
 
 
 class HiveEventResponse(BaseModel):

@@ -11,8 +11,12 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[QueenResponse])
-def list_queens(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    return queen_crud.get_queens(db, owner_id=current_user.id)
+def list_queens(
+    hive_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return queen_crud.get_queens(db, owner_id=current_user.id, hive_id=hive_id)
 
 
 @router.post("", response_model=QueenResponse, status_code=status.HTTP_201_CREATED)

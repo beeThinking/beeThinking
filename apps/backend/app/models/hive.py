@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Date, DateTime, ForeignKey, Enum
+from sqlalchemy import Boolean, Column, Integer, JSON, String, Date, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -24,13 +24,25 @@ class HiveType(str, enum.Enum):
     other = "other"
 
 
+class ColonyKind(str, enum.Enum):
+    wirtschaftsvolk = "wirtschaftsvolk"
+    ableger = "ableger"
+    schwarm = "schwarm"
+    kunstschwarm = "kunstschwarm"
+    other = "other"
+
+
 class Hive(Base):
     __tablename__ = "hives"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    stock_number = Column(String, nullable=True)
     location = Column(String, nullable=True)
     type = Column(Enum(HiveType), default=HiveType.langstroth, nullable=False)
+    colony_kind = Column(String, default=ColonyKind.wirtschaftsvolk.value, nullable=False)
+    established_at = Column(Date, nullable=True)
+    tags = Column(JSON, nullable=True)
     status = Column(Enum(HiveStatus), default=HiveStatus.active, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     archived_at = Column(Date, nullable=True)
@@ -52,3 +64,4 @@ class Hive(Base):
     photos = relationship("Photo", back_populates="hive")
     merged_into_hive = relationship("Hive", remote_side=[id])
     events = relationship("HiveEvent", back_populates="hive", cascade="all, delete-orphan")
+    varroa_checks = relationship("VarroaCheck", back_populates="hive", cascade="all, delete-orphan")
