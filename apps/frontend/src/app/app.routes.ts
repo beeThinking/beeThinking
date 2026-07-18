@@ -68,20 +68,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'stands',
-    loadComponent: () => import('./pages/apiaries/apiaries.component').then(m => m.ApiariesComponent),
-    canActivate: [authGuard]
-  },
-  {
     path: 'apiaries/:id',
     loadComponent: () => import('./pages/apiary-detail/apiary-detail.component').then(m => m.ApiaryDetailComponent),
     canActivate: [authGuard]
   },
-  {
-    path: 'stands/:id',
-    loadComponent: () => import('./pages/apiary-detail/apiary-detail.component').then(m => m.ApiaryDetailComponent),
-    canActivate: [authGuard]
-  },
+  { path: 'stands/:id', redirectTo: 'apiaries/:id' },
+  { path: 'stands', redirectTo: 'apiaries', pathMatch: 'full' },
   {
     path: 'stock-card/:hiveId',
     loadComponent: () => import('./pages/stock-card/stock-card.component').then(m => m.StockCardComponent),
@@ -93,20 +85,23 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'beehives/:id/inspect',
+    path: 'hives/:id/inspect',
     loadComponent: () => import('./pages/hive-inspect/hive-inspect.component').then(m => m.HiveInspectComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'beehives/:id',
+    path: 'hives/:id',
     loadComponent: () => import('./pages/hive-detail/hive-detail.component').then(m => m.HiveDetailComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'beehives',
+    path: 'hives',
     loadComponent: () => import('./pages/beehives/beehives.component').then(m => m.BeehivesComponent),
     canActivate: [authGuard]
   },
+  { path: 'beehives/:id/inspect', redirectTo: 'hives/:id/inspect' },
+  { path: 'beehives/:id', redirectTo: 'hives/:id' },
+  { path: 'beehives', redirectTo: 'hives', pathMatch: 'full' },
   {
     path: 'tasks',
     loadComponent: () => import('./pages/tasks/tasks.component').then(m => m.TasksComponent),

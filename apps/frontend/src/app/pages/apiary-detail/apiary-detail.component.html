@@ -6,7 +6,7 @@
         <h1>{{ apiaryTitle(apiary) }}</h1>
         @if (apiary.address) { <p>{{ apiary.address }}</p> }
       </div>
-      <a class="primary-action" routerLink="/beehives">{{ 'apiaryDetail.createHive' | translate }}</a>
+      <a class="primary-action" routerLink="/hives">{{ 'apiaryDetail.createHive' | translate }}</a>
     </header>
 
     <section class="facts">
@@ -189,11 +189,11 @@
     <section>
       <div class="section-title">
         <h2>{{ 'apiaryDetail.hivesAtApiary' | translate }}</h2>
-        <a routerLink="/beehives">{{ 'apiaryDetail.allHives' | translate }}</a>
+        <a routerLink="/hives">{{ 'apiaryDetail.allHives' | translate }}</a>
       </div>
       <div class="hive-list">
         @for (hive of apiaryHives(); track hive.id) {
-          <a class="hive-row" [routerLink]="['/beehives', hive.id]">
+          <a class="hive-row" [routerLink]="['/hives', hive.id]">
             <span>{{ hive.name }}</span>
             <small>{{ hive.type }} · {{ hive.status }}</small>
           </a>

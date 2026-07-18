@@ -99,8 +99,8 @@
             }
           </div>
           <div class="hive-card-actions">
-            <a class="btn btn-sm btn-primary" [routerLink]="['/beehives', hive.id, 'inspect']">{{ 'beehives.inspect' | translate }}</a>
-            <a class="btn btn-sm btn-secondary" [routerLink]="['/beehives', hive.id]">{{ 'beehives.details' | translate }}</a>
+            <a class="btn btn-sm btn-primary" [routerLink]="['/hives', hive.id, 'inspect']">{{ 'beehives.inspect' | translate }}</a>
+            <a class="btn btn-sm btn-secondary" [routerLink]="['/hives', hive.id]">{{ 'beehives.details' | translate }}</a>
             <button class="btn btn-sm btn-secondary" (click)="openEditForm(hive)">{{ 'beehives.edit' | translate }}</button>
             <button class="btn btn-sm btn-danger" (click)="deleteHive(hive)">{{ 'beehives.delete' | translate }}</button>
           </div>

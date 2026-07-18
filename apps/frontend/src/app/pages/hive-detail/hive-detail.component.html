@@ -2,7 +2,7 @@
   @if (hive(); as hive) {
     <header class="detail-header">
       <div>
-        <a routerLink="/beehives" class="back-link">{{ 'common.back' | translate }}</a>
+        <a routerLink="/hives" class="back-link">{{ 'common.back' | translate }}</a>
         <h1>{{ hive.name }}</h1>
         <p>{{ typeLabel(hive.type) }} · {{ statusLabel(hive.status) }}</p>
       </div>

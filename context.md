@@ -196,7 +196,7 @@ Docker overrides `DATABASE_URL` to Postgres service URL and MinIO endpoint to `m
 
 Production must set secure `SECRET_KEY`. `APP_ENV=production` validates against known placeholder secrets.
 
-Potential config caveat: `apps/backend/app/core/config.py` currently repeats the Varroa weather fields; later Python class declarations win.
+Google Calendar requires `GOOGLE_CALENDAR_TOKEN_KEY` whenever `GOOGLE_CALENDAR_CLIENT_ID` is set (any environment); refresh tokens are encrypted with this key only.
 
 ## Current Worktree Note
 

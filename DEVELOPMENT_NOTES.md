@@ -87,12 +87,13 @@ http://localhost:8000/api/google-calendar/oauth/callback
 ```
 
 Set `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, and
-`GOOGLE_CALENDAR_TOKEN_KEY` in the backend `.env`. Production requires a separate token key.
-Refresh tokens are encrypted at rest. Disconnecting revokes the token but keeps the mirrored
-Google calendar and its events.
+`GOOGLE_CALENDAR_TOKEN_KEY` in the backend `.env`. `GOOGLE_CALENDAR_TOKEN_KEY` is required
+in every environment as soon as a client ID is configured — refresh tokens are encrypted
+with it at rest (no `SECRET_KEY` fallback). Disconnecting revokes the token but keeps the
+mirrored Google calendar and its events.
 
 ## Current Verification Baseline
 
-- Backend unit suite: 169 tests.
-- Frontend unit suite: 22 tests across 6 spec files.
+- Backend unit suite: 196 tests.
+- Frontend unit suite: 47 tests across 12 spec files.
 - Alembic `upgrade head` passes against a fresh SQLite database.

@@ -328,6 +328,7 @@ def _state_hash(state: str) -> str:
 
 
 def _fernet(settings: Settings) -> Fernet:
-    source = settings.GOOGLE_CALENDAR_TOKEN_KEY or settings.SECRET_KEY
-    key = base64.urlsafe_b64encode(hashlib.sha256(source.encode()).digest())
+    if not settings.GOOGLE_CALENDAR_TOKEN_KEY:
+        raise RuntimeError("GOOGLE_CALENDAR_TOKEN_KEY is not configured")
+    key = base64.urlsafe_b64encode(hashlib.sha256(settings.GOOGLE_CALENDAR_TOKEN_KEY.encode()).digest())
     return Fernet(key)

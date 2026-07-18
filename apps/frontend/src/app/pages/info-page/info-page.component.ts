@@ -52,7 +52,7 @@ const PAGES_DE: Record<InfoPageKey, InfoPage> = {
     title: 'Dokumentation',
     lead: 'Kurze Orientierung für häufige Arbeitsbereiche in bee thinking.',
     ctaLabel: 'Völker verwalten',
-    ctaLink: '/beehives',
+    ctaLink: '/hives',
     sections: [
       { heading: 'Völker und Stände', body: 'Lege zuerst Bienenstände an, ordne Völker zu und nutze die Detailseiten für Historie, Fotos und Lebenszyklus-Aktionen.' },
       { heading: 'Durchsichten', body: 'Durchsichten erfassen Stärke, Futter, Königinnenstatus, Schwarmrisiko und Notizen. Mobile Entwürfe bleiben lokal erhalten, bis wieder synchronisiert werden kann.' },
@@ -157,7 +157,7 @@ const PAGES_EN: Record<InfoPageKey, InfoPage> = {
     title: 'Documentation',
     lead: 'Short orientation for common areas in bee thinking.',
     ctaLabel: 'Manage colonies',
-    ctaLink: '/beehives',
+    ctaLink: '/hives',
     sections: [
       { heading: 'Colonies and apiaries', body: 'Create apiaries first, assign colonies and use detail pages for history, photos and lifecycle actions.' },
       { heading: 'Inspections', body: 'Inspections record strength, food stores, queen status, swarm risk and notes. Mobile drafts remain local until synchronization is possible.' },
