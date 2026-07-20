@@ -11,6 +11,7 @@ class InspectionCriterionBase(BaseModel):
     section: CriterionSection = CriterionSection.verschiedenes
     value_type: CriterionValueType = CriterionValueType.stars
     options: Optional[list[str]] = None
+    field_key: Optional[str] = Field(None, max_length=50)
     sort_order: int = 0
     is_active: bool = True
 
@@ -24,6 +25,7 @@ class InspectionCriterionUpdate(BaseModel):
     section: Optional[CriterionSection] = None
     value_type: Optional[CriterionValueType] = None
     options: Optional[list[str]] = None
+    field_key: Optional[str] = Field(None, max_length=50)
     sort_order: Optional[int] = None
     is_active: Optional[bool] = None
 

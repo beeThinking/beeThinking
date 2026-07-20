@@ -10,10 +10,11 @@ import { HiveInspectComponent } from './hive-inspect.component';
 
 describe('HiveInspectComponent', () => {
   const criteria: Partial<InspectionCriterion>[] = [
-    { id: 1, name: 'Sanftmut', section: 'verhalten', value_type: 'stars', options: null, sort_order: 10, is_active: true },
-    { id: 2, name: 'Abgeschwärmt', section: 'allg_befund', value_type: 'bool', options: null, sort_order: 20, is_active: true },
-    { id: 3, name: 'Futterart', section: 'verschiedenes', value_type: 'select', options: ['Honig', 'Sirup'], sort_order: 30, is_active: true },
-    { id: 4, name: 'Inaktiv', section: 'klima', value_type: 'text', options: null, sort_order: 40, is_active: false }
+    { id: 1, name: 'Sanftmut', section: 'verhalten', value_type: 'stars', options: null, field_key: null, sort_order: 10, is_active: true },
+    { id: 2, name: 'Abgeschwärmt', section: 'allg_befund', value_type: 'bool', options: null, field_key: null, sort_order: 20, is_active: true },
+    { id: 3, name: 'Futterart', section: 'verschiedenes', value_type: 'select', options: ['Honig', 'Sirup'], field_key: null, sort_order: 30, is_active: true },
+    { id: 4, name: 'Inaktiv', section: 'klima', value_type: 'text', options: null, field_key: null, sort_order: 40, is_active: false },
+    { id: 5, name: 'Königin gesehen', section: 'allg_befund', value_type: 'bool', options: null, field_key: 'queen_seen', sort_order: 1, is_active: true }
   ];
 
   const inspectionServiceMock = {
@@ -98,6 +99,21 @@ describe('HiveInspectComponent', () => {
     const payload = inspectionServiceMock.createInspection.mock.calls[0][1];
     expect(payload.criteria_values).toEqual({ '1': 5 });
     expect(payload.hive_weight_kg).toBe(38.2);
+  });
+
+  it('should map system criteria onto the fixed payload fields', () => {
+    const fixture = TestBed.createComponent(HiveInspectComponent);
+    const component = fixture.componentInstance as unknown as {
+      save: () => void;
+      setCriterionValue: (id: number, value: unknown) => void;
+    };
+
+    component.setCriterionValue(5, true);
+    component.save();
+
+    const payload = inspectionServiceMock.createInspection.mock.calls[0][1];
+    expect(payload.queen_seen).toBe(true);
+    expect(payload.criteria_values).toBeUndefined();
   });
 
   it('should create a follow-up task when the toggle is set', () => {
