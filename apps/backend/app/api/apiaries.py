@@ -14,12 +14,13 @@ from app.schemas.apiary_member import ApiaryMemberCreate, ApiaryMemberResponse, 
 from app.models.varroa_weather import VarroaTreatmentType
 from app.schemas.feeding import FeedingCreate
 from app.schemas.harvest import HarvestCreate
+from app.schemas.hive import HiveReorderRequest
 from app.schemas.inspection import InspectionCreate
 from app.schemas.apiary import ApiaryCreate, ApiaryUpdate, ApiaryResponse
 from app.schemas.treatment import TreatmentCreate
 from app.schemas.varroa_weather import VarroaWeatherWindowResponse
 from app.crud import apiary as apiary_crud, harvest as harvest_crud, inspection as inspection_crud, treatment as treatment_crud
-from app.services.hive_lifecycle import move_hive
+from app.services.hive_lifecycle import copy_hive, dissolve_hive, move_hive
 from app.services.varroa_weather import get_varroa_weather_window, refresh_varroa_weather_windows
 
 router = APIRouter()
@@ -42,6 +43,7 @@ class BatchActionRequest(BaseModel):
     amount_kg: float | None = Field(None, ge=0)
     batch_code: str | None = Field(None, max_length=100)
     target_apiary_id: int | None = None
+    reason: str | None = Field(None, max_length=100)
 
 
 @router.get("", response_model=list[ApiaryResponse])
@@ -242,6 +244,28 @@ def remove_apiary_member(
     db.commit()
 
 
+@router.put("/{apiary_id}/hive-order")
+def reorder_apiary_hives(
+    apiary_id: int,
+    payload: HiveReorderRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    if not user_can_write_apiary(db, apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
+    hives = {hive.id: hive for hive in apiary_crud.get_apiary(
+        db, apiary_id=apiary_id, owner_id=current_user.id
+    ).hives}
+    if len(set(payload.hive_ids)) != len(payload.hive_ids) or any(
+        hive_id not in hives for hive_id in payload.hive_ids
+    ):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid hive order")
+    for index, hive_id in enumerate(payload.hive_ids):
+        hives[hive_id].sort_order = index
+    db.commit()
+    return {"hive_ids": payload.hive_ids}
+
+
 @router.post("/{apiary_id}/batch-actions/{action_type}")
 def create_batch_action(
     apiary_id: int,
@@ -312,6 +336,27 @@ def create_batch_action(
             moved = move_hive(db, hive_id, current_user.id, payload.target_apiary_id, payload.date, payload.notes)
             if moved:
                 created.append(moved)
+        elif action_type == "dissolve":
+            dissolved = dissolve_hive(
+                db,
+                hive_id,
+                current_user.id,
+                payload.reason or "dissolved",
+                payload.date,
+                payload.notes,
+            )
+            if dissolved:
+                created.append(dissolved)
+        elif action_type == "copy":
+            copied = copy_hive(
+                db,
+                hive_id,
+                current_user.id,
+                payload.date,
+                note=payload.notes,
+            )
+            if copied:
+                created.append(copied)
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported batch action")
     return {"action_type": action_type, "created": len(created), "hive_ids": payload.hive_ids}

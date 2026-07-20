@@ -208,6 +208,84 @@ class TestVarroaChecks:
         assert client.delete(f"/api/varroa-checks/{check['id']}").status_code == 204
         assert client.get(f"/api/varroa-checks/{check['id']}").status_code == 404
 
+
+@pytest.mark.unit
+@pytest.mark.api
+class TestM2Completion:
+    def test_queen_marking_and_introduction_are_exposed_on_hive_card(self, authenticated_client, hive):
+        client, _ = authenticated_client
+
+        response = client.post(
+            f"/api/hives/{hive['id']}/requeen",
+            json={
+                "date": "2026-07-01",
+                "introduced_at": "2026-06-28",
+                "year": 2026,
+                "marking_color": "weiß",
+                "marking_code": "42",
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json()["marking_code"] == "42"
+        assert response.json()["introduced_at"] == "2026-06-28"
+        card = client.get(f"/api/hives/{hive['id']}").json()
+        assert card["active_queen_year"] == 2026
+        assert card["active_queen_marking"] == "42"
+
+    def test_apiary_hive_order_is_persisted(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        first = client.post("/api/hives", json={"name": "First", "apiary_id": apiary["id"]}).json()
+        second = client.post("/api/hives", json={"name": "Second", "apiary_id": apiary["id"]}).json()
+
+        response = client.put(
+            f"/api/apiaries/{apiary['id']}/hive-order",
+            json={"hive_ids": [second["id"], first["id"]]},
+        )
+
+        assert response.status_code == 200
+        hives = client.get(f"/api/hives?apiary_id={apiary['id']}").json()
+        assert [item["id"] for item in hives] == [second["id"], first["id"]]
+
+    def test_batch_copy_and_dissolve(self, authenticated_client, hive, apiary):
+        client, _ = authenticated_client
+
+        copied = client.post(
+            f"/api/apiaries/{apiary['id']}/batch-actions/copy",
+            json={"hive_ids": [hive["id"]], "date": "2026-07-02"},
+        )
+        dissolved = client.post(
+            f"/api/apiaries/{apiary['id']}/batch-actions/dissolve",
+            json={"hive_ids": [hive["id"]], "date": "2026-07-03", "reason": "sold"},
+        )
+
+        assert copied.status_code == 200
+        assert copied.json()["created"] == 1
+        assert dissolved.status_code == 200
+        assert client.get(f"/api/hives/{hive['id']}").json()["status"] == "sold"
+
+    def test_timeline_entry_can_be_quick_edited_and_deleted(self, authenticated_client, hive):
+        client, _ = authenticated_client
+        check = client.post(
+            "/api/varroa-checks",
+            json={"hive_id": hive["id"], "date": "2026-07-04", "method": "Windel", "mite_count": 3},
+        ).json()
+
+        update = client.patch(
+            f"/api/hives/{hive['id']}/timeline/varroa_check/{check['id']}",
+            json={"date": "2026-07-05", "title": "Gemülldiagnose", "notes": "Kontrolliert"},
+        )
+
+        assert update.status_code == 200
+        timeline = client.get(f"/api/hives/{hive['id']}/timeline").json()
+        event = next(item for item in timeline if item["type"] == "varroa_check")
+        assert event["date"] == "2026-07-05"
+        assert event["title"] == "Gemülldiagnose"
+        assert event["editable"] is True
+        assert client.delete(
+            f"/api/hives/{hive['id']}/timeline/varroa_check/{check['id']}"
+        ).status_code == 204
+
     def test_varroa_check_rejects_foreign_hive(self, authenticated_client, multiple_test_users, db):
         from app.models.apiary import Apiary
         from app.models.hive import Hive

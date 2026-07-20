@@ -36,6 +36,8 @@
           @if (queen.marking_color) { <span>{{ queen.marking_color }}</span> }
           @if (queen.name) { <span>· {{ queen.name }}</span> }
           @if (queen.origin) { <span>· {{ queen.origin }}</span> }
+          @if (queen.marking_code) { <span>· Zeichen {{ queen.marking_code }}</span> }
+          @if (queen.introduced_at) { <span>· zugesetzt {{ queen.introduced_at }}</span> }
         </p>
       } @else {
         <p class="queen-info empty">{{ 'hiveDetail.queenNone' | translate }}</p>
@@ -49,6 +51,12 @@
         </label>
         <label>{{ 'hiveDetail.requeenReason' | translate }}
           <input [ngModel]="requeenReason()" (ngModelChange)="requeenReason.set($event)">
+        </label>
+        <label>Zeichen
+          <input [ngModel]="requeenMarking()" (ngModelChange)="requeenMarking.set($event)" placeholder="z. B. 42">
+        </label>
+        <label>Zugesetzt
+          <input type="date" [ngModel]="requeenIntroducedAt()" (ngModelChange)="requeenIntroducedAt.set($event)">
         </label>
         <button type="button" (click)="requeenHive()">{{ 'hiveDetail.requeen' | translate }}</button>
       </div>

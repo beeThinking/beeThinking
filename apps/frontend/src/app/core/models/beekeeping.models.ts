@@ -489,6 +489,10 @@ export interface TimelineEvent {
   amount_kg?: number;
   amount_kg_or_l?: number;
   caption?: string | null;
+  mite_count?: number | null;
+  mites_per_day?: number | null;
+  editable?: boolean;
+  deletable?: boolean;
 }
 
 export interface StockCard {
@@ -513,4 +517,6 @@ export interface BatchActionCreate {
   crop_type?: string;
   amount_kg?: number | null;
   batch_code?: string;
+  target_apiary_id?: number;
+  reason?: string;
 }

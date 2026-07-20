@@ -31,7 +31,7 @@ def get_hives(db: Session, owner_id: int, apiary_id: Optional[int] = None, statu
             q = q.filter(Hive.status == status)
     if apiary_id is not None:
         q = q.filter(Hive.apiary_id == apiary_id)
-    return q.all()
+    return q.order_by(Hive.sort_order.asc(), Hive.created_at.asc()).all()
 
 
 def get_hive(db: Session, hive_id: int, owner_id: int) -> Optional[Hive]:

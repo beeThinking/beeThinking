@@ -87,6 +87,8 @@ export class HiveDetailComponent {
   protected readonly copyName = signal('');
   protected readonly requeenYear = signal(new Date().getFullYear());
   protected readonly requeenColor = signal('');
+  protected readonly requeenMarking = signal('');
+  protected readonly requeenIntroducedAt = signal(localDateString());
   protected readonly requeenReason = signal('');
   protected readonly varroaMethod = signal('');
   protected readonly varroaMiteCount = signal<number | null>(null);
@@ -216,6 +218,8 @@ export class HiveDetailComponent {
       date: this.lifecycleDate(),
       year: this.requeenYear(),
       marking_color: this.requeenColor() || undefined,
+      marking_code: this.requeenMarking() || undefined,
+      introduced_at: this.requeenIntroducedAt(),
       reason: this.requeenReason() || undefined,
       note: this.lifecycleNote() || undefined
     }).subscribe({

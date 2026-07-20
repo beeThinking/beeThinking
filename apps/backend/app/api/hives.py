@@ -10,6 +10,7 @@ from app.models.inspection import Inspection
 from app.models.photo import Photo
 from app.models.task import Task
 from app.models.treatment import Treatment
+from app.models.queen import Queen
 from app.models.varroa_weather import VarroaTreatmentType
 from app.schemas.varroa_weather import VarroaAssistantResponse
 from app.services.beekeeping_rules import get_inspection_warnings
@@ -21,6 +22,7 @@ from app.schemas.hive import (
     HiveLifecycleRequest,
     HiveMoveRequest,
     HiveRequeenRequest,
+    TimelineEntryUpdate,
     HiveUpdate,
     HiveResponse,
 )
@@ -37,10 +39,23 @@ from app.services.hive_lifecycle import (
     requeen_hive,
 )
 from app.crud import hive as hive_crud
-from app.crud.ownership import user_can_admin_apiary
+from app.crud.ownership import user_can_admin_apiary, user_can_write_apiary
 from datetime import date
 
 router = APIRouter()
+
+
+def _hive_response(hive, db: Session) -> dict:
+    data = HiveResponse.model_validate(hive).model_dump()
+    queen = db.query(Queen).filter(Queen.hive_id == hive.id, Queen.is_active.is_(True)).first()
+    if queen:
+        data.update({
+            "active_queen_year": queen.year,
+            "active_queen_color": queen.marking_color,
+            "active_queen_marking": queen.marking_code,
+            "queen_introduced_at": queen.introduced_at,
+        })
+    return data
 
 
 @router.get("", response_model=list[HiveResponse])
@@ -50,7 +65,9 @@ def list_hives(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    return hive_crud.get_hives(db, owner_id=current_user.id, apiary_id=apiary_id, status=hive_status)
+    return [_hive_response(hive, db) for hive in hive_crud.get_hives(
+        db, owner_id=current_user.id, apiary_id=apiary_id, status=hive_status
+    )]
 
 
 @router.post("", response_model=HiveResponse, status_code=status.HTTP_201_CREATED)
@@ -62,7 +79,7 @@ def create_hive(
     db_hive = hive_crud.create_hive(db, hive=hive, owner_id=current_user.id)
     if not db_hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Apiary not found")
-    return db_hive
+    return _hive_response(db_hive, db)
 
 
 @router.get("/{hive_id}", response_model=HiveResponse)
@@ -74,7 +91,7 @@ def get_hive(
     db_hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
     if not db_hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
-    return db_hive
+    return _hive_response(db_hive, db)
 
 
 @router.get("/{hive_id}/timeline")
@@ -94,6 +111,8 @@ def get_hive_timeline(
             "date": event.event_date,
             "title": event.title,
             "notes": event.description,
+            "editable": False,
+            "deletable": False,
         }
         for event in get_lifecycle_timeline(db, hive_id, current_user.id)
     ]
@@ -105,6 +124,8 @@ def get_hive_timeline(
             "title": "Inspection",
             "notes": inspection.notes,
             "warnings": get_inspection_warnings(inspection),
+            "editable": True,
+            "deletable": True,
         })
     for task in db.query(Task).filter(Task.hive_id == hive_id).all():
         events.append({
@@ -113,6 +134,9 @@ def get_hive_timeline(
             "date": task.due_date or task.created_at.date(),
             "title": task.title,
             "status": task.status,
+            "notes": task.description,
+            "editable": True,
+            "deletable": True,
         })
     for treatment in db.query(Treatment).filter(Treatment.hive_id == hive_id).all():
         events.append({
@@ -121,6 +145,8 @@ def get_hive_timeline(
             "date": treatment.started_at,
             "title": treatment.product,
             "notes": treatment.reason,
+            "editable": True,
+            "deletable": True,
         })
     for harvest in db.query(Harvest).filter(Harvest.hive_id == hive_id).all():
         events.append({
@@ -129,6 +155,9 @@ def get_hive_timeline(
             "date": harvest.harvest_date,
             "title": harvest.crop_type or "Harvest",
             "amount_kg": harvest.amount_kg,
+            "notes": harvest.notes,
+            "editable": True,
+            "deletable": True,
         })
     for feeding in db.query(Feeding).filter(Feeding.hive_id == hive_id).all():
         events.append({
@@ -138,6 +167,8 @@ def get_hive_timeline(
             "title": feeding.feed_type,
             "amount_kg_or_l": feeding.amount_kg_or_l,
             "notes": feeding.notes,
+            "editable": True,
+            "deletable": True,
         })
     for photo in db.query(Photo).filter(Photo.hive_id == hive_id).all():
         events.append({
@@ -146,6 +177,8 @@ def get_hive_timeline(
             "date": photo.created_at.date(),
             "title": photo.filename,
             "caption": photo.caption,
+            "editable": False,
+            "deletable": False,
         })
     for check in db.query(VarroaCheck).filter(VarroaCheck.hive_id == hive_id).all():
         events.append({
@@ -156,9 +189,73 @@ def get_hive_timeline(
             "mite_count": check.mite_count,
             "mites_per_day": check.mites_per_day,
             "notes": check.notes,
+            "editable": True,
+            "deletable": True,
         })
 
     return sorted(events, key=lambda event: event["date"], reverse=True)
+
+
+TIMELINE_MODELS = {
+    "inspection": (Inspection, "date", None, "notes"),
+    "task": (Task, "due_date", "title", "description"),
+    "treatment": (Treatment, "started_at", "product", "reason"),
+    "harvest": (Harvest, "harvest_date", "crop_type", "notes"),
+    "feeding": (Feeding, "date", "feed_type", "notes"),
+    "varroa_check": (VarroaCheck, "date", "method", "notes"),
+}
+
+
+def _timeline_entry(db: Session, hive_id: int, event_type: str, event_id: int):
+    config = TIMELINE_MODELS.get(event_type)
+    if not config:
+        return None, None
+    model = config[0]
+    return db.query(model).filter(model.id == event_id, model.hive_id == hive_id).first(), config
+
+
+@router.patch("/{hive_id}/timeline/{event_type}/{event_id}")
+def update_timeline_entry(
+    hive_id: int,
+    event_type: str,
+    event_id: int,
+    payload: TimelineEntryUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not hive or not user_can_write_apiary(db, hive.apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Timeline entry not found")
+    entry, config = _timeline_entry(db, hive_id, event_type, event_id)
+    if not entry or not config:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Timeline entry not found")
+    _, date_field, title_field, notes_field = config
+    if payload.date is not None:
+        setattr(entry, date_field, payload.date)
+    if payload.title is not None and title_field:
+        setattr(entry, title_field, payload.title)
+    if payload.notes is not None:
+        setattr(entry, notes_field, payload.notes)
+    db.commit()
+    return {"updated": True}
+
+
+@router.delete("/{hive_id}/timeline/{event_type}/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_timeline_entry(
+    hive_id: int,
+    event_type: str,
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not hive or not user_can_write_apiary(db, hive.apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Timeline entry not found")
+    entry, _ = _timeline_entry(db, hive_id, event_type, event_id)
+    if not entry:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Timeline entry not found")
+    db.delete(entry)
+    db.commit()
 
 
 @router.get("/{hive_id}/stock-card")
@@ -171,7 +268,7 @@ def get_stock_card(
     if not db_hive:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return {
-        "hive": db_hive,
+        "hive": _hive_response(db_hive, db),
         "qr_url": f"/stock-card/{db_hive.id}",
         "events": get_hive_timeline(hive_id=hive_id, db=db, current_user=current_user),
     }
@@ -277,6 +374,8 @@ def requeen_hive_endpoint(
         payload.date,
         payload.year,
         marking_color=payload.marking_color,
+        marking_code=payload.marking_code,
+        introduced_at=payload.introduced_at,
         name=payload.name,
         origin=payload.origin,
         reason=payload.reason,

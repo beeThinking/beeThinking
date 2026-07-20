@@ -69,7 +69,11 @@ export class ApiaryService {
     return this.api.post<VarroaWeatherWindow[]>(`/api/apiaries/${id}/varroa-weather/refresh`, {});
   }
 
-  createBatchAction(id: number, actionType: 'inspection' | 'treatment' | 'feeding' | 'harvest', payload: BatchActionCreate): Observable<{ action_type: string; created: number; hive_ids: number[] }> {
+  createBatchAction(id: number, actionType: 'inspection' | 'treatment' | 'feeding' | 'harvest' | 'move' | 'dissolve' | 'copy', payload: BatchActionCreate): Observable<{ action_type: string; created: number; hive_ids: number[] }> {
     return this.api.post<{ action_type: string; created: number; hive_ids: number[] }>(`/api/apiaries/${id}/batch-actions/${actionType}`, payload);
+  }
+
+  reorderHives(id: number, hiveIds: number[]): Observable<{ hive_ids: number[] }> {
+    return this.api.put<{ hive_ids: number[] }>(`/api/apiaries/${id}/hive-order`, { hive_ids: hiveIds });
   }
 }

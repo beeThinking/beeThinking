@@ -103,6 +103,9 @@
             <option value="treatment">Varroabehandlung</option>
             <option value="feeding">Fütterung</option>
             <option value="harvest">Honigernte</option>
+            <option value="move">Wandern</option>
+            <option value="dissolve">Auflösen</option>
+            <option value="copy">Kopieren</option>
           </select>
         </label>
         <label>Datum
@@ -114,6 +117,16 @@
         <label>Menge
           <input type="number" min="0" step="0.1" [ngModel]="batchAmount()" (ngModelChange)="batchAmount.set($event === '' ? null : +$event)">
         </label>
+        @if (batchActionType() === 'move') {
+          <label>Zielstand
+            <select [ngModel]="batchTargetApiaryId()" (ngModelChange)="batchTargetApiaryId.set(+$event)">
+              <option [ngValue]="null">Stand wählen</option>
+              @for (target of apiaries(); track target.id) {
+                @if (target.id !== apiaryId) { <option [value]="target.id">{{ apiaryTitle(target) }}</option> }
+              }
+            </select>
+          </label>
+        }
       </div>
       <div class="hive-checks">
         @for (hive of apiaryHives(); track hive.id) {
@@ -191,13 +204,39 @@
         <h2>{{ 'apiaryDetail.hivesAtApiary' | translate }}</h2>
         <a routerLink="/hives">{{ 'apiaryDetail.allHives' | translate }}</a>
       </div>
-      <div class="hive-list">
-        @for (hive of apiaryHives(); track hive.id) {
-          <a class="hive-row" [routerLink]="['/hives', hive.id]">
-            <span>{{ hive.name }}</span>
-            <small>{{ hive.type }} · {{ hive.status }}</small>
-          </a>
-          <a class="hive-row stock-link" [routerLink]="['/stock-card', hive.id]">Stockkarte / QR</a>
+      <div class="colony-grid">
+        @for (hive of orderedHives(); track hive.id; let first = $first; let last = $last) {
+          <article
+            class="colony-card"
+            draggable="true"
+            (dragstart)="draggedHiveId.set(hive.id)"
+            (dragover)="$event.preventDefault()"
+            (drop)="dropHive(hive.id)">
+            <div class="colony-card-top">
+              <span class="status-light status-{{ hive.status }}" [attr.aria-label]="hive.status"></span>
+              <div>
+                <h3>{{ hive.name }}</h3>
+                <p>{{ hive.stock_number || '–' }} · {{ hive.colony_kind }}</p>
+              </div>
+              @if (hive.active_queen_year) {
+                <span class="queen-crown" [style.background]="queenColor(hive)" title="Königin {{ hive.active_queen_year }}">♛</span>
+              }
+            </div>
+            @if (lastAction(hive); as event) {
+              <p class="last-action"><strong>{{ event.title }}</strong><span>{{ event.date }}</span></p>
+            } @else {
+              <p class="last-action">Noch keine Aktion</p>
+            }
+            @if (hive.tags?.length) {
+              <div class="colony-tags">@for (tag of hive.tags; track tag) { <span>{{ tag }}</span> }</div>
+            }
+            <div class="colony-actions">
+              <button type="button" [disabled]="first" (click)="moveHiveInOrder(hive.id, -1)" aria-label="Nach vorne">↑</button>
+              <button type="button" [disabled]="last" (click)="moveHiveInOrder(hive.id, 1)" aria-label="Nach hinten">↓</button>
+              <a [routerLink]="['/hives', hive.id]">Details</a>
+              <a [routerLink]="['/stock-card', hive.id]">Stockkarte</a>
+            </div>
+          </article>
         } @empty {
           <div class="empty-panel">{{ 'apiaryDetail.noHives' | translate }}</div>
         }

@@ -22,6 +22,11 @@ export interface Hive {
   archived_at: string | null;
   established_at: string | null;
   tags: string[] | null;
+  sort_order: number;
+  active_queen_year: number | null;
+  active_queen_color: string | null;
+  active_queen_marking: string | null;
+  queen_introduced_at: string | null;
   merged_into_hive_id: number | null;
   notes: string | null;
   owner_id: number;
@@ -62,6 +67,7 @@ export interface HiveCreate {
   status?: HiveStatus;
   established_at?: string | null;
   tags?: string[] | null;
+  sort_order?: number;
   notes?: string;
 }
 
@@ -74,6 +80,7 @@ export interface HiveUpdate {
   status?: HiveStatus;
   established_at?: string | null;
   tags?: string[] | null;
+  sort_order?: number;
   notes?: string;
 }
 
@@ -94,6 +101,8 @@ export interface HiveRequeenRequest {
   date: string;
   year: number;
   marking_color?: string;
+  marking_code?: string;
+  introduced_at?: string;
   name?: string;
   origin?: string;
   reason?: string;
@@ -108,10 +117,22 @@ export interface Queen {
   year: number;
   origin: string | null;
   marking_color: string | null;
+  marking_code: string | null;
+  introduced_at: string | null;
   is_active: boolean;
   notes: string | null;
   created_at: string;
   updated_at: string | null;
+}
+
+export interface QueenUpdate {
+  year?: number;
+  name?: string | null;
+  origin?: string | null;
+  marking_color?: string | null;
+  marking_code?: string | null;
+  introduced_at?: string | null;
+  notes?: string | null;
 }
 
 export interface VarroaCheck {

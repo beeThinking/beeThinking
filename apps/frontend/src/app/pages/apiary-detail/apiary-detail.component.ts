@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, switchMap } from 'rxjs';
+import { forkJoin, map, switchMap } from 'rxjs';
 import { VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { HiveService } from '../../core/services/hive.service';
@@ -14,6 +14,8 @@ import { TranslationKey } from '../../core/i18n/en';
 import { localDateString } from '../../core/utils/date.utils';
 import { ApiaryMember, ApiaryMemberRole } from '../../core/models/apiary.models';
 import { AuthService } from '../../core/services/auth.service';
+import { Hive } from '../../core/models/hive.models';
+import { TimelineEvent } from '../../core/models/beekeeping.models';
 
 @Component({
   selector: 'app-apiary-detail',
@@ -36,12 +38,26 @@ export class ApiaryDetailComponent {
     { initialValue: null }
   );
   protected readonly hives = toSignal(this.hiveService.getHives(), { initialValue: [] });
-  protected readonly apiaryHives = computed(() => this.hives().filter(hive => hive.apiary_id === this.apiaryId));
+  protected readonly apiaries = toSignal(this.apiaryService.getApiaries(), { initialValue: [] });
+  protected readonly apiaryHives = computed(() => this.hives()
+    .filter(hive => hive.apiary_id === this.apiaryId)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
+  protected readonly hiveOrder = signal<number[]>([]);
+  protected readonly orderedHives = computed(() => {
+    const hives = this.apiaryHives();
+    const order = this.hiveOrder();
+    if (!order.length) return hives;
+    return [...hives].sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  });
+  protected readonly latestEvents = signal<Record<number, TimelineEvent | null>>({});
+  protected readonly draggedHiveId = signal<number | null>(null);
+  private loadedHiveSignature = '';
   protected readonly selectedTreatment = signal<VarroaTreatmentType>('formic_acid_short');
   protected readonly weatherError = signal('');
   protected readonly weatherLoading = signal(false);
   protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
-  protected readonly batchActionType = signal<'inspection' | 'treatment' | 'feeding' | 'harvest'>('inspection');
+  protected readonly batchActionType = signal<'inspection' | 'treatment' | 'feeding' | 'harvest' | 'move' | 'dissolve' | 'copy'>('inspection');
+  protected readonly batchTargetApiaryId = signal<number | null>(null);
   protected readonly selectedHiveIds = signal<number[]>([]);
   protected readonly batchDate = signal(localDateString());
   protected readonly batchNotes = signal('');
@@ -77,6 +93,18 @@ export class ApiaryDetailComponent {
   constructor() {
     this.loadTreatment(this.selectedTreatment());
     this.loadTeam();
+    effect(() => {
+      const hives = this.apiaryHives();
+      const signature = hives.map(hive => hive.id).join(',');
+      if (!signature || signature === this.loadedHiveSignature) return;
+      this.loadedHiveSignature = signature;
+      this.hiveOrder.set(hives.map(hive => hive.id));
+      forkJoin(hives.map(hive => this.hiveService.getHiveTimeline(hive.id))).subscribe(timelines => {
+        const latest: Record<number, TimelineEvent | null> = {};
+        hives.forEach((hive, index) => latest[hive.id] = timelines[index]?.[0] ?? null);
+        this.latestEvents.set(latest);
+      });
+    });
   }
 
   protected loadTeam(): void {
@@ -213,7 +241,9 @@ export class ApiaryDetailComponent {
       feed_type: action === 'feeding' ? (label || 'Futter') : undefined,
       amount_kg_or_l: action === 'feeding' ? (amount ?? 0.1) : undefined,
       crop_type: action === 'harvest' ? (label || 'Honig') : undefined,
-      amount_kg: action === 'harvest' ? (amount ?? 0) : undefined
+      amount_kg: action === 'harvest' ? (amount ?? 0) : undefined,
+      target_apiary_id: action === 'move' ? (this.batchTargetApiaryId() ?? undefined) : undefined,
+      reason: action === 'dissolve' ? (label || 'dissolved') : undefined
     };
     this.apiaryService.createBatchAction(this.apiaryId, action, payload).subscribe({
       next: result => {
@@ -224,6 +254,48 @@ export class ApiaryDetailComponent {
         this.batchMessage.set('Sammelaktion konnte nicht gespeichert werden.');
         this.batchSaving.set(false);
       }
+    });
+  }
+
+  protected lastAction(hive: Hive): TimelineEvent | null {
+    return this.latestEvents()[hive.id] ?? null;
+  }
+
+  protected queenColor(hive: Hive): string {
+    const colors: Record<string, string> = {
+      white: '#f7f3e8', weiss: '#f7f3e8', weiß: '#f7f3e8', yellow: '#f2c94c', gelb: '#f2c94c',
+      red: '#c94b40', rot: '#c94b40', green: '#3f815f', grün: '#3f815f', blue: '#3977ad', blau: '#3977ad'
+    };
+    const explicit = hive.active_queen_color?.toLocaleLowerCase();
+    if (explicit && colors[explicit]) return colors[explicit];
+    return ['#3977ad', '#f7f3e8', '#f2c94c', '#c94b40', '#3f815f'][(hive.active_queen_year ?? 0) % 5] ?? '#f7f3e8';
+  }
+
+  protected dropHive(targetId: number): void {
+    const sourceId = this.draggedHiveId();
+    if (!sourceId || sourceId === targetId) return;
+    const order = [...this.hiveOrder()];
+    const sourceIndex = order.indexOf(sourceId);
+    const targetIndex = order.indexOf(targetId);
+    order.splice(sourceIndex, 1);
+    order.splice(targetIndex, 0, sourceId);
+    this.persistHiveOrder(order);
+    this.draggedHiveId.set(null);
+  }
+
+  protected moveHiveInOrder(hiveId: number, direction: -1 | 1): void {
+    const order = [...this.hiveOrder()];
+    const index = order.indexOf(hiveId);
+    const next = index + direction;
+    if (index < 0 || next < 0 || next >= order.length) return;
+    [order[index], order[next]] = [order[next], order[index]];
+    this.persistHiveOrder(order);
+  }
+
+  private persistHiveOrder(order: number[]): void {
+    this.hiveOrder.set(order);
+    this.apiaryService.reorderHives(this.apiaryId, order).subscribe({
+      error: () => this.batchMessage.set('Reihenfolge konnte nicht gespeichert werden.')
     });
   }
 }

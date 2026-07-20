@@ -60,6 +60,21 @@ h1 { font-size: 2rem; line-height: 1.05; }
 .hive-row span { font-weight: 900; }
 .hive-row small { color: #6b604f; }
 .stock-link { justify-content: center; color: #2f6f5e; font-weight: 900; }
+.colony-grid { display: grid; gap: var(--space-md); }
+.colony-card { display: grid; gap: var(--space-sm); padding: var(--space-md); border: 1px solid #ddcda9; border-radius: 12px; background: linear-gradient(145deg, #fff 0%, #fbf5e8 100%); box-shadow: 0 8px 22px rgba(77, 57, 24, 0.08); }
+.colony-card-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-sm); }
+.colony-card h3 { font-size: clamp(1.05rem, 4vw, 1.3rem); }
+.colony-card-top p, .last-action { color: #6b604f; }
+.status-light { width: 14px; height: 14px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 5px rgba(140, 140, 140, 0.13); }
+.status-light.status-active { background: #3f815f; box-shadow: 0 0 0 5px rgba(63, 129, 95, 0.13); }
+.status-light.status-lost, .status-light.status-dead { background: #b13a32; box-shadow: 0 0 0 5px rgba(177, 58, 50, 0.13); }
+.queen-crown { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #8d7d65; border-radius: 50%; color: #2f291f; font-size: 1.2rem; }
+.last-action { display: flex; justify-content: space-between; gap: var(--space-sm); padding: var(--space-sm); border-left: 4px solid #c79a35; background: rgba(255, 255, 255, 0.75); }
+.colony-tags { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.colony-tags span { padding: var(--space-xs) var(--space-sm); border-radius: 999px; background: #efe2bf; color: #5c4b23; font-size: 0.75rem; font-weight: 800; }
+.colony-actions { display: grid; grid-template-columns: 44px 44px 1fr 1fr; gap: var(--space-xs); }
+.colony-actions button, .colony-actions a { display: grid; place-items: center; min-height: 44px; border: 1px solid #cbb98d; border-radius: 8px; background: #fff; color: #2f6f5e; text-decoration: none; font: inherit; font-weight: 900; }
+.colony-actions button:disabled { opacity: 0.35; }
 @media (min-width: 768px) {
   h1 { font-size: 3rem; }
   .facts { grid-template-columns: repeat(3, 1fr); }
@@ -69,9 +84,14 @@ h1 { font-size: 2rem; line-height: 1.05; }
   .crew-card { grid-template-columns: auto minmax(0, 1fr) auto; }
   .role-select, .remove-member, .crew-card > .role-stamp { grid-column: auto; }
   .batch-grid { grid-template-columns: repeat(4, 1fr); }
+  .colony-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+@media (min-width: 1024px) { .colony-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 @media (hover: hover) {
   .remove-member:hover { background: #fff0ed; }
   .invite-bar .primary-action:not(:disabled):hover { background: #245749; }
+  .colony-card { cursor: grab; }
+  .colony-card:hover { border-color: #b99a51; transform: translateY(-2px); }
 }

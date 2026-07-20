@@ -32,6 +32,8 @@
 .header-row  { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); }
 .header-actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; justify-content: flex-end; }
 .page-header h1 { font-size: clamp(1.4rem, 5vw, 2rem); color: var(--amelie-text-dark); }
+.tag-filter { display: grid; gap: var(--space-xs); margin-bottom: var(--space-lg); color: var(--amelie-dark-brown); font-weight: 700; }
+.tag-filter input { min-height: 44px; border: 1px solid #d4c4a8; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: #fff; font: inherit; font-size: 1rem; }
 
 /* Loading / empty */
 .loading, .empty-state { text-align: center; padding: var(--space-2xl) var(--space-md); color: #888; }
@@ -64,6 +66,10 @@
   gap: var(--space-sm);
 }
 .hive-card-header h3 { font-size: 1rem; color: var(--amelie-text-dark); }
+.hive-title { display: flex; align-items: center; gap: var(--space-xs); }
+.queen-crown { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #8d7d65; border-radius: 50%; color: #2f291f; font-size: 1.2rem; }
+.tag-row { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-sm); }
+.tag-row span { padding: var(--space-xs) var(--space-sm); border-radius: 999px; background: #f1e6c8; color: #5e4d24; font-size: 0.75rem; font-weight: 700; }
 
 .status-badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; white-space: nowrap; }
 .status-active   { background: #d4edda; color: #155724; }
