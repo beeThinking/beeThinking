@@ -410,6 +410,7 @@ def requeen_hive_endpoint(
 @router.get("/{hive_id}/qr.svg")
 def get_hive_qr(
     hive_id: int,
+    target: str = "stock_card",
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -417,9 +418,11 @@ def get_hive_qr(
 
     from app.services.qr_labels import hive_qr_svg
 
+    if target not in ("stock_card", "inspect"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unknown target")
     if not hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
-    return Response(content=hive_qr_svg(hive_id), media_type="image/svg+xml")
+    return Response(content=hive_qr_svg(hive_id, target=target), media_type="image/svg+xml")
 
 
 @router.get("/{hive_id}/varroa-assistant", response_model=VarroaAssistantResponse)

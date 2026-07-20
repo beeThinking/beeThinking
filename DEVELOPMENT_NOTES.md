@@ -94,6 +94,6 @@ mirrored Google calendar and its events.
 
 ## Current Verification Baseline
 
-- Backend unit suite: 227 tests.
-- Frontend unit suite: 61 tests across 14 spec files.
+- Backend unit suite: 228 tests.
+- Frontend unit suite: 67 tests across 15 spec files.
 - Alembic `upgrade head` passes against a fresh SQLite database.
