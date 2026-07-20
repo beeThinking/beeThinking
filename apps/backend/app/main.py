@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api import apiaries, auth, cashbook, content, dashboard, feedings, google_calendar, harvests, hives, inspections, inventory, office, photos, queens, reports, tasks, treatments, users, varroa_checks
+from app.api import apiaries, auth, cashbook, content, dashboard, feedings, google_calendar, harvests, hives, inspection_criteria, inspections, inventory, office, photos, queens, reports, tasks, treatments, users, varroa_checks
 
 settings = get_settings()
 
@@ -26,6 +26,7 @@ app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(apiaries.router, prefix="/api/apiaries", tags=["Apiaries"])
 app.include_router(hives.router, prefix="/api/hives", tags=["Hives"])
 app.include_router(inspections.router, prefix="/api/hives/{hive_id}/inspections", tags=["Inspections"])
+app.include_router(inspection_criteria.router, prefix="/api/inspection-criteria", tags=["Inspection Criteria"])
 app.include_router(tasks.router, prefix="/api/tasks", tags=["Tasks"])
 app.include_router(google_calendar.router, prefix="/api/google-calendar", tags=["Google Calendar"])
 app.include_router(treatments.router, prefix="/api/treatments", tags=["Treatments"])

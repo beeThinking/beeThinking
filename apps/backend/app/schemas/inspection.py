@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any, Optional
 from datetime import date, datetime
 from app.models.inspection import HiveMood, HiveStrength, SwarmCells
 
@@ -21,6 +21,8 @@ class InspectionBase(BaseModel):
     weather_code: Optional[int] = None
     weather_source: Optional[str] = Field(None, max_length=100)
     weather_fetched_at: Optional[datetime] = None
+    hive_weight_kg: Optional[float] = Field(None, ge=0)
+    criteria_values: Optional[dict[str, Any]] = None
     next_steps: Optional[str] = Field(None, max_length=2000)
     notes: Optional[str] = Field(None, max_length=2000)
 
@@ -46,6 +48,8 @@ class InspectionUpdate(BaseModel):
     weather_code: Optional[int] = None
     weather_source: Optional[str] = Field(None, max_length=100)
     weather_fetched_at: Optional[datetime] = None
+    hive_weight_kg: Optional[float] = Field(None, ge=0)
+    criteria_values: Optional[dict[str, Any]] = None
     next_steps: Optional[str] = Field(None, max_length=2000)
     notes: Optional[str] = Field(None, max_length=2000)
 
