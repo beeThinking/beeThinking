@@ -12,6 +12,7 @@ import {
   InspectionCriterion
 } from '../../core/models/inspection.models';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
+import { PhotoQueueService } from '../../core/services/photo-queue.service';
 import { InspectionDraftService } from '../../core/services/inspection-draft.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
@@ -32,6 +33,7 @@ export class HiveInspectComponent {
   private readonly draftService = inject(InspectionDraftService);
   private readonly inspectionService = inject(InspectionService);
   private readonly beekeepingService = inject(BeekeepingService);
+  private readonly photoQueue = inject(PhotoQueueService);
   private readonly fb = inject(FormBuilder);
   private readonly translation = inject(TranslationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -255,7 +257,7 @@ export class HiveInspectComponent {
     const photo = this.photoFile();
     if (photo) {
       this.beekeepingService.uploadPhoto({ file: photo, hive_id: this.hiveId, caption: payload.notes || '' })
-        .subscribe({ error: () => undefined });
+        .subscribe({ error: () => this.photoQueue.enqueue(photo, this.hiveId, payload.notes || '') });
     }
   }
 

@@ -13,8 +13,14 @@ def stock_card_url(hive_id: int) -> str:
     return f"{base}/stock-card/{hive_id}"
 
 
-def hive_qr_svg(hive_id: int) -> str:
-    qr = segno.make(stock_card_url(hive_id), error="m")
+def inspect_url(hive_id: int) -> str:
+    base = get_settings().FRONTEND_BASE_URL.rstrip("/")
+    return f"{base}/hives/{hive_id}/inspect"
+
+
+def hive_qr_svg(hive_id: int, target: str = "stock_card") -> str:
+    url = inspect_url(hive_id) if target == "inspect" else stock_card_url(hive_id)
+    qr = segno.make(url, error="m")
     return qr.svg_inline(scale=4, dark="#000000")
 
 

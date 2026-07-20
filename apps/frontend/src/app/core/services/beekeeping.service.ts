@@ -303,4 +303,23 @@ export class BeekeepingService {
   deletePhoto(id: number): Observable<void> {
     return this.api.delete<void>(`/api/photos/${id}`);
   }
+
+  createBatchAction(
+    apiaryId: number,
+    actionType: string,
+    payload: {
+      hive_ids: number[];
+      date: string;
+      notes?: string;
+      feed_type?: string;
+      amount_kg_or_l?: number;
+      product?: string;
+      target_apiary_id?: number;
+    }
+  ): Observable<{ action_type: string; created: number; hive_ids: number[] }> {
+    return this.api.post<{ action_type: string; created: number; hive_ids: number[] }>(
+      `/api/apiaries/${apiaryId}/batch-actions/${actionType}`,
+      payload
+    );
+  }
 }

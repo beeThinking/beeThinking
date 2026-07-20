@@ -198,18 +198,20 @@ Goal: seconds-fast capture at the hive, like BeeInTouch's Willi app — but as P
 - ✅ QR codes per hive: "QR drucken" on the stock card (server-rendered SVG, print
   window) and a Bestandsliste-QR label sheet PDF for all active colonies
   (segno + reportlab, deep links to `/stock-card/:hiveId`)
-- ⬜ Deep links to specific dialogs: QR/URL variants that open directly in
-  Durchschau/Fütterung/Behandlung dialog for that hive
-- ⬜ NFC support via Web NFC API (Chrome/Android) — same deep-link targets; document
-  iOS limitation (no Web NFC; QR fallback)
-- ⬜ Multi-scan: scan several hives in sequence, then apply one batch action
+- ✅ Deep links to specific dialogs: QR target variant (`?target=inspect`) opens the
+  Durchschau dialog directly; print dialog offers both targets
+- ✅ NFC via Web NFC API (Chrome/Android): read tags and write hive URLs from the
+  scan page; iOS limitation documented in-app (QR fallback)
+- ✅ Multi-scan: camera QR scanning (BarcodeDetector) collects hives, one batch
+  action (feeding/treatment) runs per apiary group; manual selection as fallback
 - ✅ Offline capture for feedings, treatments and harvests: failed offline
   submissions are queued and replayed automatically on reconnect
 - ✅ Offline write queue (`OfflineQueueService`): persisted queue, sequential replay
   on the `online` event (create-only, so conflicts are naturally rare)
 - ✅ Offline read cache: ngsw data group caches API reads (freshness strategy,
   4s network timeout, 1-day max age) — last known data available offline
-- ⬜ Background sync for photo uploads to MinIO
+- ✅ Background sync for photo uploads: IndexedDB-backed photo queue, replayed on
+  reconnect (wired into hive detail and the inspection dialog)
 
 ## Milestone 5 — Traceability & Regulatory Registers
 

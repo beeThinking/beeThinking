@@ -103,6 +103,11 @@ export const routes: Routes = [
   { path: 'beehives/:id', redirectTo: 'hives/:id' },
   { path: 'beehives', redirectTo: 'hives', pathMatch: 'full' },
   {
+    path: 'scan',
+    loadComponent: () => import('./pages/scan/scan.component').then(m => m.ScanComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'tasks',
     loadComponent: () => import('./pages/tasks/tasks.component').then(m => m.TasksComponent),
     canActivate: [authGuard]

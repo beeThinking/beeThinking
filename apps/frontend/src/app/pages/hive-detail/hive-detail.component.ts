@@ -8,6 +8,7 @@ import { ColonyKind, HiveEvent, Queen } from '../../core/models/hive.models';
 import { HiveStatus, HiveType } from '../../core/models/hive.models';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
+import { PhotoQueueService } from '../../core/services/photo-queue.service';
 import { HiveService } from '../../core/services/hive.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
@@ -29,6 +30,7 @@ export class HiveDetailComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly translation = inject(TranslationService);
+  private readonly photoQueue = inject(PhotoQueueService);
   private readonly hiveId = computed(() => Number(this.route.snapshot.paramMap.get('id')));
   private readonly photoRefresh$ = new Subject<void>();
   private readonly queenRefresh$ = new Subject<void>();
@@ -134,6 +136,14 @@ export class HiveDetailComponent {
         this.uploadPending.set(false);
       },
       error: () => {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          this.photoQueue.enqueue(file, this.hiveId(), this.caption());
+          this.caption.set('');
+          this.selectedFile.set(null);
+          this.uploadError.set(this.translation.t('offline.photoQueued'));
+          this.uploadPending.set(false);
+          return;
+        }
         this.uploadError.set(this.translation.t('hiveDetail.error.upload'));
         this.uploadPending.set(false);
       }

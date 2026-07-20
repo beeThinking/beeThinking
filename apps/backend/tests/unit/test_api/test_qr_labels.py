@@ -35,3 +35,15 @@ class TestQrEndpoints:
 
     def test_qr_requires_authentication(self, client):
         assert client.get("/api/hives/qr-labels.pdf").status_code == 401
+
+    def test_qr_svg_inspect_target(self, authenticated_client):
+        client, _ = authenticated_client
+        apiary = client.post("/api/apiaries", json={"stock_number": "QR3", "name": "QR3"}).json()
+        hive = client.post("/api/hives", json={"name": "QR Volk 3", "apiary_id": apiary["id"]}).json()
+
+        response = client.get(f"/api/hives/{hive['id']}/qr.svg?target=inspect")
+        assert response.status_code == 200
+        assert "<svg" in response.text
+
+        bad = client.get(f"/api/hives/{hive['id']}/qr.svg?target=shop")
+        assert bad.status_code == 400

@@ -1,0 +1,94 @@
+<div class="scan-page">
+  <header>
+    <p class="eyebrow">{{ 'scan.eyebrow' | translate }}</p>
+    <h1>{{ 'scan.title' | translate }}</h1>
+  </header>
+
+  @if (message()) { <div class="info">{{ message() }}</div> }
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  <label class="toggle multi-toggle">
+    <input type="checkbox" [ngModel]="multiScan()" (ngModelChange)="multiScan.set($event)">
+    {{ 'scan.multiScan' | translate }}
+  </label>
+
+  <section class="scan-block">
+    <h2>{{ 'scan.camera' | translate }}</h2>
+    @if (cameraSupported) {
+      <video #preview class="camera-preview" muted playsinline></video>
+      <div class="scan-actions">
+        @if (!scanning()) {
+          <button type="button" (click)="startCamera(preview)">{{ 'scan.camera.start' | translate }}</button>
+        } @else {
+          <button type="button" (click)="stopCamera()">{{ 'scan.camera.stop' | translate }}</button>
+        }
+      </div>
+    } @else {
+      <p class="hint">{{ 'scan.camera.unsupported' | translate }}</p>
+    }
+  </section>
+
+  <section class="scan-block">
+    <h2>NFC</h2>
+    @if (nfcSupported) {
+      <div class="scan-actions">
+        <button type="button" (click)="startNfcScan()">{{ 'scan.nfc.read' | translate }}</button>
+      </div>
+      <div class="nfc-write">
+        <select [ngModel]="nfcWriteHiveId()" (ngModelChange)="nfcWriteHiveId.set($event ? +$event : null)">
+          <option [ngValue]="null">{{ 'scan.selectHive' | translate }}</option>
+          @for (hive of hives(); track hive.id) {
+            <option [ngValue]="hive.id">{{ hive.name }}</option>
+          }
+        </select>
+        <button type="button" (click)="writeNfcTag()">{{ 'scan.nfc.write' | translate }}</button>
+      </div>
+    } @else {
+      <p class="hint">{{ 'scan.nfc.unsupported' | translate }}</p>
+    }
+  </section>
+
+  <section class="scan-block">
+    <h2>{{ 'scan.manual' | translate }}</h2>
+    <div class="nfc-write">
+      <select [ngModel]="manualHiveId()" (ngModelChange)="manualHiveId.set($event ? +$event : null)">
+        <option [ngValue]="null">{{ 'scan.selectHive' | translate }}</option>
+        @for (hive of hives(); track hive.id) {
+          <option [ngValue]="hive.id">{{ hive.name }}</option>
+        }
+      </select>
+      <button type="button" (click)="addManualHive()">{{ 'scan.add' | translate }}</button>
+    </div>
+  </section>
+
+  @if (selectedHives().length) {
+    <section class="scan-block batch-block">
+      <h2>{{ 'scan.batch' | translate }} ({{ selectedHives().length }})</h2>
+      <ul class="selected-list">
+        @for (hive of selectedHives(); track hive.id) {
+          <li>
+            <span>{{ hive.name }} <small>{{ apiaryName(hive.apiary_id) }}</small></span>
+            <button type="button" (click)="removeHive(hive)">✕</button>
+          </li>
+        }
+      </ul>
+      <div class="batch-form">
+        <select [ngModel]="batchAction()" (ngModelChange)="batchAction.set($event)">
+          <option value="feeding">{{ 'scan.action.feeding' | translate }}</option>
+          <option value="treatment">{{ 'scan.action.treatment' | translate }}</option>
+        </select>
+        <input type="date" [ngModel]="batchDate()" (ngModelChange)="batchDate.set($event)">
+        @if (batchAction() === 'feeding') {
+          <input [ngModel]="batchFeedType()" (ngModelChange)="batchFeedType.set($event)" [placeholder]="'scan.feedType' | translate">
+          <input type="number" min="0" step="0.1" [ngModel]="batchAmount()" (ngModelChange)="batchAmount.set($event === '' || $event === null ? null : +$event)" [placeholder]="'scan.amount' | translate">
+        } @else {
+          <input [ngModel]="batchProduct()" (ngModelChange)="batchProduct.set($event)" [placeholder]="'scan.product' | translate">
+        }
+        <input [ngModel]="batchNotes()" (ngModelChange)="batchNotes.set($event)" [placeholder]="'scan.notes' | translate">
+        <button type="button" class="primary" [disabled]="batchPending()" (click)="runBatchAction()">
+          {{ 'scan.runBatch' | translate }}
+        </button>
+      </div>
+    </section>
+  }
+</div>
