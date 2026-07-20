@@ -161,14 +161,13 @@ matching the app-verified Stand → Volk → Stockkarte → Chronik model.
 - ✅ **Kopieren**: duplicate colony endpoint + UI (copied master data, chronicle event)
 - ✅ **Auflösen polish**: reason was already captured in the event metadata; archive
   view now filters by final status (dissolved/merged/sold/dead/lost)
-- 🔄 **Colony tags**: tags on the hive model and form, shown on hive detail —
-  list filtering still open
-- 🔄 Unified chronicle view: timeline endpoint now merges all event types incl.
-  Varroakontrolle, Umweiselung, Wanderung — type filter and two-column desktop
-  layout still open
-- ⬜ Colony card grid on apiary detail: status traffic light, Volkart, last action +
-  date, drag-sortable order; batch bar (Auflösen, Wandern, Kopieren)
-- ⬜ Swipe-to-delete / quick-edit on chronicle entries (mobile-first interaction)
+- ✅ **Colony tags**: tags on model, form, hive detail; tag filter on the hive list
+- ✅ Unified chronicle view: timeline merges all event types; entries editable and
+  deletable in place via timeline PATCH/DELETE endpoints
+- ✅ Colony card grid on apiary detail: persistable hive order (hive-order endpoint),
+  batch actions Auflösen/Wandern/Kopieren, queen crown in year color on cards
+- ✅ Quick-edit and delete on chronicle entries (timeline PATCH/DELETE + stock card
+  quick actions)
 
 ## Milestone 3 — Configurable Durchschau
 

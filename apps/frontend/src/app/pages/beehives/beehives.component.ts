@@ -32,6 +32,12 @@ export class BeehivesComponent {
   protected readonly errorMessage = signal('');
   protected readonly showForm = signal(false);
   protected readonly editingHive = signal<Hive | null>(null);
+  protected readonly tagFilter = signal('');
+  protected readonly filteredHives = computed(() => {
+    const filter = this.tagFilter().trim().toLocaleLowerCase();
+    if (!filter) return this.hives();
+    return this.hives().filter(hive => hive.tags?.some(tag => tag.toLocaleLowerCase().includes(filter)));
+  });
 
   protected readonly hiveTypes: HiveType[] = ['langstroth', 'dadant', 'zander', 'other'];
   protected readonly colonyKinds: ColonyKind[] = ['wirtschaftsvolk', 'ableger', 'schwarm', 'kunstschwarm', 'other'];
@@ -181,5 +187,17 @@ export class BeehivesComponent {
       other: 'beehives.type.other'
     } satisfies Record<HiveType, TranslationKey>)[type];
     return this.translation.t(key);
+  }
+
+  protected queenColor(hive: Hive): string {
+    const named: Record<string, string> = {
+      white: '#f7f3e8', weiss: '#f7f3e8', weiß: '#f7f3e8',
+      yellow: '#f2c94c', gelb: '#f2c94c', red: '#c94b40', rot: '#c94b40',
+      green: '#3f815f', grün: '#3f815f', blue: '#3977ad', blau: '#3977ad'
+    };
+    const explicit = hive.active_queen_color?.toLocaleLowerCase();
+    if (explicit && named[explicit]) return named[explicit];
+    const ending = (hive.active_queen_year ?? 0) % 5;
+    return ['#3977ad', '#f7f3e8', '#f2c94c', '#c94b40', '#3f815f'][ending];
   }
 }

@@ -5,13 +5,60 @@
         <a routerLink="/hives" class="back-link">Zurück</a>
         <p class="eyebrow">Stockkarte</p>
         <h1>{{ hive.name }}</h1>
-        <p>{{ hive.type }} · {{ hive.status }}</p>
+        <p>{{ hive.stock_number || 'ohne Stocknummer' }} · {{ hive.colony_kind }} · {{ hive.status }}</p>
       </div>
       <div class="qr-box">
         <span>QR-Link</span>
         <code>{{ qrUrl() }}</code>
       </div>
     </header>
+
+    <section class="stock-facts">
+      <div><span>Volk erstellt</span><strong>{{ hive.established_at ? (hive.established_at | date:'dd.MM.yyyy') : '–' }}</strong></div>
+      <div><span>Beutentyp</span><strong>{{ hive.type }}</strong></div>
+      <div><span>Schlagworte</span><strong>{{ hive.tags?.join(', ') || '–' }}</strong></div>
+    </section>
+
+    @if (activeQueen(); as queen) {
+      <section class="queen-panel">
+        <div class="queen-heading">
+          <div>
+            <p class="eyebrow">Königin</p>
+            <h2>{{ queen.name || ('Jahrgang ' + queen.year) }}</h2>
+          </div>
+          <button type="button" (click)="openQueenEdit(queen)">Bearbeiten</button>
+        </div>
+        <div class="queen-facts">
+          <span><small>Jahresfarbe</small><strong>{{ queen.marking_color || '–' }}</strong></span>
+          <span><small>Zeichen</small><strong>{{ queen.marking_code || '–' }}</strong></span>
+          <span><small>Zugesetzt</small><strong>{{ queen.introduced_at ? (queen.introduced_at | date:'dd.MM.yyyy') : '–' }}</strong></span>
+          <span><small>Herkunft</small><strong>{{ queen.origin || '–' }}</strong></span>
+        </div>
+      </section>
+    }
+
+    @if (queenEditing()) {
+      <div class="sheet-overlay" role="button" tabindex="0" aria-label="Dialog schließen" (click)="queenEditing.set(false)" (keydown.enter)="queenEditing.set(false)">
+        <section class="edit-sheet" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+          <h2>Königin bearbeiten</h2>
+          <div class="edit-grid">
+            <label>Jahr<input type="number" min="1900" max="2100" [ngModel]="queenYear()" (ngModelChange)="queenYear.set(+$event)"></label>
+            <label>Jahresfarbe
+              <select [ngModel]="queenColor()" (ngModelChange)="queenColor.set($event)">
+                <option value="">Ohne</option><option value="weiß">Weiß</option><option value="gelb">Gelb</option><option value="rot">Rot</option><option value="grün">Grün</option><option value="blau">Blau</option>
+              </select>
+            </label>
+            <label>Zeichen<input [ngModel]="queenMarking()" (ngModelChange)="queenMarking.set($event)" placeholder="z. B. 42"></label>
+            <label>Zugesetzt<input type="date" [ngModel]="queenIntroducedAt()" (ngModelChange)="queenIntroducedAt.set($event)"></label>
+            <label>Name<input [ngModel]="queenName()" (ngModelChange)="queenName.set($event)"></label>
+            <label>Herkunft<input [ngModel]="queenOrigin()" (ngModelChange)="queenOrigin.set($event)"></label>
+          </div>
+          <div class="sheet-actions"><button type="button" (click)="queenEditing.set(false)">Abbrechen</button><button type="button" class="primary" (click)="saveQueen()">Speichern</button></div>
+        </section>
+      </div>
+    }
+
+    @if (actionMessage()) { <p class="action-message">{{ actionMessage() }}</p> }
 
     <section class="filters">
       <label>Typ
@@ -31,7 +78,11 @@
 
     <section class="timeline">
       @for (event of events(); track event.type + event.id) {
-        <article class="event">
+        <article
+          class="event event-{{ event.type }}"
+          [class.actions-visible]="swipedEvent() === event.type + '-' + event.id"
+          (touchstart)="touchStart($event)"
+          (touchend)="touchEnd($event, event)">
           <time>{{ event.date | date:'dd.MM.yyyy' }}</time>
           <div>
             <strong>{{ event.title }}</strong>
@@ -42,12 +93,32 @@
                 @for (warning of event.warnings; track warning) { <li>{{ warning }}</li> }
               </ul>
             }
+            @if (event.editable || event.deletable) {
+              <div class="event-actions">
+                @if (event.editable) { <button type="button" (click)="openEventEdit(event)">Schnell bearbeiten</button> }
+                @if (event.deletable) { <button type="button" class="danger" (click)="deleteEvent(event)">Löschen</button> }
+              </div>
+            }
           </div>
         </article>
       } @empty {
         <div class="empty-panel">Keine Einträge für Filter.</div>
       }
     </section>
+
+    @if (editingEvent()) {
+      <div class="sheet-overlay" role="button" tabindex="0" aria-label="Dialog schließen" (click)="editingEvent.set(null)" (keydown.enter)="editingEvent.set(null)">
+        <section class="edit-sheet" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+          <h2>Chronik-Eintrag bearbeiten</h2>
+          <div class="edit-grid">
+            <label>Datum<input type="date" [ngModel]="editDate()" (ngModelChange)="editDate.set($event)"></label>
+            <label>Titel<input [ngModel]="editTitle()" (ngModelChange)="editTitle.set($event)"></label>
+            <label class="wide">Notizen<textarea rows="4" [ngModel]="editNotes()" (ngModelChange)="editNotes.set($event)"></textarea></label>
+          </div>
+          <div class="sheet-actions"><button type="button" (click)="editingEvent.set(null)">Abbrechen</button><button type="button" class="primary" (click)="saveEvent()">Speichern</button></div>
+        </section>
+      </div>
+    }
   } @else {
     <div class="empty-panel">Stockkarte wird geladen...</div>
   }

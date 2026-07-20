@@ -43,6 +43,7 @@ class Hive(Base):
     colony_kind = Column(String, default=ColonyKind.wirtschaftsvolk.value, nullable=False)
     established_at = Column(Date, nullable=True)
     tags = Column(JSON, nullable=True)
+    sort_order = Column(Integer, default=0, nullable=False)
     status = Column(Enum(HiveStatus), default=HiveStatus.active, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     archived_at = Column(Date, nullable=True)

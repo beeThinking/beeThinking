@@ -187,6 +187,8 @@ def requeen_hive(
     event_date: date,
     year: int,
     marking_color: str | None = None,
+    marking_code: str | None = None,
+    introduced_at: date | None = None,
     name: str | None = None,
     origin: str | None = None,
     reason: str | None = None,
@@ -208,6 +210,8 @@ def requeen_hive(
         year=year,
         origin=origin,
         marking_color=marking_color,
+        marking_code=marking_code,
+        introduced_at=introduced_at or event_date,
         is_active=True,
     )
     db.add(queen)
@@ -222,7 +226,13 @@ def requeen_hive(
         note,
         related_entity_type="queen",
         related_entity_id=queen.id,
-        metadata_json={"reason": reason, "year": year, "marking_color": marking_color},
+        metadata_json={
+            "reason": reason,
+            "year": year,
+            "marking_color": marking_color,
+            "marking_code": marking_code,
+            "introduced_at": str(introduced_at or event_date),
+        },
     )
     db.commit()
     db.refresh(queen)

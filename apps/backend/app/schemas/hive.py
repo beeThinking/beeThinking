@@ -1,3 +1,5 @@
+import datetime as dt
+
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date, datetime
@@ -12,6 +14,7 @@ class HiveBase(BaseModel):
     status: HiveStatus = HiveStatus.active
     established_at: Optional[date] = None
     tags: Optional[list[str]] = None
+    sort_order: int = Field(0, ge=0)
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: int
 
@@ -28,6 +31,7 @@ class HiveUpdate(BaseModel):
     status: Optional[HiveStatus] = None
     established_at: Optional[date] = None
     tags: Optional[list[str]] = None
+    sort_order: Optional[int] = Field(None, ge=0)
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: Optional[int] = None
 
@@ -41,6 +45,10 @@ class HiveResponse(HiveBase):
     merged_into_hive_id: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    active_queen_year: Optional[int] = None
+    active_queen_color: Optional[str] = None
+    active_queen_marking: Optional[str] = None
+    queen_introduced_at: Optional[date] = None
 
     class Config:
         from_attributes = True
@@ -70,10 +78,22 @@ class HiveRequeenRequest(BaseModel):
     date: date
     year: int = Field(..., ge=1900, le=2100)
     marking_color: Optional[str] = Field(None, max_length=50)
+    marking_code: Optional[str] = Field(None, max_length=50)
+    introduced_at: Optional[date] = None
     name: Optional[str] = Field(None, max_length=100)
     origin: Optional[str] = Field(None, max_length=200)
     reason: Optional[str] = Field(None, max_length=200)
     note: Optional[str] = Field(None, max_length=1000)
+
+
+class HiveReorderRequest(BaseModel):
+    hive_ids: list[int] = Field(..., min_length=1)
+
+
+class TimelineEntryUpdate(BaseModel):
+    date: Optional[dt.date] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class HiveEventResponse(BaseModel):

@@ -13,6 +13,11 @@
     <div class="alert alert-error">{{ errorMessage() }}</div>
   }
 
+  <label class="tag-filter">
+    <span>{{ 'beehives.form.tags' | translate }}</span>
+    <input type="search" [value]="tagFilter()" (input)="tagFilter.set($any($event.target).value)" placeholder="z. B. Zucht, sanft">
+  </label>
+
   @if (showForm()) {
     <div class="modal-overlay" role="button" tabindex="0" [attr.aria-label]="'common.modalClose' | translate" (click)="closeForm()" (keydown.enter)="closeForm()">
       <div class="modal" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
@@ -106,22 +111,30 @@
 
   @if (isLoading()) {
     <div class="loading">{{ 'beehives.loading' | translate }}</div>
-  } @else if (hives().length === 0) {
+  } @else if (filteredHives().length === 0) {
     <div class="empty-state">
       <p>{{ 'beehives.empty' | translate }}</p>
       <button class="btn btn-primary" (click)="openCreateForm()">{{ 'beehives.empty.cta' | translate }}</button>
     </div>
   } @else {
     <div class="hive-grid">
-      @for (hive of hives(); track hive.id) {
+      @for (hive of filteredHives(); track hive.id) {
         <div class="hive-card" [class]="'status-' + hive.status">
           <div class="hive-card-header">
-            <h3>{{ hive.name }}</h3>
+            <div class="hive-title">
+              @if (hive.active_queen_year) {
+                <span class="queen-crown" [style.background]="queenColor(hive)" aria-label="Königin {{ hive.active_queen_year }}">♛</span>
+              }
+              <h3>{{ hive.name }}</h3>
+            </div>
             <span class="status-badge status-{{ hive.status }}">{{ statusLabel(hive.status) }}</span>
           </div>
           <div class="hive-card-body">
             <p class="hive-meta"><span class="label">{{ 'beehives.meta.apiary' | translate }}</span> {{ apiaryName(hive.apiary_id) }}</p>
             <p class="hive-meta"><span class="label">{{ 'beehives.meta.type' | translate }}</span> {{ typeLabel(hive.type) }}</p>
+            @if (hive.tags?.length) {
+              <div class="tag-row">@for (tag of hive.tags; track tag) { <span>{{ tag }}</span> }</div>
+            }
             @if (hive.notes) {
               <p class="hive-notes">{{ hive.notes }}</p>
             }

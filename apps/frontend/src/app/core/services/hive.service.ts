@@ -12,6 +12,7 @@ import {
   HiveStatus,
   HiveUpdate,
   Queen,
+  QueenUpdate,
   VarroaCheck,
   VarroaCheckCreate
 } from '../models/hive.models';
@@ -97,5 +98,17 @@ export class HiveService {
 
   deleteVarroaCheck(id: number): Observable<void> {
     return this.api.delete<void>(`/api/varroa-checks/${id}`);
+  }
+
+  updateQueen(id: number, payload: QueenUpdate): Observable<Queen> {
+    return this.api.put<Queen>(`/api/queens/${id}`, payload);
+  }
+
+  updateTimelineEntry(id: number, event: TimelineEvent, payload: { date: string; title: string; notes: string }): Observable<{ updated: boolean }> {
+    return this.api.patch<{ updated: boolean }>(`/api/hives/${id}/timeline/${event.type}/${event.id}`, payload);
+  }
+
+  deleteTimelineEntry(id: number, event: TimelineEvent): Observable<void> {
+    return this.api.delete<void>(`/api/hives/${id}/timeline/${event.type}/${event.id}`);
   }
 }
