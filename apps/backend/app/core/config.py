@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     ADMIN_EMAILS: str = ""
 
+    # Frontend base URL — used for QR deep links
+    FRONTEND_BASE_URL: str = "http://localhost:4200"
+
     # CORS — comma-separated list of allowed origins
     CORS_ORIGINS: str = "http://localhost,http://localhost:80,http://localhost:4200,http://localhost:3000"
 

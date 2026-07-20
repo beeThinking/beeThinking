@@ -82,6 +82,27 @@ def create_hive(
     return _hive_response(db_hive, db)
 
 
+@router.get("/qr-labels.pdf")
+def get_qr_label_sheet(
+    apiary_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    from fastapi.responses import Response
+
+    from app.services.qr_labels import hive_label_sheet_pdf
+
+    hives = hive_crud.get_hives(db, owner_id=current_user.id, apiary_id=apiary_id, status=HiveStatus.active)
+    if not hives:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active hives found")
+    pdf = hive_label_sheet_pdf(hives)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="bestandsliste-qr.pdf"'},
+    )
+
+
 @router.get("/{hive_id}", response_model=HiveResponse)
 def get_hive(
     hive_id: int,
@@ -384,6 +405,21 @@ def requeen_hive_endpoint(
     if not queen:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return queen
+
+
+@router.get("/{hive_id}/qr.svg")
+def get_hive_qr(
+    hive_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    from fastapi.responses import Response
+
+    from app.services.qr_labels import hive_qr_svg
+
+    if not hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return Response(content=hive_qr_svg(hive_id), media_type="image/svg+xml")
 
 
 @router.get("/{hive_id}/varroa-assistant", response_model=VarroaAssistantResponse)

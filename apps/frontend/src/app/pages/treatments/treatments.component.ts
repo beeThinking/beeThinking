@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { Treatment, VarroaTreatmentType, VarroaWeatherWindow } from '../../core/models/beekeeping.models';
+import { OfflineQueueService } from '../../core/services/offline-queue.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { localDateString } from '../../core/utils/date.utils';
@@ -21,6 +22,7 @@ export class TreatmentsComponent {
   private readonly beekeeping = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
   private readonly fb = inject(FormBuilder);
+  private readonly offlineQueue = inject(OfflineQueueService);
   private readonly translation = inject(TranslationService);
 
   private readonly remoteTreatments = toSignal(this.beekeeping.getTreatments(), { initialValue: [] });
@@ -58,7 +60,7 @@ export class TreatmentsComponent {
   protected createTreatment(): void {
     if (this.form.invalid) return;
     const value = this.form.value;
-    this.beekeeping.createTreatment({
+    const payload = {
       hive_id: Number(value.hive_id),
       started_at: value.started_at!,
       ended_at: value.ended_at || undefined,
@@ -68,13 +70,22 @@ export class TreatmentsComponent {
       reason: value.reason || undefined,
       weather_window_id: value.weather_window_id ?? undefined,
       notes: value.notes || undefined
-    }).subscribe({
+    };
+    this.beekeeping.createTreatment(payload).subscribe({
       next: treatment => {
         this.localTreatments.update(list => [treatment, ...(list ?? this.remoteTreatments())]);
         this.showForm.set(false);
         this.form.reset({ started_at: localDateString() });
       },
-      error: () => this.errorMessage.set(this.translation.t('treatments.error.save'))
+      error: () => {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          this.offlineQueue.enqueue('/api/treatments', payload, 'Behandlung');
+          this.showForm.set(false);
+          this.errorMessage.set(this.translation.t('offline.queued'));
+          return;
+        }
+        this.errorMessage.set(this.translation.t('treatments.error.save'));
+      }
     });
   }
 

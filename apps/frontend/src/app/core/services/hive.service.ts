@@ -111,4 +111,12 @@ export class HiveService {
   deleteTimelineEntry(id: number, event: TimelineEvent): Observable<void> {
     return this.api.delete<void>(`/api/hives/${id}/timeline/${event.type}/${event.id}`);
   }
+
+  getHiveQrSvg(id: number): Observable<Blob> {
+    return this.api.getBlob(`/api/hives/${id}/qr.svg`);
+  }
+
+  getQrLabelSheet(): Observable<Blob> {
+    return this.api.getBlob('/api/hives/qr-labels.pdf');
+  }
 }

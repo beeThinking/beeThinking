@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ApiaryService } from '../../core/services/apiary.service';
+import { OfflineQueueService } from '../../core/services/offline-queue.service';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { Feeding } from '../../core/models/beekeeping.models';
@@ -22,6 +23,7 @@ export class FeedingsComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly offlineQueue = inject(OfflineQueueService);
 
   private readonly remoteFeedings = toSignal(this.beekeeping.getFeedings(), { initialValue: [] });
   private readonly localFeedings = signal<Feeding[] | null>(null);
@@ -48,20 +50,29 @@ export class FeedingsComponent {
     if (this.form.invalid) return;
 
     const value = this.form.value;
-    this.beekeeping.createFeeding({
+    const payload = {
       date: value.date!,
       feed_type: value.feed_type!,
       amount_kg_or_l: Number(value.amount_kg_or_l ?? 0),
       hive_id: value.hive_id ? Number(value.hive_id) : null,
       apiary_id: value.apiary_id ? Number(value.apiary_id) : null,
       notes: value.notes || undefined
-    }).subscribe({
+    };
+    this.beekeeping.createFeeding(payload).subscribe({
       next: feeding => {
         this.localFeedings.update(list => [feeding, ...(list ?? this.remoteFeedings())]);
         this.showForm.set(false);
         this.form.reset({ date: localDateString(), amount_kg_or_l: 0 });
       },
-      error: () => this.errorMessage.set('Fütterung konnte nicht gespeichert werden.')
+      error: () => {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          this.offlineQueue.enqueue('/api/feedings', payload, 'Fütterung');
+          this.showForm.set(false);
+          this.errorMessage.set('Offline gespeichert – wird bei Verbindung synchronisiert.');
+          return;
+        }
+        this.errorMessage.set('Fütterung konnte nicht gespeichert werden.');
+      }
     });
   }
 

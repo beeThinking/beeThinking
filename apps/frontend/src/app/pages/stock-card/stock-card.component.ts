@@ -148,4 +148,19 @@ export class StockCardComponent {
       error: () => this.actionMessage.set('Königin konnte nicht aktualisiert werden.')
     });
   }
+
+  protected printQr(): void {
+    this.hiveService.getHiveQrSvg(this.hiveId).subscribe(blob => {
+      blob.text().then(svg => {
+        const hive = this.hive();
+        const title = hive ? `${hive.name}${hive.stock_number ? ' · #' + hive.stock_number : ''}` : `Volk ${this.hiveId}`;
+        const popup = window.open('', '_blank', 'width=420,height=560');
+        if (!popup) return;
+        popup.document.write(`<html><head><title>${title}</title><style>body{font-family:sans-serif;text-align:center;padding:24px}svg{width:280px;height:280px}</style></head><body><h2>${title}</h2>${svg}<p>${this.qrUrl()}</p></body></html>`);
+        popup.document.close();
+        popup.focus();
+        popup.print();
+      });
+    });
+  }
 }
