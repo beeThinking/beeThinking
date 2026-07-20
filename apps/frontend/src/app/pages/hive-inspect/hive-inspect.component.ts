@@ -71,12 +71,6 @@ export class HiveInspectComponent {
 
   protected readonly form = this.fb.group({
     date: [this.today],
-    queen_seen: [false],
-    food_stores: [5],
-    varroa_count: [0],
-    swarm_cells: ['none'],
-    mood: ['normal'],
-    strength: ['medium'],
     hive_weight_kg: [null as number | null],
     weather: [''],
     next_steps: [''],
@@ -265,19 +259,55 @@ export class HiveInspectComponent {
     }
   }
 
+  protected optionLabel(criterion: InspectionCriterion, option: string): string {
+    const labels: Record<string, Record<string, TranslationKey>> = {
+      swarm_cells: {
+        none: 'inspect.swarm.none',
+        play_cups: 'inspect.swarm.playCups',
+        queen_cells: 'inspect.swarm.queenCells'
+      },
+      strength: {
+        weak: 'inspect.strength.weak',
+        medium: 'inspect.strength.medium',
+        strong: 'inspect.strength.strong'
+      },
+      mood: {
+        calm: 'inspect.mood.calm',
+        normal: 'inspect.mood.normal',
+        aggressive: 'inspect.mood.aggressive'
+      }
+    };
+    const key = criterion.field_key ? labels[criterion.field_key]?.[option] : undefined;
+    return key ? this.translation.t(key) : option;
+  }
+
   private buildPayload(): InspectionCreate {
     const value = this.form.value;
-    const criteriaValues = this.criteriaValues();
+    const allValues = this.criteriaValues();
+    const fieldKeyById = new Map(
+      this.criteria().filter(criterion => criterion.field_key).map(criterion => [String(criterion.id), criterion.field_key!])
+    );
+    const mapped: Record<string, unknown> = {};
+    const custom: Record<string, unknown> = {};
+    for (const [id, criterionValue] of Object.entries(allValues)) {
+      const fieldKey = fieldKeyById.get(id);
+      if (fieldKey) {
+        mapped[fieldKey] = criterionValue;
+      } else {
+        custom[id] = criterionValue;
+      }
+    }
     return {
       date: value.date || this.today,
-      queen_seen: value.queen_seen ?? false,
-      food_stores: value.food_stores ?? undefined,
-      varroa_count: value.varroa_count ?? undefined,
-      swarm_cells: value.swarm_cells as InspectionCreate['swarm_cells'],
-      mood: value.mood as InspectionCreate['mood'],
-      strength: value.strength as InspectionCreate['strength'],
+      queen_seen: (mapped['queen_seen'] as boolean | undefined) ?? false,
+      food_stores: (mapped['food_stores'] as number | undefined) ?? undefined,
+      varroa_count: (mapped['varroa_count'] as number | undefined) ?? undefined,
+      brood_strength: (mapped['brood_strength'] as number | undefined) ?? undefined,
+      swarm_cells: (mapped['swarm_cells'] as InspectionCreate['swarm_cells']) ?? undefined,
+      strength: (mapped['strength'] as InspectionCreate['strength']) ?? undefined,
+      mood: (mapped['mood'] as InspectionCreate['mood']) ?? undefined,
       hive_weight_kg: value.hive_weight_kg ?? undefined,
-      criteria_values: Object.keys(criteriaValues).length ? criteriaValues : undefined,
+      criteria_values: Object.keys(custom).length ? custom : undefined,
       weather: value.weather || undefined,
       next_steps: value.next_steps || undefined,
       notes: value.notes || undefined

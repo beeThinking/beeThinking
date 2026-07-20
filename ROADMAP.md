@@ -187,8 +187,9 @@ sections allg. Befund / Verhalten / Klima / Verschiedenes; star ratings + toggle
 - ✅ Photo upload directly in the inspection dialog (file picker, uploaded on save)
 - ✅ **Inline To-Do**: toggle in the inspection dialog creates a follow-up task on
   save (title defaults to next steps)
-- 🔄 Migration path: fixed fields (queen seen, food, varroa, swarm cells, strength)
-  stay as structured columns for now; full remap onto catalog criteria still open
+- ✅ Migration path: fixed fields are exposed as system criteria (`field_key` link);
+  the form renders one unified catalog while values stay in structured columns,
+  so existing reports keep working
 
 ## Milestone 4 — QR Tagging & Offline Field Capture
 

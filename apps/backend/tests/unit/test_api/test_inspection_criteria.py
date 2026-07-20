@@ -131,3 +131,30 @@ class TestInspectionWithCriteriaValues:
 
         fetched = client.get(f"/api/hives/{hive['id']}/inspections/{inspection['id']}")
         assert fetched.json()["criteria_values"] == {str(sanftmut["id"]): 5}
+
+
+@pytest.mark.unit
+@pytest.mark.api
+class TestSystemCriteriaMapping:
+    def test_seed_includes_system_criteria_with_field_keys(self, authenticated_client):
+        client, _ = authenticated_client
+
+        criteria = client.get("/api/inspection-criteria").json()
+
+        keys = {criterion["field_key"] for criterion in criteria if criterion["field_key"]}
+        assert keys == {"queen_seen", "food_stores", "varroa_count", "brood_strength", "swarm_cells", "strength", "mood"}
+
+    def test_existing_catalogs_are_topped_up_with_system_criteria(self, authenticated_client, db, test_user):
+        from app.models.inspection_criterion import InspectionCriterion
+
+        client, _ = authenticated_client
+        db.add(InspectionCriterion(owner_id=test_user.id, name="Nur eigenes", value_type="bool", sort_order=1))
+        db.commit()
+
+        criteria = client.get("/api/inspection-criteria").json()
+
+        names = [criterion["name"] for criterion in criteria]
+        assert "Nur eigenes" in names
+        assert "Königin gesehen" in names
+        keys = {criterion["field_key"] for criterion in criteria if criterion["field_key"]}
+        assert "queen_seen" in keys

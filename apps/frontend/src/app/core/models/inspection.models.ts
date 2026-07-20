@@ -78,6 +78,7 @@ export interface InspectionCriterion {
   section: CriterionSection;
   value_type: CriterionValueType;
   options: string[] | null;
+  field_key: string | null;
   sort_order: number;
   is_active: boolean;
   created_at: string;
