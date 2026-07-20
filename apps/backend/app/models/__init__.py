@@ -9,6 +9,7 @@ from app.models.google_calendar import GoogleCalendarConnection, GoogleCalendarE
 from app.models.hive import ColonyKind, Hive, HiveStatus, HiveType
 from app.models.hive_event import HiveEvent
 from app.models.inspection import HiveMood, HiveStrength, Inspection, SwarmCells
+from app.models.inspection_criterion import CriterionSection, CriterionValueType, InspectionCriterion
 from app.models.inventory import Article, ArticleCategory, InventoryItem
 from app.models.office import OfficeDocument, OfficeDocumentStatus, OfficeDocumentType, OfficePartner, OfficePartnerType
 from app.models.photo import Photo
