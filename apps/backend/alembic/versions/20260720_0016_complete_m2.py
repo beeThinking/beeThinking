@@ -1,7 +1,7 @@
 """complete m2 stock card fields
 
 Revision ID: 20260720_0016
-Revises: 20260718_0015
+Revises: 20260718_0016
 """
 
 from alembic import op
@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 
 revision = "20260720_0016"
-down_revision = "20260718_0015"
+down_revision = "20260718_0016"
 branch_labels = None
 depends_on = None
 
