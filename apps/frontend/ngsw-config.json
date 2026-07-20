@@ -18,5 +18,17 @@
       }
     }
   ],
-  "navigationUrls": ["/**", "!/**/*.*", "!/api/**"]
+  "navigationUrls": ["/**", "!/**/*.*", "!/api/**"],
+  "dataGroups": [
+    {
+      "name": "api-reads",
+      "urls": ["/api/apiaries/**", "/api/hives/**", "/api/queens**", "/api/varroa-checks**", "/api/inspection-criteria**", "/api/tasks**", "/api/feedings**", "/api/treatments**", "/api/harvests**", "/api/dashboard/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "timeout": "4s",
+        "maxSize": 300,
+        "maxAge": "1d"
+      }
+    }
+  ]
 }

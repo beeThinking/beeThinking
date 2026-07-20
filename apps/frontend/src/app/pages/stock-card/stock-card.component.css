@@ -55,3 +55,15 @@ h1 { color: var(--amelie-text-dark); font-size: clamp(2rem, 9vw, 3.4rem); line-h
 @media (hover: hover) {
   .queen-heading button:hover, .event-actions button:hover { background: #f4ead4; }
 }
+
+.qr-print {
+  min-height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: #2f6f5e;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 var(--space-md);
+  margin-top: var(--space-xs);
+}

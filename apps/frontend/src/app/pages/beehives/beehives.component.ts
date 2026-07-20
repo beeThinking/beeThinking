@@ -200,4 +200,18 @@ export class BeehivesComponent {
     const ending = (hive.active_queen_year ?? 0) % 5;
     return ['#3977ad', '#f7f3e8', '#f2c94c', '#c94b40', '#3f815f'][ending];
   }
+
+  protected downloadQrSheet(): void {
+    this.hiveService.getQrLabelSheet().subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'bestandsliste-qr.pdf';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.errorMessage.set(this.translation.t('beehives.error.load'))
+    });
+  }
 }

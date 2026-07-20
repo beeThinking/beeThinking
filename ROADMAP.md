@@ -195,19 +195,20 @@ sections allg. Befund / Verhalten / Klima / Verschiedenes; star ratings + toggle
 
 Goal: seconds-fast capture at the hive, like BeeInTouch's Willi app — but as PWA.
 
-- ⬜ QR codes per hive: "QR drucken" on the stock card (app-verified button) —
-  generate/print QR labels deep-linking to `/stock-card/:hiveId`; printable label
-  sheet (PDF); also Bestandsliste mit QR (all colonies, one sheet)
+- ✅ QR codes per hive: "QR drucken" on the stock card (server-rendered SVG, print
+  window) and a Bestandsliste-QR label sheet PDF for all active colonies
+  (segno + reportlab, deep links to `/stock-card/:hiveId`)
 - ⬜ Deep links to specific dialogs: QR/URL variants that open directly in
   Durchschau/Fütterung/Behandlung dialog for that hive
 - ⬜ NFC support via Web NFC API (Chrome/Android) — same deep-link targets; document
   iOS limitation (no Web NFC; QR fallback)
 - ⬜ Multi-scan: scan several hives in sequence, then apply one batch action
-- ⬜ Offline drafts beyond inspections: feedings, treatments, harvests (extend
-  `InspectionDraftService` pattern)
-- ⬜ Offline write queue: IndexedDB-backed queue for mutations made offline, replayed
-  on reconnect with conflict handling (server-side change vs. offline draft)
-- ⬜ Offline read cache: last known apiaries/hives/stock cards available offline
+- ✅ Offline capture for feedings, treatments and harvests: failed offline
+  submissions are queued and replayed automatically on reconnect
+- ✅ Offline write queue (`OfflineQueueService`): persisted queue, sequential replay
+  on the `online` event (create-only, so conflicts are naturally rare)
+- ✅ Offline read cache: ngsw data group caches API reads (freshness strategy,
+  4s network timeout, 1-day max age) — last known data available offline
 - ⬜ Background sync for photo uploads to MinIO
 
 ## Milestone 5 — Traceability & Regulatory Registers

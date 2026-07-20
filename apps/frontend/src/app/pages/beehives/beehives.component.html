@@ -4,6 +4,7 @@
       <h1>{{ 'beehives.title' | translate }}</h1>
       <div class="header-actions">
         <a class="btn btn-secondary" routerLink="/hives/archive">{{ 'beehives.archive' | translate }}</a>
+        <button class="btn btn-secondary" (click)="downloadQrSheet()">{{ 'beehives.qrSheet' | translate }}</button>
         <button class="btn btn-primary" (click)="openCreateForm()">{{ 'beehives.add' | translate }}</button>
       </div>
     </div>

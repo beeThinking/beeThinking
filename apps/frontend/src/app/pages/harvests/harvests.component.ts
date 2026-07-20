@@ -6,6 +6,7 @@ import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
 import { Harvest } from '../../core/models/beekeeping.models';
+import { OfflineQueueService } from '../../core/services/offline-queue.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { localDateString } from '../../core/utils/date.utils';
@@ -23,6 +24,7 @@ export class HarvestsComponent {
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
   private readonly fb = inject(FormBuilder);
+  private readonly offlineQueue = inject(OfflineQueueService);
   private readonly translation = inject(TranslationService);
 
   private readonly remoteHarvests = toSignal(this.beekeeping.getHarvests(), { initialValue: [] });
@@ -47,7 +49,7 @@ export class HarvestsComponent {
   protected createHarvest(): void {
     if (this.form.invalid) return;
     const value = this.form.value;
-    this.beekeeping.createHarvest({
+    const payload = {
       harvest_date: value.harvest_date!,
       amount_kg: Number(value.amount_kg ?? 0),
       crop_type: value.crop_type || undefined,
@@ -55,13 +57,22 @@ export class HarvestsComponent {
       hive_id: value.hive_id ? Number(value.hive_id) : null,
       apiary_id: value.apiary_id ? Number(value.apiary_id) : null,
       notes: value.notes || undefined
-    }).subscribe({
+    };
+    this.beekeeping.createHarvest(payload).subscribe({
       next: harvest => {
         this.localHarvests.update(list => [harvest, ...(list ?? this.remoteHarvests())]);
         this.showForm.set(false);
         this.form.reset({ harvest_date: localDateString(), amount_kg: 0 });
       },
-      error: () => this.errorMessage.set(this.translation.t('harvests.error.save'))
+      error: () => {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          this.offlineQueue.enqueue('/api/harvests', payload, 'Ernte');
+          this.showForm.set(false);
+          this.errorMessage.set(this.translation.t('offline.queued'));
+          return;
+        }
+        this.errorMessage.set(this.translation.t('harvests.error.save'));
+      }
     });
   }
 
