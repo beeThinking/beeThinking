@@ -207,6 +207,40 @@ export interface BottleResponse {
   inventory_items: InventoryItem[];
 }
 
+export interface TraceabilityHiveInfo {
+  id: number;
+  name: string;
+  stock_number: string | null;
+}
+
+export interface TraceabilityApiaryInfo {
+  id: number;
+  name: string | null;
+  stock_number: string;
+}
+
+export interface TraceabilityHarvestEntry {
+  harvest: Harvest;
+  hive: TraceabilityHiveInfo | null;
+  apiary: TraceabilityApiaryInfo | null;
+}
+
+export interface TraceabilityInventoryItemInfo {
+  id: number;
+  article_id: number;
+  quantity: number;
+  unit: string;
+  best_before: string | null;
+  archived: boolean;
+}
+
+export interface TraceabilityResponse {
+  lot_number: string;
+  batch: Batch;
+  harvests: TraceabilityHarvestEntry[];
+  inventory_items: TraceabilityInventoryItemInfo[];
+}
+
 export interface Feeding {
   id: number;
   owner_id: number;
@@ -569,4 +603,18 @@ export interface BatchActionCreate {
   batch_code?: string;
   target_apiary_id?: number;
   reason?: string;
+}
+
+export interface HoneybookEntry {
+  lot_number: string | null;
+  status: 'batched' | 'unbatched';
+  harvest_date: string;
+  apiary_name: string | null;
+  hive_name: string | null;
+  crop_type: string | null;
+  amount_kg: number;
+  water_content_percent: number | null;
+  best_before: string | null;
+  bottled_quantity: number;
+  bottled_articles: string[];
 }

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   DashboardSummary,
@@ -28,6 +29,7 @@ import {
   Harvest,
   HarvestCreate,
   HarvestUpdate,
+  HoneybookEntry,
   InventoryItem,
   InventoryItemCreate,
   InventoryItemUpdate,
@@ -46,6 +48,7 @@ import {
   TaskCreate,
   TaskStatus,
   TaskUpdate,
+  TraceabilityResponse,
   Treatment,
   TreatmentCreate,
   TreatmentUpdate
@@ -341,6 +344,16 @@ export class BeekeepingService {
     return this.api.delete<void>(`/api/photos/${id}`);
   }
 
+  getHoneybookRegister(year?: number): Observable<HoneybookEntry[]> {
+    const query = year ? `?year=${year}` : '';
+    return this.api.get<HoneybookEntry[]>(`/api/honeybook/register${query}`);
+  }
+
+  downloadHoneybookPdf(year?: number): Observable<Blob> {
+    const query = year ? `?year=${year}` : '';
+    return this.api.getBlob(`/api/honeybook/register.pdf${query}`);
+  }
+
   createBatchAction(
     apiaryId: number,
     actionType: string,
@@ -357,6 +370,17 @@ export class BeekeepingService {
     return this.api.post<{ action_type: string; created: number; hive_ids: number[] }>(
       `/api/apiaries/${apiaryId}/batch-actions/${actionType}`,
       payload
+    );
+  }
+
+  getTraceability(lotNumber: string): Observable<TraceabilityResponse | null> {
+    return this.api.get<TraceabilityResponse>(`/api/traceability/${encodeURIComponent(lotNumber)}`).pipe(
+      catchError((error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 404) {
+          return of(null);
+        }
+        return throwError(() => error);
+      })
     );
   }
 }

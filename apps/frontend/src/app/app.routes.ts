@@ -153,6 +153,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'honeybook',
+    loadComponent: () => import('./pages/honeybook/honeybook.component').then(m => m.HoneybookComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'office/reports',
     loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [authGuard]
@@ -180,6 +185,11 @@ export const routes: Routes = [
   {
     path: 'inspections',
     loadComponent: () => import('./pages/inspections/inspections.component').then(m => m.InspectionsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'traceability',
+    loadComponent: () => import('./pages/traceability/traceability.component').then(m => m.TraceabilityComponent),
     canActivate: [authGuard]
   }
 ];

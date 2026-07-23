@@ -1,0 +1,95 @@
+<div class="work-page">
+  <p class="eyebrow">{{ 'traceability.eyebrow' | translate }}</p>
+  <h1>{{ 'traceability.title' | translate }}</h1>
+
+  <form class="search-form" (submit)="$event.preventDefault(); search()">
+    <label class="search-label">
+      {{ 'traceability.lotNumber' | translate }}
+      <input
+        type="text"
+        name="lotNumber"
+        [ngModel]="lotNumber()"
+        (ngModelChange)="lotNumber.set($event)"
+        [placeholder]="'traceability.lotNumberPlaceholder' | translate"
+        autocomplete="off" />
+    </label>
+    <button type="submit" class="primary-action" [disabled]="loading()">
+      {{ 'traceability.search' | translate }}
+    </button>
+  </form>
+
+  @if (loading()) {
+    <p class="hint">{{ 'traceability.loading' | translate }}</p>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (notFound()) {
+    <div class="alert not-found">{{ 'traceability.notFound' | translate }}</div>
+  }
+
+  @if (result()) {
+    @let data = result()!;
+    <section class="result-panel">
+      <h2>{{ 'traceability.batch' | translate }}: {{ data.batch.lot_number }}</h2>
+      <dl class="batch-meta">
+        <div>
+          <dt>{{ 'traceability.totalAmount' | translate }}</dt>
+          <dd>{{ data.batch.total_amount_kg | number:'1.0-2' }} kg</dd>
+        </div>
+        <div>
+          <dt>{{ 'traceability.remainingAmount' | translate }}</dt>
+          <dd>{{ data.batch.remaining_kg | number:'1.0-2' }} kg</dd>
+        </div>
+        @if (data.batch.best_before) {
+          <div>
+            <dt>{{ 'traceability.bestBefore' | translate }}</dt>
+            <dd>{{ data.batch.best_before | date:'dd.MM.yyyy' }}</dd>
+          </div>
+        }
+      </dl>
+
+      <h3>{{ 'traceability.harvests' | translate }}</h3>
+      @if (data.harvests.length) {
+        <ul class="harvest-list">
+          @for (entry of data.harvests; track entry.harvest.id) {
+            <li class="harvest-item">
+              <p class="harvest-date">{{ entry.harvest.harvest_date | date:'dd.MM.yyyy' }}</p>
+              <p>
+                <span class="label">{{ 'traceability.hive' | translate }}:</span>
+                {{ entry.hive?.name ?? ('traceability.unknown' | translate) }}
+              </p>
+              <p>
+                <span class="label">{{ 'traceability.apiary' | translate }}:</span>
+                {{ entry.apiary?.name ?? ('traceability.unknown' | translate) }}
+              </p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="hint">{{ 'traceability.noHarvests' | translate }}</p>
+      }
+
+      <h3>{{ 'traceability.inventoryItems' | translate }}</h3>
+      @if (data.inventory_items.length) {
+        <ul class="inventory-list">
+          @for (item of data.inventory_items; track item.id) {
+            <li class="inventory-item">
+              {{ item.quantity | number:'1.0-2' }} {{ item.unit }}
+              @if (item.best_before) {
+                <span class="inventory-best-before">· {{ 'traceability.bestBefore' | translate }} {{ item.best_before | date:'dd.MM.yyyy' }}</span>
+              }
+              @if (item.archived) {
+                <span class="inventory-archived">({{ 'traceability.archived' | translate }})</span>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="hint">{{ 'traceability.noInventoryItems' | translate }}</p>
+      }
+    </section>
+  }
+</div>

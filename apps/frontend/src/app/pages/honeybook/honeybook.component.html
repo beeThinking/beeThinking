@@ -1,0 +1,75 @@
+<div class="work-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'honeybook.eyebrow' | translate }}</p>
+      <h1>{{ 'honeybook.title' | translate }}</h1>
+    </div>
+    <div class="header-actions">
+      <label class="year-select">{{ 'honeybook.year' | translate }}
+        <select [ngModel]="year()" (ngModelChange)="setYear($event)" name="year">
+          @for (option of years(); track option) {
+            <option [ngValue]="option">{{ option }}</option>
+          }
+        </select>
+      </label>
+      <button
+        type="button"
+        class="primary-action"
+        [disabled]="exportPending()"
+        (click)="downloadPdf()">
+        {{ exportPending() ? ('honeybook.downloading' | translate) : ('honeybook.downloadPdf' | translate) }}
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  <div class="table-wrapper">
+    <table class="register-table">
+      <thead>
+        <tr>
+          <th>{{ 'honeybook.column.lotNumber' | translate }}</th>
+          <th>{{ 'honeybook.column.harvestDate' | translate }}</th>
+          <th>{{ 'honeybook.column.apiary' | translate }}</th>
+          <th>{{ 'honeybook.column.hive' | translate }}</th>
+          <th>{{ 'honeybook.column.cropType' | translate }}</th>
+          <th>{{ 'honeybook.column.amountKg' | translate }}</th>
+          <th>{{ 'honeybook.column.waterContent' | translate }}</th>
+          <th>{{ 'honeybook.column.bestBefore' | translate }}</th>
+          <th>{{ 'honeybook.column.bottled' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track $index) {
+          <tr>
+            <td>
+              @if (entry.status === 'batched' && entry.lot_number) {
+                {{ entry.lot_number }}
+              } @else {
+                <span class="unbatched-badge">{{ 'honeybook.unbatched' | translate }}</span>
+              }
+            </td>
+            <td>{{ entry.harvest_date | date:'dd.MM.yyyy' }}</td>
+            <td>{{ entry.apiary_name || '-' }}</td>
+            <td>{{ entry.hive_name || '-' }}</td>
+            <td>{{ entry.crop_type || '-' }}</td>
+            <td>{{ entry.amount_kg | number:'1.0-2' }}</td>
+            <td>{{ entry.water_content_percent !== null ? (entry.water_content_percent | number:'1.0-1') + ' %' : '-' }}</td>
+            <td>{{ entry.best_before ? (entry.best_before | date:'dd.MM.yyyy') : '-' }}</td>
+            <td>
+              @if (entry.bottled_quantity > 0) {
+                {{ entry.bottled_quantity }} · {{ entry.bottled_articles.join(', ') }}
+              } @else {
+                -
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="9" class="empty-hint">{{ 'honeybook.empty' | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

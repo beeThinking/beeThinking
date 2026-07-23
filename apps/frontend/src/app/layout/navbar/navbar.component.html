@@ -61,6 +61,8 @@
             <li><a routerLink="/inventory/items" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Lager</a></li>
             <li><a routerLink="/office" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Büro</a></li>
             <li><a routerLink="/office/cashbook" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Kassenbuch</a></li>
+            <li><a routerLink="/traceability" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.traceability' | translate }}</a></li>
+            <li><a routerLink="/honeybook" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.honeybook' | translate }}</a></li>
             @if (isAdmin()) {
               <li><a routerLink="/admin/cms" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">CMS</a></li>
             }

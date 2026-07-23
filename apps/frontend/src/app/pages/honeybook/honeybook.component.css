@@ -1,0 +1,25 @@
+.work-page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-lg) var(--page-px) var(--space-2xl); }
+.work-header { display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md); }
+.eyebrow { color: #2f6f5e; font-weight: 900; text-transform: uppercase; }
+h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); line-height: 1.05; }
+.header-actions { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-sm); }
+.year-select { display: grid; gap: 0.3rem; font-weight: 800; color: #5c4d35; }
+select { border: 1px solid #cdbfaa; border-radius: 8px; padding: 0.7rem; font: inherit; font-size: 1rem; background: #fff; color: var(--amelie-text-dark); min-height: 44px; }
+button, .primary-action { border: 0; border-radius: 8px; font-weight: 800; cursor: pointer; min-height: 44px; }
+.primary-action { background: #2f6f5e; color: white; padding: 0.8rem 1rem; }
+.primary-action:disabled { opacity: 0.6; cursor: not-allowed; }
+.alert { background: #fff3f0; border: 1px solid #dfb6ad; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }
+.table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; border: 1px solid #e5dac8; border-radius: 8px; background: #fff; }
+.table-wrapper::-webkit-scrollbar { display: none; }
+.register-table { width: 100%; min-width: 720px; border-collapse: collapse; }
+.register-table th, .register-table td { text-align: left; padding: var(--space-sm); border-bottom: 1px solid #e5dac8; white-space: nowrap; font-size: 0.9rem; }
+.register-table th { color: #5c4d35; font-weight: 800; background: #fffaf0; }
+.register-table tbody tr:last-child td { border-bottom: none; }
+.unbatched-badge { display: inline-block; background: #f4e6d0; color: #8a6b2f; border-radius: 6px; padding: 0.2rem 0.5rem; font-weight: 700; font-size: 0.8rem; }
+.empty-hint { color: #6b604f; text-align: center; white-space: normal; }
+@media (hover: hover) {
+  .register-table tbody tr:hover { background: #fffaf0; }
+}
+@media (min-width: 768px) {
+  .work-header { flex-direction: row; justify-content: space-between; align-items: end; }
+}

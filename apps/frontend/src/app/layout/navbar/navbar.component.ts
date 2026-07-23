@@ -28,7 +28,9 @@ export class NavbarComponent {
       '/inventory',
       '/office',
       '/admin/cms',
-      '/appointments'
+      '/appointments',
+      '/honeybook',
+      '/traceability'
     ].some(path => this.router.url.startsWith(path));
   }
 

@@ -99,3 +99,123 @@ describe('BeekeepingService batches', () => {
     http.verify();
   });
 });
+
+describe('BeekeepingService traceability', () => {
+  let service: BeekeepingService;
+  let http: HttpTestingController;
+
+  const batch: Batch = {
+    id: 1,
+    owner_id: 5,
+    lot_number: '2026-001',
+    best_before: '2028-07-23',
+    total_amount_kg: 12.5,
+    remaining_kg: 12.5,
+    notes: null,
+    created_at: '2026-07-23T10:00:00Z',
+    updated_at: null,
+    harvests: []
+  };
+
+  const response = {
+    lot_number: '2026-001',
+    batch,
+    harvests: [],
+    inventory_items: []
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(BeekeepingService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('loads traceability data for a lot number', () => {
+    service.getTraceability('2026-001').subscribe(result => expect(result).toEqual(response));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/traceability/2026-001`);
+    expect(request.request.method).toBe('GET');
+    request.flush(response);
+    http.verify();
+  });
+
+  it('returns null when the lot number is not found', () => {
+    service.getTraceability('unknown-lot').subscribe(result => expect(result).toBeNull());
+
+    const request = http.expectOne(`${environment.apiUrl}/api/traceability/unknown-lot`);
+    request.flush({ detail: 'Lot number not found' }, { status: 404, statusText: 'Not Found' });
+    http.verify();
+  });
+
+  it('propagates non-404 errors', () => {
+    let caught: unknown = null;
+    service.getTraceability('2026-001').subscribe({
+      error: error => { caught = error; }
+    });
+
+    const request = http.expectOne(`${environment.apiUrl}/api/traceability/2026-001`);
+    request.flush({ detail: 'Server error' }, { status: 500, statusText: 'Server Error' });
+    http.verify();
+
+    expect(caught).not.toBeNull();
+  });
+});
+
+describe('BeekeepingService honeybook', () => {
+  let service: BeekeepingService;
+  let http: HttpTestingController;
+
+  const entries = [
+    {
+      lot_number: '2026-001',
+      status: 'batched' as const,
+      harvest_date: '2026-06-01',
+      apiary_name: 'Stand Nord',
+      hive_name: 'Volk 1',
+      crop_type: 'Frühtracht',
+      amount_kg: 10,
+      water_content_percent: 17.5,
+      best_before: '2028-06-01',
+      bottled_quantity: 5,
+      bottled_articles: ['Glas 500g']
+    }
+  ];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(BeekeepingService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  it('loads the honeybook register for a given year', () => {
+    service.getHoneybookRegister(2026).subscribe(result => expect(result).toEqual(entries));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/honeybook/register?year=2026`);
+    expect(request.request.method).toBe('GET');
+    request.flush(entries);
+    http.verify();
+  });
+
+  it('loads the honeybook register without a year filter', () => {
+    service.getHoneybookRegister().subscribe(result => expect(result).toEqual(entries));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/honeybook/register`);
+    expect(request.request.method).toBe('GET');
+    request.flush(entries);
+    http.verify();
+  });
+
+  it('downloads the honeybook register as a pdf', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadHoneybookPdf(2026).subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/honeybook/register.pdf?year=2026`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
+});

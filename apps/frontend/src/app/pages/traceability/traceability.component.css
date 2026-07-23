@@ -1,0 +1,32 @@
+.work-page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-lg) var(--page-px) var(--space-2xl); }
+.eyebrow { color: #2f6f5e; font-weight: 900; text-transform: uppercase; }
+h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); line-height: 1.05; }
+h2 { font-size: clamp(1.1rem, 4vw, 1.5rem); margin: var(--space-md) 0 var(--space-sm); }
+h3 { font-size: 1rem; margin: var(--space-md) 0 var(--space-xs); }
+.search-form { display: grid; gap: var(--space-sm); margin: var(--space-md) 0; }
+.search-label { display: grid; gap: 0.3rem; font-weight: 800; color: #5c4d35; }
+input { border: 1px solid #cdbfaa; border-radius: 8px; padding: 0.7rem; font: inherit; font-size: 1rem; background: #fff; color: var(--amelie-text-dark); min-height: 44px; }
+button, .primary-action { border: 0; border-radius: 8px; font-weight: 800; cursor: pointer; min-height: 44px; }
+.primary-action { background: #2f6f5e; color: white; padding: 0.8rem 1rem; }
+.primary-action:disabled { opacity: 0.6; cursor: not-allowed; }
+.alert { background: #fff3f0; border: 1px solid #dfb6ad; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }
+.alert.not-found { background: #fff8e1; border-color: #e3c98f; }
+.hint { color: #6b604f; }
+.result-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); margin-top: var(--space-md); }
+.batch-meta { display: grid; gap: var(--space-sm); margin: 0; }
+.batch-meta dt { font-weight: 800; color: #5c4d35; font-size: 0.85rem; }
+.batch-meta dd { margin: 0; }
+.harvest-list, .inventory-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-sm); }
+.harvest-item, .inventory-item { background: #fffaf0; border: 1px solid #e3d7c4; border-radius: 8px; padding: var(--space-sm); }
+.harvest-item p { margin: 0.2rem 0; }
+.harvest-date { font-weight: 800; color: #5c4d35; }
+.label { font-weight: 700; }
+.inventory-best-before, .inventory-archived { color: #6b604f; }
+
+@media (min-width: 480px) {
+  .search-form { grid-template-columns: 1fr auto; align-items: end; }
+}
+
+@media (min-width: 768px) {
+  .batch-meta { grid-template-columns: repeat(3, 1fr); }
+}
