@@ -15,6 +15,7 @@ class Harvest(Base):
     harvest_date = Column(Date, nullable=False)
     crop_type = Column(String, nullable=True)
     amount_kg = Column(Float, nullable=False)
+    water_content_percent = Column(Float, nullable=True)
     batch_code = Column(String, nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

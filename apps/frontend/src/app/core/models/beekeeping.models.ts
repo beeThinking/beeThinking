@@ -140,6 +140,7 @@ export interface Harvest {
   harvest_date: string;
   crop_type: string | null;
   amount_kg: number;
+  water_content_percent: number | null;
   batch_code: string | null;
   notes: string | null;
   created_at: string;
@@ -152,6 +153,7 @@ export interface HarvestCreate {
   harvest_date: string;
   crop_type?: string;
   amount_kg: number;
+  water_content_percent?: number | null;
   batch_code?: string;
   notes?: string;
 }

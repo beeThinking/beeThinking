@@ -40,6 +40,7 @@ export class HarvestsComponent {
     harvest_date: [localDateString(), Validators.required],
     amount_kg: [0, [Validators.required, Validators.min(0)]],
     crop_type: [''],
+    water_content_percent: [null as number | null, [Validators.min(0), Validators.max(100)]],
     batch_code: [''],
     hive_id: [null as number | null],
     apiary_id: [null as number | null],
@@ -53,6 +54,9 @@ export class HarvestsComponent {
       harvest_date: value.harvest_date!,
       amount_kg: Number(value.amount_kg ?? 0),
       crop_type: value.crop_type || undefined,
+      water_content_percent: value.water_content_percent !== null && value.water_content_percent !== undefined
+        ? Number(value.water_content_percent)
+        : undefined,
       batch_code: value.batch_code || undefined,
       hive_id: value.hive_id ? Number(value.hive_id) : null,
       apiary_id: value.apiary_id ? Number(value.apiary_id) : null,

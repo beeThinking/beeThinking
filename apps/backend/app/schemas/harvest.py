@@ -10,6 +10,7 @@ class HarvestBase(BaseModel):
     harvest_date: date
     crop_type: Optional[str] = Field(None, max_length=100)
     amount_kg: float = Field(..., ge=0)
+    water_content_percent: Optional[float] = Field(None, ge=0, le=100)
     batch_code: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=1000)
 
@@ -24,6 +25,7 @@ class HarvestUpdate(BaseModel):
     harvest_date: Optional[date] = None
     crop_type: Optional[str] = Field(None, max_length=100)
     amount_kg: Optional[float] = Field(None, ge=0)
+    water_content_percent: Optional[float] = Field(None, ge=0, le=100)
     batch_code: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=1000)
 
