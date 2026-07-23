@@ -5,7 +5,7 @@ from app.api.dependencies import get_current_active_user
 from app.crud import batch as batch_crud
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.batch import BatchCreate, BatchResponse, BatchUpdate
+from app.schemas.batch import BatchCreate, BatchResponse, BatchUpdate, BottleRequest, BottleResponse
 
 router = APIRouter()
 
@@ -89,3 +89,20 @@ def detach_harvest(
     if not db_batch:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch or harvest not found")
     return db_batch
+
+
+@router.post("/{batch_id}/bottle", response_model=BottleResponse)
+def bottle_batch(
+    batch_id: int,
+    request: BottleRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    try:
+        result = batch_crud.bottle_batch(db, batch_id=batch_id, owner_id=current_user.id, request=request)
+    except batch_crud.InsufficientBatchQuantityError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch or article not found")
+    db_batch, inventory_items = result
+    return BottleResponse(batch=db_batch, inventory_items=inventory_items)

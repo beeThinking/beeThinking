@@ -1,12 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
-import { Batch, Harvest } from '../../core/models/beekeeping.models';
+import { Batch, BottleItem, Harvest, InventoryItem } from '../../core/models/beekeeping.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { localDateString } from '../../core/utils/date.utils';
+
+let bottlingRowId = 0;
+
+interface BottlingRow {
+  id: number;
+  articleId: number | null;
+  quantity: number | null;
+  price: number | null;
+  bestBefore: string;
+}
+
+function createBottlingRow(articleId: number | null): BottlingRow {
+  return { id: ++bottlingRowId, articleId, quantity: null, price: null, bestBefore: '' };
+}
 
 function addMonths(dateStr: string, months: number): string {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -48,6 +63,13 @@ export class BatchesComponent {
   protected readonly attachHarvestId = signal<number | null>(null);
   protected readonly editingBestBefore = signal('');
   protected readonly editingNotes = signal('');
+
+  private readonly remoteArticles = toSignal(this.beekeeping.getArticles(), { initialValue: [] });
+  protected readonly articles = computed(() => this.remoteArticles());
+
+  protected readonly bottlingRows = signal<BottlingRow[]>([]);
+  protected readonly bottlingError = signal('');
+  protected readonly bottlingResult = signal<InventoryItem[] | null>(null);
 
   protected readonly suggestedBestBefore = computed(() => {
     const ids = this.selectedHarvestIds();
@@ -106,6 +128,9 @@ export class BatchesComponent {
     this.editingBestBefore.set(batch.best_before ?? '');
     this.editingNotes.set(batch.notes ?? '');
     this.attachHarvestId.set(null);
+    this.bottlingRows.set([]);
+    this.bottlingError.set('');
+    this.bottlingResult.set(null);
   }
 
   protected saveBatch(batch: Batch): void {
@@ -169,5 +194,44 @@ export class BatchesComponent {
 
   protected today(): string {
     return localDateString();
+  }
+
+  protected addBottlingRow(): void {
+    const defaultArticleId = this.articles()[0]?.id ?? null;
+    this.bottlingRows.update(rows => [...rows, createBottlingRow(defaultArticleId)]);
+  }
+
+  protected removeBottlingRow(rowId: number): void {
+    this.bottlingRows.update(rows => rows.filter(row => row.id !== rowId));
+  }
+
+  protected updateBottlingRow(rowId: number, changes: Partial<BottlingRow>): void {
+    this.bottlingRows.update(rows => rows.map(row => row.id === rowId ? { ...row, ...changes } : row));
+  }
+
+  protected submitBottling(batch: Batch): void {
+    const rows = this.bottlingRows().filter(row => row.articleId !== null && row.quantity && row.quantity > 0);
+    if (!rows.length) return;
+    const items: BottleItem[] = rows.map(row => ({
+      article_id: row.articleId as number,
+      quantity: row.quantity as number,
+      price: row.price ?? undefined,
+      best_before: row.bestBefore || undefined
+    }));
+    this.bottlingError.set('');
+    this.beekeeping.bottleBatch(batch.id, { items }).subscribe({
+      next: response => {
+        this.replaceBatch(response.batch);
+        this.bottlingResult.set(response.inventory_items);
+        this.bottlingRows.set([]);
+      },
+      error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.bottlingError.set(this.translation.t('batches.bottling.error.exceeds'));
+        } else {
+          this.bottlingError.set(this.translation.t('batches.bottling.error.save'));
+        }
+      }
+    });
   }
 }

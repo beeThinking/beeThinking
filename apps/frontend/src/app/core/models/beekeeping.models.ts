@@ -176,6 +176,7 @@ export interface Batch {
   lot_number: string;
   best_before: string | null;
   total_amount_kg: number;
+  remaining_kg: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string | null;
@@ -189,6 +190,22 @@ export interface BatchCreate {
 }
 
 export type BatchUpdate = Partial<Pick<BatchCreate, 'best_before' | 'notes'>>;
+
+export interface BottleItem {
+  article_id: number;
+  quantity: number;
+  price?: number | null;
+  best_before?: string | null;
+}
+
+export interface BottleRequest {
+  items: BottleItem[];
+}
+
+export interface BottleResponse {
+  batch: Batch;
+  inventory_items: InventoryItem[];
+}
 
 export interface Feeding {
   id: number;
@@ -214,7 +231,7 @@ export interface FeedingCreate {
 
 export type FeedingUpdate = Partial<FeedingCreate>;
 
-export type ArticleCategory = 'honey' | 'material' | 'feed' | 'other';
+export type ArticleCategory = 'honey' | 'finished_product' | 'feed' | 'material';
 
 export interface Article {
   id: number;
@@ -244,6 +261,7 @@ export interface InventoryItem {
   id: number;
   owner_id: number;
   article_id: number;
+  batch_id: number | null;
   article: Article;
   quantity: number;
   unit: string;

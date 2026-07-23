@@ -15,9 +15,11 @@ class Batch(Base):
     lot_number = Column(String, nullable=False)
     best_before = Column(Date, nullable=True)
     total_amount_kg = Column(Float, nullable=False, default=0)
+    remaining_kg = Column(Float, nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     owner = relationship("User", foreign_keys=[owner_id])
     harvests = relationship("Harvest", back_populates="batch")
+    inventory_items = relationship("InventoryItem", back_populates="batch")

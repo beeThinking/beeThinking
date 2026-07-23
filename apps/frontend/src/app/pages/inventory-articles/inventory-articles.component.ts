@@ -15,7 +15,7 @@ import { BeekeepingService } from '../../core/services/beekeeping.service';
 export class InventoryArticlesComponent {
   private readonly beekeeping = inject(BeekeepingService);
   protected readonly articles = signal<Article[]>([]);
-  protected readonly categories: ArticleCategory[] = ['honey', 'material', 'feed', 'other'];
+  protected readonly categories: ArticleCategory[] = ['honey', 'finished_product', 'feed', 'material'];
   protected readonly name = signal('');
   protected readonly category = signal<ArticleCategory>('honey');
   protected readonly sku = signal('');

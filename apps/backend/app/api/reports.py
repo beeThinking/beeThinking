@@ -216,7 +216,7 @@ def inventory_finished_goods_pdf(
     current_user: User = Depends(get_current_active_user),
 ):
     items = inventory_crud.get_inventory_items(db, current_user.id)
-    finished_categories = {ArticleCategory.honey}
+    finished_categories = {ArticleCategory.honey, ArticleCategory.finished_product}
     items = [item for item in items if item.article and item.article.category in finished_categories]
     return _render_inventory_pdf("Bestand Fertigprodukte", "bestand-fertigprodukte.pdf", items)
 

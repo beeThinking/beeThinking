@@ -16,6 +16,7 @@ describe('BeekeepingService batches', () => {
     lot_number: '2026-001',
     best_before: '2028-07-23',
     total_amount_kg: 12.5,
+    remaining_kg: 12.5,
     notes: null,
     created_at: '2026-07-23T10:00:00Z',
     updated_at: null,
@@ -83,6 +84,18 @@ describe('BeekeepingService batches', () => {
     const request = http.expectOne(`${environment.apiUrl}/api/batches/1/harvests/10`);
     expect(request.request.method).toBe('DELETE');
     request.flush(batch);
+    http.verify();
+  });
+
+  it('bottles a batch with the given items', () => {
+    const response = { batch: { ...batch, remaining_kg: 8 }, inventory_items: [] };
+    service.bottleBatch(1, { items: [{ article_id: 5, quantity: 4, price: 9.9, best_before: '2028-01-01' }] })
+      .subscribe(result => expect(result).toEqual(response));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/batches/1/bottle`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ items: [{ article_id: 5, quantity: 4, price: 9.9, best_before: '2028-01-01' }] });
+    request.flush(response);
     http.verify();
   });
 });

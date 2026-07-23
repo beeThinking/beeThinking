@@ -13,6 +13,8 @@ import {
   Batch,
   BatchCreate,
   BatchUpdate,
+  BottleRequest,
+  BottleResponse,
   CashbookEntry,
   CashbookEntryCreate,
   CashbookEntryUpdate,
@@ -137,6 +139,10 @@ export class BeekeepingService {
 
   detachHarvestFromBatch(batchId: number, harvestId: number): Observable<Batch> {
     return this.api.delete<Batch>(`/api/batches/${batchId}/harvests/${harvestId}`);
+  }
+
+  bottleBatch(batchId: number, request: BottleRequest): Observable<BottleResponse> {
+    return this.api.post<BottleResponse>(`/api/batches/${batchId}/bottle`, request);
   }
 
   getFeedings(): Observable<Feeding[]> {

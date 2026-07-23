@@ -9,9 +9,9 @@ from app.db.database import Base
 
 class ArticleCategory(str, enum.Enum):
     honey = "honey"
-    material = "material"
+    finished_product = "finished_product"
     feed = "feed"
-    other = "other"
+    material = "material"
 
 
 class Article(Base):
@@ -19,7 +19,7 @@ class Article(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    category = Column(Enum(ArticleCategory), default=ArticleCategory.other, nullable=False)
+    category = Column(Enum(ArticleCategory), default=ArticleCategory.material, nullable=False)
     name = Column(String, nullable=False)
     sku = Column(String, nullable=True)
     weight_kg = Column(Float, nullable=True)
@@ -38,6 +38,7 @@ class InventoryItem(Base):
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     article_id = Column(Integer, ForeignKey("articles.id"), nullable=False)
+    batch_id = Column(Integer, ForeignKey("batches.id"), nullable=True)
     quantity = Column(Float, nullable=False, default=0)
     unit = Column(String, nullable=False, default="piece")
     price = Column(Float, nullable=True)
@@ -50,3 +51,4 @@ class InventoryItem(Base):
 
     owner = relationship("User", back_populates="inventory_items")
     article = relationship("Article", back_populates="inventory_items")
+    batch = relationship("Batch", back_populates="inventory_items")

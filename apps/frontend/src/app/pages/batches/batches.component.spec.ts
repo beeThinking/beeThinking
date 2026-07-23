@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Batch, Harvest } from '../../core/models/beekeeping.models';
+import { Article, Batch, Harvest, InventoryItem } from '../../core/models/beekeeping.models';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { BatchesComponent } from './batches.component';
 
@@ -46,6 +47,7 @@ describe('BatchesComponent', () => {
       lot_number: '2026-001',
       best_before: '2028-06-10',
       total_amount_kg: 3,
+      remaining_kg: 3,
       notes: null,
       created_at: '2026-06-10T10:00:00Z',
       updated_at: null,
@@ -55,14 +57,31 @@ describe('BatchesComponent', () => {
     }
   ];
 
+  const articles: Article[] = [
+    {
+      id: 5,
+      owner_id: 1,
+      category: 'finished_product',
+      name: 'Honigglas 500g',
+      sku: null,
+      weight_kg: 0.5,
+      unit: 'piece',
+      notes: null,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: null
+    }
+  ];
+
   const beekeepingServiceMock = {
     getBatches: vi.fn().mockReturnValue(of(batches)),
     getHarvests: vi.fn().mockReturnValue(of(harvests)),
+    getArticles: vi.fn().mockReturnValue(of(articles)),
     createBatch: vi.fn(),
     updateBatch: vi.fn(),
     deleteBatch: vi.fn(),
     attachHarvestToBatch: vi.fn(),
-    detachHarvestFromBatch: vi.fn()
+    detachHarvestFromBatch: vi.fn(),
+    bottleBatch: vi.fn()
   };
 
   beforeEach(async () => {
@@ -74,6 +93,7 @@ describe('BatchesComponent', () => {
     vi.clearAllMocks();
     beekeepingServiceMock.getBatches.mockReturnValue(of(batches));
     beekeepingServiceMock.getHarvests.mockReturnValue(of(harvests));
+    beekeepingServiceMock.getArticles.mockReturnValue(of(articles));
   });
 
   it('should create', () => {
@@ -133,5 +153,84 @@ describe('BatchesComponent', () => {
     component.deleteBatch(batches[0]);
 
     expect(beekeepingServiceMock.deleteBatch).toHaveBeenCalledWith(1);
+  });
+
+  it('should add and remove bottling rows', () => {
+    const fixture = TestBed.createComponent(BatchesComponent);
+    const component = fixture.componentInstance as unknown as {
+      addBottlingRow: () => void;
+      removeBottlingRow: (id: number) => void;
+      bottlingRows: () => { id: number; articleId: number | null }[];
+    };
+
+    component.addBottlingRow();
+    expect(component.bottlingRows().length).toBe(1);
+    expect(component.bottlingRows()[0].articleId).toBe(5);
+
+    const rowId = component.bottlingRows()[0].id;
+    component.removeBottlingRow(rowId);
+    expect(component.bottlingRows().length).toBe(0);
+  });
+
+  it('should submit bottling and update batch remaining_kg with returned inventory items', () => {
+    const updatedBatch: Batch = { ...batches[0], remaining_kg: 1 };
+    const inventoryItems: InventoryItem[] = [
+      {
+        id: 20,
+        owner_id: 1,
+        article_id: 5,
+        batch_id: 1,
+        article: articles[0],
+        quantity: 4,
+        unit: 'piece',
+        price: 9.9,
+        best_before: '2028-01-01',
+        batch_code: null,
+        archived: false,
+        notes: null,
+        created_at: '2026-06-11T10:00:00Z',
+        updated_at: null
+      }
+    ];
+    beekeepingServiceMock.bottleBatch.mockReturnValue(of({ batch: updatedBatch, inventory_items: inventoryItems }));
+    const fixture = TestBed.createComponent(BatchesComponent);
+    const component = fixture.componentInstance as unknown as {
+      addBottlingRow: () => void;
+      updateBottlingRow: (id: number, changes: Record<string, unknown>) => void;
+      submitBottling: (batch: Batch) => void;
+      bottlingRows: () => { id: number }[];
+      bottlingResult: () => InventoryItem[] | null;
+      batches: () => Batch[];
+    };
+
+    component.addBottlingRow();
+    const rowId = component.bottlingRows()[0].id;
+    component.updateBottlingRow(rowId, { quantity: 4, price: 9.9, bestBefore: '2028-01-01' });
+    component.submitBottling(batches[0]);
+
+    expect(beekeepingServiceMock.bottleBatch).toHaveBeenCalledWith(1, {
+      items: [{ article_id: 5, quantity: 4, price: 9.9, best_before: '2028-01-01' }]
+    });
+    expect(component.bottlingResult()).toEqual(inventoryItems);
+    expect(component.batches().find(b => b.id === 1)?.remaining_kg).toBe(1);
+  });
+
+  it('should show a conflict message when bottling exceeds remaining_kg', () => {
+    beekeepingServiceMock.bottleBatch.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    const fixture = TestBed.createComponent(BatchesComponent);
+    const component = fixture.componentInstance as unknown as {
+      addBottlingRow: () => void;
+      updateBottlingRow: (id: number, changes: Record<string, unknown>) => void;
+      submitBottling: (batch: Batch) => void;
+      bottlingRows: () => { id: number }[];
+      bottlingError: () => string;
+    };
+
+    component.addBottlingRow();
+    const rowId = component.bottlingRows()[0].id;
+    component.updateBottlingRow(rowId, { quantity: 100 });
+    component.submitBottling(batches[0]);
+
+    expect(component.bottlingError()).toContain('übersteigt die verbleibende');
   });
 });

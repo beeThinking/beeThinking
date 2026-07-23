@@ -7,7 +7,7 @@ from app.models.inventory import ArticleCategory
 
 
 class ArticleBase(BaseModel):
-    category: ArticleCategory = ArticleCategory.other
+    category: ArticleCategory = ArticleCategory.material
     name: str = Field(..., min_length=1, max_length=200)
     sku: Optional[str] = Field(None, max_length=80)
     weight_kg: Optional[float] = Field(None, ge=0)
@@ -40,9 +40,12 @@ class ArticleResponse(ArticleBase):
 
 class InventoryItemBase(BaseModel):
     article_id: int
+    batch_id: Optional[int] = None
     quantity: float = Field(0, ge=0)
     unit: str = Field("piece", min_length=1, max_length=40)
-    price: Optional[float] = Field(None, ge=0)
+    price: Optional[float] = Field(
+        None, ge=0, description="Sale price for finished products, cost/reference price otherwise."
+    )
     best_before: Optional[date] = None
     batch_code: Optional[str] = Field(None, max_length=120)
     archived: bool = False
@@ -55,6 +58,7 @@ class InventoryItemCreate(InventoryItemBase):
 
 class InventoryItemUpdate(BaseModel):
     article_id: Optional[int] = None
+    batch_id: Optional[int] = None
     quantity: Optional[float] = Field(None, ge=0)
     unit: Optional[str] = Field(None, min_length=1, max_length=40)
     price: Optional[float] = Field(None, ge=0)

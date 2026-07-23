@@ -29,6 +29,9 @@ textarea { min-height: 66px; }
 .attached-harvest-list li { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); background: #fffaf0; border: 1px solid #e3d7c4; border-radius: 8px; padding: var(--space-sm); }
 .attach-form { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
 .attach-form select { flex: 1; min-width: 200px; }
+.bottling-row-list { list-style: none; margin: 0 0 var(--space-sm); padding: 0; display: grid; gap: var(--space-sm); }
+.bottling-row { display: grid; grid-template-columns: 1fr; gap: var(--space-xs); background: #fffaf0; border: 1px solid #e3d7c4; border-radius: 8px; padding: var(--space-sm); }
+.bottling-row label { font-weight: 700; font-size: 0.85rem; }
 @media (hover: hover) {
   .record-summary:hover { background: #fffaf0; }
 }
@@ -36,4 +39,5 @@ textarea { min-height: 66px; }
   h1 { font-size: 2.6rem; }
   .editor { grid-template-columns: repeat(2, 1fr); }
   .editor .wide, .form-actions { grid-column: 1 / -1; }
+  .bottling-row { grid-template-columns: 2fr 1fr 1fr 1fr auto; align-items: end; }
 }
