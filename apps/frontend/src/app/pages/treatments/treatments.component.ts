@@ -34,6 +34,8 @@ export class TreatmentsComponent {
   protected readonly weatherWindows = signal<VarroaWeatherWindow[]>([]);
   protected readonly weatherNote = signal('');
   protected readonly selectedTreatmentType = signal<VarroaTreatmentType>('formic_acid_short');
+  protected readonly exportPending = signal(false);
+  protected readonly journalYear = signal(new Date().getFullYear());
 
   protected readonly form = this.fb.group({
     hive_id: [null as number | null, Validators.required],
@@ -124,5 +126,29 @@ export class TreatmentsComponent {
       unsuitable: this.translation.t('treatments.rating.unsuitable'),
       unknown: this.translation.t('treatments.rating.unknown')
     } as Record<string, string>)[rating] ?? rating;
+  }
+
+  protected downloadJournalPdf(): void {
+    if (this.exportPending()) return;
+    this.exportPending.set(true);
+    this.errorMessage.set('');
+    const year = this.journalYear();
+    this.beekeeping.downloadTreatmentJournalPdf(year).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `bestandsbuch-${year}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        this.exportPending.set(false);
+      },
+      error: () => {
+        this.errorMessage.set(this.translation.t('treatments.error.download'));
+        this.exportPending.set(false);
+      }
+    });
   }
 }

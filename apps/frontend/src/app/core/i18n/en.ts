@@ -491,6 +491,9 @@ export const en = {
   'treatments.rating.caution': 'caution',
   'treatments.rating.unsuitable': 'unsuitable',
   'treatments.rating.unknown': 'no data',
+  'treatments.downloadJournalPdf': 'Journal PDF',
+  'treatments.downloading': 'Loading...',
+  'treatments.error.download': 'PDF could not be downloaded.',
 
   // Hive archive / mobile inspection
   'common.back': 'Back',
@@ -731,6 +734,13 @@ export const en = {
   'traceability.inventoryItems': 'Containers',
   'traceability.noInventoryItems': 'No containers attached.',
   'traceability.archived': 'archived',
+
+  // Reports
+  'reports.downloadMaterialPdf': 'Material stock PDF',
+  'reports.downloadFinishedGoodsPdf': 'Finished goods stock PDF',
+  'reports.downloadFeedingsPdf': 'Feeding report PDF',
+  'reports.downloading': 'Loading...',
+  'reports.error.download': 'PDF could not be downloaded.',
 } as const;
 
 export type TranslationKey = keyof typeof en;

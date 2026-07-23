@@ -100,6 +100,10 @@ export class BeekeepingService {
     return this.api.delete<void>(`/api/treatments/${id}`);
   }
 
+  downloadTreatmentJournalPdf(year: number): Observable<Blob> {
+    return this.api.getBlob(`/api/treatments/journal/export.pdf?year=${year}`);
+  }
+
   getHarvests(): Observable<Harvest[]> {
     return this.api.get<Harvest[]>('/api/harvests');
   }
@@ -202,6 +206,22 @@ export class BeekeepingService {
     if (to) params.set('to_date', to);
     const query = params.toString();
     return this.api.get<T[]>(`/api/reports/${name}${query ? `?${query}` : ''}`);
+  }
+
+  downloadInventoryMaterialPdf(): Observable<Blob> {
+    return this.api.getBlob('/api/reports/inventory-material.pdf');
+  }
+
+  downloadInventoryFinishedGoodsPdf(): Observable<Blob> {
+    return this.api.getBlob('/api/reports/inventory-finished-goods.pdf');
+  }
+
+  downloadFeedingsPdf(from?: string, to?: string): Observable<Blob> {
+    const params = new URLSearchParams();
+    if (from) params.set('from_date', from);
+    if (to) params.set('to_date', to);
+    const query = params.toString();
+    return this.api.getBlob(`/api/reports/feedings.pdf${query ? `?${query}` : ''}`);
   }
 
   getPhotos(): Observable<Photo[]> {

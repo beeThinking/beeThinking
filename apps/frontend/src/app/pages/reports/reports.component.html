@@ -10,6 +10,33 @@
       <button type="button" (click)="load()">Aktualisieren</button>
     </div>
   </header>
+
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  <section class="export-actions">
+    <button
+      type="button"
+      class="secondary"
+      [disabled]="!!exportPending()"
+      (click)="downloadInventoryMaterialPdf()">
+      {{ exportPending() === 'material' ? ('reports.downloading' | translate) : ('reports.downloadMaterialPdf' | translate) }}
+    </button>
+    <button
+      type="button"
+      class="secondary"
+      [disabled]="!!exportPending()"
+      (click)="downloadInventoryFinishedGoodsPdf()">
+      {{ exportPending() === 'finished-goods' ? ('reports.downloading' | translate) : ('reports.downloadFinishedGoodsPdf' | translate) }}
+    </button>
+    <button
+      type="button"
+      class="secondary"
+      [disabled]="!!exportPending()"
+      (click)="downloadFeedingsPdf()">
+      {{ exportPending() === 'feedings' ? ('reports.downloading' | translate) : ('reports.downloadFeedingsPdf' | translate) }}
+    </button>
+  </section>
+
   <section class="report-grid">
     <article class="report-card">
       <h2>Honigernte pro Sorte</h2>

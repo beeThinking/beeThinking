@@ -4,7 +4,11 @@
 h1 { color: var(--amelie-text-dark); font-size: 2.4rem; line-height: 1.05; }
 .filters { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
 .filters input { border: 1px solid #d9c9ae; border-radius: 8px; padding: 0.7rem; font: inherit; }
-button { border: 0; border-radius: 8px; background: #2f6f5e; color: white; cursor: pointer; font-weight: 900; padding: 0.75rem 1rem; }
+button { border: 0; border-radius: 8px; background: #2f6f5e; color: white; cursor: pointer; font-weight: 900; padding: 0.75rem 1rem; min-height: 44px; }
+.secondary { background: #e6ddce; color: var(--amelie-text-dark); }
+.secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+.alert { background: #fff3f0; border: 1px solid #dfb6ad; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }
+.export-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-lg); }
 .report-grid { display: grid; gap: var(--space-sm); }
 .report-card, .empty-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); }
 .report-card h2 { font-size: 1.05rem; margin-bottom: var(--space-sm); }

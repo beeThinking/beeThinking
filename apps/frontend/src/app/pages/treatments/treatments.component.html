@@ -4,7 +4,16 @@
       <p class="eyebrow">{{ 'treatments.eyebrow' | translate }}</p>
       <h1>{{ 'treatments.title' | translate }}</h1>
     </div>
-    <button class="primary-action" (click)="showForm.set(!showForm())">{{ 'treatments.add' | translate }}</button>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="secondary"
+        [disabled]="exportPending()"
+        (click)="downloadJournalPdf()">
+        {{ exportPending() ? ('treatments.downloading' | translate) : ('treatments.downloadJournalPdf' | translate) }}
+      </button>
+      <button class="primary-action" (click)="showForm.set(!showForm())">{{ 'treatments.add' | translate }}</button>
+    </div>
   </header>
 
   @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }

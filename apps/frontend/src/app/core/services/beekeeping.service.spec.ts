@@ -218,4 +218,54 @@ describe('BeekeepingService honeybook', () => {
     request.flush(blob);
     http.verify();
   });
+
+  it('downloads the treatment journal as a pdf', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadTreatmentJournalPdf(2026).subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/treatments/journal/export.pdf?year=2026`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
+
+  it('downloads the inventory material report as a pdf', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadInventoryMaterialPdf().subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/reports/inventory-material.pdf`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
+
+  it('downloads the inventory finished goods report as a pdf', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadInventoryFinishedGoodsPdf().subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/reports/inventory-finished-goods.pdf`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
+
+  it('downloads the feedings report as a pdf with date range', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadFeedingsPdf('2026-01-01', '2026-12-31').subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/reports/feedings.pdf?from_date=2026-01-01&to_date=2026-12-31`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
+
+  it('downloads the feedings report as a pdf without date range', () => {
+    const blob = new Blob(['pdf content'], { type: 'application/pdf' });
+    service.downloadFeedingsPdf().subscribe(result => expect(result).toEqual(blob));
+
+    const request = http.expectOne(`${environment.apiUrl}/api/reports/feedings.pdf`);
+    expect(request.request.method).toBe('GET');
+    request.flush(blob);
+    http.verify();
+  });
 });

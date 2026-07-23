@@ -445,6 +445,9 @@ export const de: Record<TranslationKey, string> = {
   'treatments.rating.caution': 'kritisch',
   'treatments.rating.unsuitable': 'ungeeignet',
   'treatments.rating.unknown': 'keine Daten',
+  'treatments.downloadJournalPdf': 'Bestandsbuch PDF',
+  'treatments.downloading': 'Wird geladen...',
+  'treatments.error.download': 'PDF konnte nicht heruntergeladen werden.',
 
   // Hive archive / mobile inspection
   'common.back': 'Zurück',
@@ -733,4 +736,11 @@ export const de: Record<TranslationKey, string> = {
   'traceability.inventoryItems': 'Gebinde',
   'traceability.noInventoryItems': 'Keine Gebinde zugeordnet.',
   'traceability.archived': 'archiviert',
+
+  // Reports
+  'reports.downloadMaterialPdf': 'Bestand Materiallager PDF',
+  'reports.downloadFinishedGoodsPdf': 'Bestand Fertigprodukte PDF',
+  'reports.downloadFeedingsPdf': 'Fütterungs-Report PDF',
+  'reports.downloading': 'Wird geladen...',
+  'reports.error.download': 'PDF konnte nicht heruntergeladen werden.',
 };
