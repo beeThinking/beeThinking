@@ -1,0 +1,113 @@
+<div class="work-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'batches.eyebrow' | translate }}</p>
+      <h1>{{ 'batches.title' | translate }}</h1>
+    </div>
+    <button class="primary-action" (click)="showForm() ? closeForm() : openForm()">{{ 'batches.add' | translate }}</button>
+  </header>
+
+  @if (errorMessage()) { <div class="alert">{{ errorMessage() }}</div> }
+
+  @if (showForm()) {
+    <form class="editor" (ngSubmit)="createBatch()">
+      <div class="wide">
+        <span class="required-label">{{ 'batches.form.harvests' | translate }}</span>
+        @if (unbatchedHarvests().length === 0) {
+          <p class="empty-hint">{{ 'batches.form.noHarvests' | translate }}</p>
+        } @else {
+          <ul class="harvest-select-list">
+            @for (harvest of unbatchedHarvests(); track harvest.id) {
+              <li>
+                <label class="harvest-select-item">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedHarvestIds().includes(harvest.id)"
+                    (change)="toggleHarvestSelection(harvest.id, $any($event.target).checked)" />
+                  <span>{{ harvest.amount_kg | number:'1.0-1' }} kg {{ harvest.crop_type || ('harvests.honey' | translate) }} · {{ harvest.harvest_date | date:'dd.MM.yyyy' }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      <label>{{ 'batches.form.bestBefore' | translate }}
+        <input type="date" [ngModel]="bestBefore() || suggestedBestBefore()" (ngModelChange)="bestBefore.set($event)" name="bestBefore" />
+      </label>
+      <label class="wide">{{ 'batches.form.notes' | translate }}
+        <textarea rows="3" [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="button" class="secondary" (click)="closeForm()">{{ 'batches.form.cancel' | translate }}</button>
+        <button type="submit" class="primary-action" [disabled]="selectedHarvestIds().length === 0">{{ 'batches.form.save' | translate }}</button>
+      </div>
+    </form>
+  }
+
+  <section class="record-list">
+    @for (batch of batches(); track batch.id) {
+      <article class="record">
+        <div
+          class="record-summary"
+          role="button"
+          tabindex="0"
+          (click)="toggleExpand(batch)"
+          (keydown.enter)="toggleExpand(batch)"
+          (keydown.space)="toggleExpand(batch)">
+          <div>
+            <h2>{{ batch.lot_number }}</h2>
+            <p>
+              {{ batch.total_amount_kg | number:'1.0-1' }} kg ·
+              {{ 'batches.harvestCount' | translate: { n: batch.harvests.length } }}
+              @if (batch.best_before) { · {{ 'batches.bestBefore' | translate: { date: (batch.best_before | date:'dd.MM.yyyy') ?? '' } }} }
+            </p>
+            @if (batch.notes) { <small>{{ batch.notes }}</small> }
+          </div>
+          <button type="button" class="danger" (click)="$event.stopPropagation(); deleteBatch(batch)">{{ 'batches.delete' | translate }}</button>
+        </div>
+
+        @if (expandedBatchId() === batch.id) {
+          <div class="record-detail">
+            <div class="editor">
+              <label>{{ 'batches.form.bestBefore' | translate }}
+                <input type="date" [ngModel]="editingBestBefore()" (ngModelChange)="editingBestBefore.set($event)" name="editBestBefore" />
+              </label>
+              <label class="wide">{{ 'batches.form.notes' | translate }}
+                <textarea rows="2" [ngModel]="editingNotes()" (ngModelChange)="editingNotes.set($event)" name="editNotes"></textarea>
+              </label>
+              <div class="form-actions">
+                <button type="button" class="primary-action" (click)="saveBatch(batch)">{{ 'batches.form.save' | translate }}</button>
+              </div>
+            </div>
+
+            <h3>{{ 'batches.attachedHarvests' | translate }}</h3>
+            <ul class="attached-harvest-list">
+              @for (harvest of batch.harvests; track harvest.id) {
+                <li>
+                  <span>{{ harvest.amount_kg | number:'1.0-1' }} kg {{ harvest.crop_type || ('harvests.honey' | translate) }} · {{ harvest.harvest_date | date:'dd.MM.yyyy' }}</span>
+                  <button class="secondary" (click)="detachHarvest(batch, harvest.id)">{{ 'batches.detach' | translate }}</button>
+                </li>
+              } @empty {
+                <li class="empty-hint">{{ 'batches.noHarvests' | translate }}</li>
+              }
+            </ul>
+
+            @if (unbatchedHarvests().length > 0) {
+              <div class="attach-form">
+                <select [ngModel]="attachHarvestId()" (ngModelChange)="attachHarvestId.set($event)" name="attachHarvest">
+                  <option [ngValue]="null">{{ 'batches.form.selectHarvest' | translate }}</option>
+                  @for (harvest of unbatchedHarvests(); track harvest.id) {
+                    <option [ngValue]="harvest.id">{{ harvest.amount_kg | number:'1.0-1' }} kg {{ harvest.crop_type || ('harvests.honey' | translate) }} · {{ harvest.harvest_date | date:'dd.MM.yyyy' }}</option>
+                  }
+                </select>
+                <button class="secondary" [disabled]="!attachHarvestId()" (click)="attachHarvest(batch)">{{ 'batches.attach' | translate }}</button>
+              </div>
+            }
+          </div>
+        }
+      </article>
+    } @empty {
+      <div class="empty-panel">{{ 'batches.empty' | translate }}</div>
+    }
+  </section>
+</div>

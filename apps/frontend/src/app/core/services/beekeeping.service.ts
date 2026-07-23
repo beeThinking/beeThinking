@@ -10,6 +10,9 @@ import {
   AppText,
   AppTextCreate,
   AppTextUpdate,
+  Batch,
+  BatchCreate,
+  BatchUpdate,
   CashbookEntry,
   CashbookEntryCreate,
   CashbookEntryUpdate,
@@ -106,6 +109,34 @@ export class BeekeepingService {
 
   deleteHarvest(id: number): Observable<void> {
     return this.api.delete<void>(`/api/harvests/${id}`);
+  }
+
+  getBatches(): Observable<Batch[]> {
+    return this.api.get<Batch[]>('/api/batches');
+  }
+
+  getBatch(id: number): Observable<Batch> {
+    return this.api.get<Batch>(`/api/batches/${id}`);
+  }
+
+  createBatch(batch: BatchCreate): Observable<Batch> {
+    return this.api.post<Batch>('/api/batches', batch);
+  }
+
+  updateBatch(id: number, batch: BatchUpdate): Observable<Batch> {
+    return this.api.put<Batch>(`/api/batches/${id}`, batch);
+  }
+
+  deleteBatch(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/batches/${id}`);
+  }
+
+  attachHarvestToBatch(batchId: number, harvestId: number): Observable<Batch> {
+    return this.api.post<Batch>(`/api/batches/${batchId}/harvests/${harvestId}`, {});
+  }
+
+  detachHarvestFromBatch(batchId: number, harvestId: number): Observable<Batch> {
+    return this.api.delete<Batch>(`/api/batches/${batchId}/harvests/${harvestId}`);
   }
 
   getFeedings(): Observable<Feeding[]> {

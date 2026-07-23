@@ -142,6 +142,7 @@ export interface Harvest {
   amount_kg: number;
   water_content_percent: number | null;
   batch_code: string | null;
+  batch_id: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string | null;
@@ -159,6 +160,35 @@ export interface HarvestCreate {
 }
 
 export type HarvestUpdate = Partial<HarvestCreate>;
+
+export interface BatchHarvestSummary {
+  id: number;
+  harvest_date: string;
+  apiary_id: number | null;
+  hive_id: number | null;
+  crop_type: string | null;
+  amount_kg: number;
+}
+
+export interface Batch {
+  id: number;
+  owner_id: number;
+  lot_number: string;
+  best_before: string | null;
+  total_amount_kg: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string | null;
+  harvests: BatchHarvestSummary[];
+}
+
+export interface BatchCreate {
+  harvest_ids?: number[];
+  best_before?: string | null;
+  notes?: string;
+}
+
+export type BatchUpdate = Partial<Pick<BatchCreate, 'best_before' | 'notes'>>;
 
 export interface Feeding {
   id: number;

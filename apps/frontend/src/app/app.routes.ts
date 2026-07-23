@@ -118,6 +118,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'batches',
+    loadComponent: () => import('./pages/batches/batches.component').then(m => m.BatchesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'treatments',
     loadComponent: () => import('./pages/treatments/treatments.component').then(m => m.TreatmentsComponent),
     canActivate: [authGuard]

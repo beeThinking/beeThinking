@@ -1,5 +1,6 @@
 from app.models.apiary import Apiary
 from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
+from app.models.batch import Batch
 from app.models.beeintouch_import import BeeIntouchImportError, BeeIntouchImportRun
 from app.models.cashbook import CashbookDirection, CashbookEntry, CashbookReceipt, CashbookReceiptSuggestion, OcrStatus
 from app.models.content import ContentPage, ContentSection
@@ -24,6 +25,7 @@ __all__ = [
     "Apiary",
     "ApiaryMember",
     "ApiaryMemberRole",
+    "Batch",
     "BeeIntouchImportError",
     "BeeIntouchImportRun",
     "CashbookDirection",

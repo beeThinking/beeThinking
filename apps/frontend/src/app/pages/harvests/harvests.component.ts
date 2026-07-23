@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
@@ -14,7 +15,7 @@ import { localDateString } from '../../core/utils/date.utils';
 @Component({
   selector: 'app-harvests',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, TranslatePipe],
+  imports: [DatePipe, DecimalPipe, RouterLink, ReactiveFormsModule, TranslatePipe],
   templateUrl: './harvests.component.html',
   styleUrl: './harvests.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -37,7 +37,8 @@ export class NavbarComponent {
       '/inspections',
       '/feedings',
       '/treatments',
-      '/harvests'
+      '/harvests',
+      '/batches'
     ].some(path => this.router.url.startsWith(path));
   }
 

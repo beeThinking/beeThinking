@@ -17,6 +17,7 @@ class Harvest(Base):
     amount_kg = Column(Float, nullable=False)
     water_content_percent = Column(Float, nullable=True)
     batch_code = Column(String, nullable=True)
+    batch_id = Column(Integer, ForeignKey("batches.id"), nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -25,3 +26,4 @@ class Harvest(Base):
     performed_by = relationship("User", foreign_keys=[performed_by_user_id])
     apiary = relationship("Apiary", back_populates="harvests")
     hive = relationship("Hive", back_populates="harvests")
+    batch = relationship("Batch", back_populates="harvests")
