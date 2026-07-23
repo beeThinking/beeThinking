@@ -80,3 +80,57 @@ class TestReportsApi:
 
     def test_reports_require_authentication(self, client):
         assert client.get("/api/reports/varroa").status_code == 401
+
+
+@pytest.mark.unit
+@pytest.mark.api
+class TestReportsPdfExports:
+    def _create_article(self, client, **overrides) -> dict:
+        payload = {"name": "Honigglas 500g", "category": "material", "unit": "piece"}
+        payload.update(overrides)
+        response = client.post("/api/articles", json=payload)
+        assert response.status_code == 201
+        return response.json()
+
+    def _create_inventory_item(self, client, article_id, **overrides) -> dict:
+        payload = {"article_id": article_id, "quantity": 10, "unit": "piece"}
+        payload.update(overrides)
+        response = client.post("/api/inventory-items", json=payload)
+        assert response.status_code == 201
+        return response.json()
+
+    def test_inventory_material_pdf(self, authenticated_client):
+        client, _ = authenticated_client
+        article = self._create_article(client, name="Eimer 25kg", category="material")
+        self._create_inventory_item(client, article["id"])
+
+        response = client.get("/api/reports/inventory-material.pdf")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        assert 'filename="bestand-materiallager.pdf"' in response.headers["content-disposition"]
+        assert response.content.startswith(b"%PDF")
+
+    def test_inventory_finished_goods_pdf(self, authenticated_client):
+        client, _ = authenticated_client
+        article = self._create_article(client, name="Bluetenhonig 500g", category="honey")
+        self._create_inventory_item(client, article["id"])
+
+        response = client.get("/api/reports/inventory-finished-goods.pdf")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        assert 'filename="bestand-fertigprodukte.pdf"' in response.headers["content-disposition"]
+
+    def test_feedings_pdf(self, authenticated_client, apiary):
+        client, _ = authenticated_client
+        client.post(
+            "/api/feedings",
+            json={"apiary_id": apiary["id"], "date": "2026-03-01", "amount_kg_or_l": 2.5, "feed_type": "Sirup"},
+        )
+
+        response = client.get("/api/reports/feedings.pdf")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        assert 'filename="fuetterungs-report.pdf"' in response.headers["content-disposition"]
