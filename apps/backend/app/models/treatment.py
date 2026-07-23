@@ -17,6 +17,7 @@ class Treatment(Base):
     method = Column(String, nullable=True)
     dosage = Column(String, nullable=True)
     reason = Column(String, nullable=True)
+    waiting_period_days = Column(Integer, nullable=True)
     weather_window_id = Column(Integer, ForeignKey("varroa_weather_windows.id"), nullable=True)
     weather_rating = Column(String, nullable=True)
     weather_source = Column(String, nullable=True)
