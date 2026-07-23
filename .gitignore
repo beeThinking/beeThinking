@@ -48,3 +48,5 @@ node_modules/
 /apps/frontend/coverage/
 /apps/frontend/.angular/
 *.tsbuildinfo
+.envrc
+.exxaiting/
