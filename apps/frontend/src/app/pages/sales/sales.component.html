@@ -1,0 +1,68 @@
+<div class="sales-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Verkauf</p>
+      <h1>Verkäufe</h1>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/sales/pos" class="secondary">Kassiermodus</a>
+      <a routerLink="/sales/report" class="secondary">Report</a>
+      <button type="button" class="secondary" (click)="downloadCustomerListPdf()" [disabled]="downloadPending()">Kundenliste drucken</button>
+    </div>
+  </header>
+
+  @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+
+  <section class="editor">
+    <label>Datum <input type="date" [ngModel]="saleDate()" (ngModelChange)="saleDate.set($event)"></label>
+    <label>Kunde
+      <select [ngModel]="partnerId()" (ngModelChange)="partnerId.set($event ? +$event : null)">
+        <option [value]="null">Ohne Kunde</option>
+        @for (customer of customers(); track customer.id) { <option [value]="customer.id">{{ customer.name }}</option> }
+      </select>
+    </label>
+    <label>MwSt-Satz (%, optional)
+      <input type="number" step="0.01" [ngModel]="vatRateOverride()" (ngModelChange)="vatRateOverride.set($event === '' ? null : +$event)">
+    </label>
+    <label class="wide">Notiz <input [ngModel]="notes()" (ngModelChange)="notes.set($event)"></label>
+
+    <div class="wide lines">
+      @for (line of lines(); track $index) {
+        <div class="line">
+          <select [ngModel]="line.inventory_item_id" (ngModelChange)="onItemSelected($index, +$event)">
+            <option [value]="null" disabled>Artikel wählen</option>
+            @for (item of items(); track item.id) {
+              <option [value]="item.id">{{ item.article.name }} ({{ item.quantity | number:'1.0-2' }} {{ item.unit }})</option>
+            }
+          </select>
+          <input type="number" step="0.01" min="0" [ngModel]="line.quantity" (ngModelChange)="updateLine($index, { quantity: +$event })" aria-label="Menge">
+          <input type="number" step="0.01" min="0" [ngModel]="line.unit_price_gross" (ngModelChange)="updateLine($index, { unit_price_gross: +$event })" aria-label="Preis brutto">
+          <button type="button" class="danger" (click)="removeLine($index)">Entfernen</button>
+        </div>
+      }
+      <button type="button" class="secondary" (click)="addLine()">Position hinzufügen</button>
+    </div>
+
+    <div class="wide form-actions">
+      <span class="total">Summe: {{ total() | currency:'EUR' }}</span>
+      <button type="button" class="primary-action" (click)="submit()" [disabled]="saving()">Verkauf buchen</button>
+    </div>
+  </section>
+
+  <section class="record-list">
+    @for (sale of sales(); track sale.id) {
+      <article class="record">
+        <div>
+          <h2>{{ sale.sale_date | date:'dd.MM.yyyy' }} · {{ partnerName(sale.partner_id) }}</h2>
+          <p>
+            @for (item of sale.items; track item.id) {
+              <span>{{ itemName(item.inventory_item_id) }} × {{ item.quantity | number:'1.0-2' }}</span>
+            }
+          </p>
+          <small>Brutto {{ sale.amount_gross | currency:'EUR' }} · Netto {{ sale.amount_net | currency:'EUR' }} · MwSt {{ sale.vat_rate * 100 | number:'1.0-1' }}%</small>
+        </div>
+        <button type="button" class="danger" (click)="voidSale(sale)">Stornieren</button>
+      </article>
+    } @empty { <div class="empty-panel">Noch keine Verkäufe erfasst.</div> }
+  </section>
+</div>

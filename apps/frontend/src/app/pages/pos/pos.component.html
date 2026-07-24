@@ -1,0 +1,66 @@
+<div class="pos-page">
+  <header class="pos-header">
+    <div>
+      <p class="eyebrow">Kasse</p>
+      <h1>Schnellverkauf</h1>
+    </div>
+    <a routerLink="/sales" class="secondary">Zur Verkaufsliste</a>
+  </header>
+
+  @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+  @if (successMessage()) { <p class="success">{{ successMessage() }}</p> }
+
+  <section class="article-grid">
+    @for (item of availableItems(); track item.id) {
+      <button type="button" class="article-tile" (click)="addToCart(item)">
+        <span class="article-name">{{ item.article.name }}</span>
+        <span class="article-stock">{{ item.quantity | number:'1.0-2' }} {{ item.unit }} verfügbar</span>
+        <span class="article-price">{{ (item.price ?? 0) | currency:'EUR' }}</span>
+      </button>
+    } @empty { <p class="empty-panel">Kein Bestand verfügbar.</p> }
+  </section>
+
+  <section class="cart-panel">
+    <h2>Warenkorb</h2>
+    @for (line of cart(); track line.inventory_item_id) {
+      <div class="cart-line">
+        <span class="cart-name">{{ line.name }}</span>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" (click)="decrement(line.inventory_item_id)" aria-label="Menge verringern">−</button>
+          <span class="stepper-value">{{ line.quantity | number:'1.0-2' }}</span>
+          <button type="button" class="stepper-btn" (click)="increment(line.inventory_item_id)" aria-label="Menge erhöhen">+</button>
+        </div>
+        <span class="cart-line-total">{{ (line.quantity * line.unit_price_gross) | currency:'EUR' }}</span>
+        <button type="button" class="remove-btn" (click)="removeLine(line.inventory_item_id)" aria-label="Position entfernen">×</button>
+      </div>
+    } @empty { <p class="empty-cart">Warenkorb ist leer.</p> }
+
+    <label class="customer-select">Kunde
+      <select [ngModel]="partnerId()" (ngModelChange)="partnerId.set($event ? +$event : null)">
+        <option [value]="null">Ohne Kunde</option>
+        @for (customer of customers(); track customer.id) { <option [value]="customer.id">{{ customer.name }}</option> }
+      </select>
+    </label>
+
+    <div class="totals-row">
+      <span>Summe</span>
+      <strong>{{ cartTotal() | currency:'EUR' }}</strong>
+    </div>
+
+    <label class="cash-row">Bar gegeben
+      <input type="number" step="0.01" min="0" inputmode="decimal" [ngModel]="cashGiven()" (ngModelChange)="cashGiven.set($event === '' ? null : +$event)">
+    </label>
+
+    @if (changeDue() !== null) {
+      <div class="change-row" [class.negative]="changeDue()! < 0">
+        <span>Rückgeld</span>
+        <strong>{{ changeDue() | currency:'EUR' }}</strong>
+      </div>
+    }
+
+    <div class="cart-actions">
+      <button type="button" class="secondary" (click)="clearCart()">Warenkorb leeren</button>
+      <button type="button" class="primary-action" (click)="submit()" [disabled]="submitting() || cart().length === 0">Verkauf abschließen</button>
+    </div>
+  </section>
+</div>

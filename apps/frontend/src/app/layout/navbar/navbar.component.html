@@ -26,6 +26,7 @@
         <li><a routerLink="/apiaries"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">Stände</a></li>
         <li><a routerLink="/hives"    routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.beehives' | translate }}</a></li>
         <li><a routerLink="/scan" routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.scan' | translate }}</a></li>
+        <li><a routerLink="/sales/pos" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Kasse</a></li>
         <li><a routerLink="/tasks"       routerLinkActive="active" class="nav-link" (click)="closeMenu()">{{ 'nav.tasks' | translate }}</a></li>
         <li class="nav-group" [class.open]="inspectionMenuOpen()">
           <button
@@ -59,6 +60,8 @@
           </button>
           <ul class="submenu" role="menu">
             <li><a routerLink="/inventory/items" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Lager</a></li>
+            <li><a routerLink="/sales" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Verkäufe</a></li>
+            <li><a routerLink="/sales/report" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Verkaufsreport</a></li>
             <li><a routerLink="/office" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Büro</a></li>
             <li><a routerLink="/office/cashbook" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Kassenbuch</a></li>
             <li><a routerLink="/traceability" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.traceability' | translate }}</a></li>

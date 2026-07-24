@@ -27,6 +27,7 @@ export class NavbarComponent {
     return [
       '/inventory',
       '/office',
+      '/sales',
       '/admin/cms',
       '/appointments',
       '/honeybook',

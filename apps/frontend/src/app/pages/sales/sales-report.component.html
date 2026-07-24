@@ -1,0 +1,50 @@
+<div class="report-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">Verkauf</p>
+      <h1>Verkaufsreport</h1>
+    </div>
+    <a routerLink="/sales">Zurück zu Verkäufen</a>
+  </header>
+
+  <section class="filter-panel">
+    <label>Von <input type="date" [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)"></label>
+    <label>Bis <input type="date" [ngModel]="toDate()" (ngModelChange)="toDate.set($event)"></label>
+    <button type="button" class="primary-action" (click)="load()">Report laden</button>
+  </section>
+
+  @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+
+  <section class="totals-band">
+    <span>Menge <strong>{{ totals().quantity | number:'1.0-2' }}</strong></span>
+    <span>Brutto <strong>{{ totals().amount_gross | currency:'EUR' }}</strong></span>
+    <span>Netto <strong>{{ totals().amount_net | currency:'EUR' }}</strong></span>
+  </section>
+
+  <table class="report-table">
+    <thead>
+      <tr><th>Artikel</th><th>Menge</th><th>Brutto</th><th>Netto</th></tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.article_id) {
+        <tr>
+          <td>{{ row.article_name }}</td>
+          <td>{{ row.quantity | number:'1.0-2' }}</td>
+          <td>{{ row.amount_gross | currency:'EUR' }}</td>
+          <td>{{ row.amount_net | currency:'EUR' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="report-cards">
+    @for (row of rows(); track row.article_id) {
+      <article class="report-card">
+        <h2>{{ row.article_name }}</h2>
+        <p>Menge: {{ row.quantity | number:'1.0-2' }}</p>
+        <p>Brutto: {{ row.amount_gross | currency:'EUR' }}</p>
+        <p>Netto: {{ row.amount_net | currency:'EUR' }}</p>
+      </article>
+    } @empty { <div class="empty-panel">Keine Verkaufsdaten im gewählten Zeitraum.</div> }
+  </div>
+</div>

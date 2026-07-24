@@ -417,6 +417,51 @@ export interface OfficeLineItem {
   tax_rate: number;
 }
 
+export interface SaleItem {
+  id: number;
+  inventory_item_id: number;
+  quantity: number;
+  unit_price_gross: number;
+  line_total_gross: number;
+}
+
+export interface SaleItemCreate {
+  inventory_item_id: number;
+  quantity: number;
+  unit_price_gross: number;
+}
+
+export interface Sale {
+  id: number;
+  owner_id: number;
+  partner_id: number | null;
+  sale_date: string;
+  vat_rate: number;
+  amount_gross: number;
+  amount_net: number;
+  notes: string | null;
+  cashbook_entry_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+  items: SaleItem[];
+}
+
+export interface SaleCreate {
+  partner_id?: number | null;
+  sale_date?: string;
+  vat_rate?: number | null;
+  notes?: string;
+  items: SaleItemCreate[];
+}
+
+export interface SaleReportRow {
+  article_id: number;
+  article_name: string;
+  quantity: number;
+  amount_gross: number;
+  amount_net: number;
+}
+
 export interface OfficeDocument {
   id: number;
   owner_id: number;
@@ -612,9 +657,9 @@ export interface HoneybookEntry {
   apiary_name: string | null;
   hive_name: string | null;
   crop_type: string | null;
-  amount_kg: number;
-  water_content_percent: number | null;
-  best_before: string | null;
-  bottled_quantity: number;
-  bottled_articles: string[];
-}
+   amount_kg: number;
+   water_content_percent: number | null;
+   best_before: string | null;
+   bottled_quantity: number;
+   bottled_articles: string[];
+ }

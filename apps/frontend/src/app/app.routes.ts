@@ -153,6 +153,21 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'sales',
+    loadComponent: () => import('./pages/sales/sales.component').then(m => m.SalesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'sales/pos',
+    loadComponent: () => import('./pages/pos/pos.component').then(m => m.PosComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'sales/report',
+    loadComponent: () => import('./pages/sales/sales-report.component').then(m => m.SalesReportComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'honeybook',
     loadComponent: () => import('./pages/honeybook/honeybook.component').then(m => m.HoneybookComponent),
     canActivate: [authGuard]

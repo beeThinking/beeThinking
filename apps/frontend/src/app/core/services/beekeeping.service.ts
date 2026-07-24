@@ -44,6 +44,9 @@ import {
   OfficePartnerUpdate,
   Photo,
   PhotoPreview,
+  Sale,
+  SaleCreate,
+  SaleReportRow,
   Task,
   TaskCreate,
   TaskStatus,
@@ -302,6 +305,34 @@ export class BeekeepingService {
 
   downloadOfficePdf(year: number): Observable<Blob> {
     return this.api.getBlob(`/api/office/cashbook/report.pdf?year=${year}`);
+  }
+
+  downloadCustomerListPdf(): Observable<Blob> {
+    return this.api.getBlob('/api/office/partners/customers.pdf');
+  }
+
+  getSales(): Observable<Sale[]> {
+    return this.api.get<Sale[]>('/api/sales');
+  }
+
+  getSale(id: number): Observable<Sale> {
+    return this.api.get<Sale>(`/api/sales/${id}`);
+  }
+
+  createSale(sale: SaleCreate): Observable<Sale> {
+    return this.api.post<Sale>('/api/sales', sale);
+  }
+
+  deleteSale(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/sales/${id}`);
+  }
+
+  getSalesReport(fromDate?: string, toDate?: string): Observable<SaleReportRow[]> {
+    const params = new URLSearchParams();
+    if (fromDate) params.set('from_date', fromDate);
+    if (toDate) params.set('to_date', toDate);
+    const query = params.toString();
+    return this.api.get<SaleReportRow[]>(`/api/sales/report${query ? `?${query}` : ''}`);
   }
 
   getContentPages(): Observable<ContentPage[]> {
