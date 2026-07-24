@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-24
+
 ### Added
 - Monorepo structure with `apps/backend` (FastAPI) and `apps/frontend` (Angular 21)
 - Root `docker-compose.yml` orchestrating database, backend, and frontend
@@ -17,3 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - CMS content APIs with admin UI and public page fallback
 - Cashbook APIs and frontend EÜR summary
 - Durchschau navigation with inspection, feeding, treatment and harvest variants
+- Sales records, POS workflow, automatic stock/cashbook updates, customer QR list, and sales reporting
+- Queen-rearing records, breeding calendar, reminders, and candidate selection
+- Team task delegation, recurring tasks, hive selection, Web Push, map, analytics, calculators, and calendar pull sync
+- Production backup/restore drill, refresh-token rotation, auth rate limiting, structured metrics, and account data export
