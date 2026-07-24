@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 14
+
+    # Rate limiting
+    AUTH_RATE_LIMIT: str = "5/minute"
+    TRUST_PROXY_HEADERS: bool = False
+    TRUSTED_PROXY_IPS: str = ""
 
     # Application
     APP_NAME: str = "BeeThinking Backend"
@@ -90,6 +96,10 @@ class Settings(BaseSettings):
     @property
     def admin_emails_set(self) -> set[str]:
         return {email.strip().lower() for email in self.ADMIN_EMAILS.split(",") if email.strip()}
+
+    @property
+    def trusted_proxy_ips_set(self) -> set[str]:
+        return {ip.strip() for ip in self.TRUSTED_PROXY_IPS.split(",") if ip.strip()}
 
     class Config:
         env_file = ".env"

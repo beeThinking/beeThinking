@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 from app.core.config import get_settings
 from app.api import apiaries, auth, batches, cashbook, content, dashboard, feed_calculator, feedings, google_calendar, harvests, hive_selection, hives, honey_price_calculator, honeybook, inspection_criteria, inspections, inventory, map as map_api, office, photos, push_notifications, queens, reports, sales, tasks, traceability, treatments, users, varroa_checks, breeding_selection, zuchtreihen
 from app.services.scheduler import start_scheduler, stop_scheduler
+from app.core.logging import configure_logging, request_metrics
+from app.core.rate_limit import limiter
 
 settings = get_settings()
 
@@ -11,6 +15,19 @@ app = FastAPI(
     title=settings.APP_NAME,
     debug=settings.DEBUG
 )
+app.state.limiter = limiter
+configure_logging()
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    response = JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
+    return limiter._inject_headers(response, request.state.view_rate_limit)
+
+
+@app.middleware("http")
+async def request_logging_and_metrics(request: Request, call_next):
+    return await request_metrics(request, call_next)
 
 # Configure CORS
 app.add_middleware(
@@ -55,6 +72,8 @@ app.include_router(push_notifications.router, prefix="/api/push", tags=["Push No
 app.include_router(map_api.router, prefix="/api/map", tags=["Map"])
 app.include_router(feed_calculator.router, prefix="/api/feed-calculator", tags=["Futtermengen-Rechner"])
 app.include_router(honey_price_calculator.router, prefix="/api/honey-price-calculator", tags=["Honigpreis-Rechner"])
+app.include_router(users.export_router, prefix="/api/users", tags=["Users"])
+app.include_router(users.metrics_router, tags=["Operations"])
 
 
 @app.on_event("startup")

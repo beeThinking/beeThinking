@@ -27,6 +27,8 @@ services:
         required: false
     environment:
       DATABASE_URL: postgresql://beethinking:beethinking@db:5432/beethinking
+      TRUST_PROXY_HEADERS: "false"
+      TRUSTED_PROXY_IPS: ""
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: beethinking
       MINIO_SECRET_KEY: beethinking-minio-password

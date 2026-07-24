@@ -17,6 +17,7 @@ from app.models.inventory import Article, ArticleCategory, InventoryItem
 from app.models.office import OfficeDocument, OfficeDocumentStatus, OfficeDocumentType, OfficePartner, OfficePartnerType
 from app.models.photo import Photo
 from app.models.push_subscription import PushSubscription, TaskReminderLog
+from app.models.refresh_token import RefreshToken
 from app.models.queen import Queen
 from app.models.task import Task, TaskKind, TaskPriority, TaskSource, TaskStatus
 from app.models.treatment import Treatment
@@ -67,6 +68,7 @@ __all__ = [
     "OfficePartnerType",
     "Photo",
     "PushSubscription",
+    "RefreshToken",
     "TaskReminderLog",
     "Queen",
     "Task",

@@ -13,6 +13,7 @@ from app.main import app
 from app.db.database import Base, get_db
 from app.models.user import User
 from app.core.security import get_password_hash
+from app.core.rate_limit import limiter
 
 
 # Test Database Setup (SQLite in-memory)
@@ -56,6 +57,7 @@ def client(db: Session) -> Generator[TestClient, None, None]:
             pass
 
     app.dependency_overrides[get_db] = override_get_db
+    limiter._storage.reset()
 
     with TestClient(app) as test_client:
         yield test_client
@@ -141,4 +143,3 @@ def multiple_test_users(db: Session) -> list[User]:
         db.refresh(user)
 
     return users
-
