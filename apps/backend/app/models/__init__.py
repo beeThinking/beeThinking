@@ -16,12 +16,14 @@ from app.models.inspection_criterion import CriterionSection, CriterionValueType
 from app.models.inventory import Article, ArticleCategory, InventoryItem
 from app.models.office import OfficeDocument, OfficeDocumentStatus, OfficeDocumentType, OfficePartner, OfficePartnerType
 from app.models.photo import Photo
+from app.models.push_subscription import PushSubscription, TaskReminderLog
 from app.models.queen import Queen
 from app.models.task import Task, TaskKind, TaskPriority, TaskSource, TaskStatus
 from app.models.treatment import Treatment
 from app.models.user import User
 from app.models.varroa_check import VarroaCheck
 from app.models.varroa_weather import VarroaTreatmentType, VarroaWeatherRating, VarroaWeatherWindow
+from app.models.weight_reading import WeightReading
 from app.models.zuchtreihe import Zuchtreihe
 
 __all__ = [
@@ -64,6 +66,8 @@ __all__ = [
     "OfficePartner",
     "OfficePartnerType",
     "Photo",
+    "PushSubscription",
+    "TaskReminderLog",
     "Queen",
     "Task",
     "TaskKind",
@@ -76,5 +80,6 @@ __all__ = [
     "VarroaWeatherWindow",
     "SwarmCells",
     "User",
+    "WeightReading",
     "Zuchtreihe",
 ]

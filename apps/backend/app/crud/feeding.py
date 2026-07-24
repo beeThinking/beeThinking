@@ -2,13 +2,15 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.crud.ownership import validate_optional_refs
+from app.crud.ownership import filter_by_hive_or_apiary_visibility, validate_optional_refs
 from app.models.feeding import Feeding
+from app.models.hive import Hive
 from app.schemas.feeding import FeedingCreate, FeedingUpdate
 
 
 def get_feedings(db: Session, owner_id: int, apiary_id: int | None = None, hive_id: int | None = None) -> list[Feeding]:
-    query = db.query(Feeding).filter(Feeding.owner_id == owner_id)
+    query = db.query(Feeding).outerjoin(Hive, Hive.id == Feeding.hive_id)
+    query = filter_by_hive_or_apiary_visibility(query, db, owner_id, Feeding.apiary_id, Hive.apiary_id)
     if apiary_id is not None:
         query = query.filter(Feeding.apiary_id == apiary_id)
     if hive_id is not None:
@@ -17,7 +19,8 @@ def get_feedings(db: Session, owner_id: int, apiary_id: int | None = None, hive_
 
 
 def get_feeding(db: Session, feeding_id: int, owner_id: int) -> Optional[Feeding]:
-    return db.query(Feeding).filter(Feeding.id == feeding_id, Feeding.owner_id == owner_id).first()
+    query = db.query(Feeding).outerjoin(Hive, Hive.id == Feeding.hive_id).filter(Feeding.id == feeding_id)
+    return filter_by_hive_or_apiary_visibility(query, db, owner_id, Feeding.apiary_id, Hive.apiary_id).first()
 
 
 def create_feeding(db: Session, feeding: FeedingCreate, owner_id: int, performed_by_user_id: int | None = None) -> Optional[Feeding]:

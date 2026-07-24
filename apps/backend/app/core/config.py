@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     VARROA_WEATHER_PROVIDER: str = "open_meteo"
     VARROA_WEATHER_CACHE_TTL_HOURS: int = 6
 
+    # Web Push (task-deadline reminders, #40) — generate with `vapid --gen`
+    VAPID_PUBLIC_KEY: str = ""
+    VAPID_PRIVATE_KEY: str = ""
+    VAPID_CONTACT_EMAIL: str = "noreply@beethinking.com"
+
     @model_validator(mode="after")
     def validate_production_security(self):
         insecure_secrets = {
@@ -73,6 +78,10 @@ class Settings(BaseSettings):
     @property
     def google_calendar_enabled(self) -> bool:
         return bool(self.GOOGLE_CALENDAR_CLIENT_ID and self.GOOGLE_CALENDAR_CLIENT_SECRET)
+
+    @property
+    def vapid_enabled(self) -> bool:
+        return bool(self.VAPID_PUBLIC_KEY and self.VAPID_PRIVATE_KEY)
 
     @property
     def cors_origins_list(self) -> list[str]:

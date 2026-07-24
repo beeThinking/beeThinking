@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from urllib.parse import quote, urlencode
 
 import requests
@@ -128,6 +128,9 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
         raise GoogleCalendarError("Google Calendar is not connected")
     try:
         access_token = _refresh_access_token(connection, settings)
+
+        pulled = _pull_remote_changes(db, connection, user_id, access_token)
+
         tasks = db.query(Task).filter(
             Task.owner_id == user_id,
             Task.kind == TaskKind.appointment,
@@ -141,6 +144,8 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
         created = updated = deleted = 0
 
         for task_id, task in exportable.items():
+            if task_id in pulled:
+                continue
             mapping = mappings.pop(task_id, None)
             payload = _event_payload(task)
             if mapping:
@@ -176,6 +181,9 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
                 ))
                 created += 1
 
+        for task_id in pulled:
+            mappings.pop(task_id, None)
+
         for mapping in mappings.values():
             response = requests.delete(
                 _event_url(connection.calendar_id, mapping.google_event_id),
@@ -191,7 +199,13 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
         connection.last_sync_at = synced_at
         connection.last_error = None
         db.commit()
-        return {"created": created, "updated": updated, "deleted": deleted, "synced_at": synced_at}
+        return {
+            "created": created,
+            "updated": updated,
+            "deleted": deleted,
+            "pulled": len(pulled),
+            "synced_at": synced_at,
+        }
     except (GoogleCalendarError, requests.RequestException, InvalidToken) as exc:
         db.rollback()
         message = str(exc) or "Google Calendar request failed"
@@ -202,6 +216,71 @@ def sync_calendar(db: Session, user_id: int, settings: Settings | None = None) -
         if isinstance(exc, GoogleCalendarError):
             raise
         raise GoogleCalendarError(message) from exc
+
+
+def _pull_remote_changes(
+    db: Session, connection: GoogleCalendarConnection, user_id: int, access_token: str
+) -> set[int]:
+    mappings = db.query(GoogleCalendarEvent).filter_by(user_id=user_id).all()
+    pulled_task_ids: set[int] = set()
+    for mapping in mappings:
+        response = requests.get(
+            _event_url(connection.calendar_id, mapping.google_event_id),
+            headers=_authorization_header(access_token),
+            timeout=15,
+        )
+        if response.status_code == 404:
+            continue
+        if not response.ok:
+            raise GoogleCalendarError(_google_error(response))
+        remote_event = response.json()
+        remote_updated = _parse_google_timestamp(remote_event.get("updated"))
+        if remote_updated is None:
+            continue
+
+        task = db.query(Task).filter(
+            Task.id == mapping.task_id,
+            Task.owner_id == user_id,
+            Task.kind == TaskKind.appointment,
+        ).first()
+        if not task:
+            continue
+
+        local_updated = _aware(task.updated_at) if task.updated_at else _aware(task.created_at)
+        if remote_updated <= local_updated:
+            continue
+
+        task.title = remote_event.get("summary") or task.title
+        task.description = remote_event.get("description") or task.description
+        start = remote_event.get("start", {})
+        end = remote_event.get("end", {})
+        if start.get("dateTime"):
+            task.start_at = datetime.fromisoformat(start["dateTime"])
+            task.due_date = None
+        if end.get("dateTime"):
+            task.end_at = datetime.fromisoformat(end["dateTime"])
+        elif start.get("date"):
+            try:
+                task.due_date = date.fromisoformat(start["date"])
+            except ValueError:
+                continue
+            task.start_at = None
+            task.end_at = None
+        mapping.synced_at = datetime.now(timezone.utc)
+        pulled_task_ids.add(task.id)
+
+    if pulled_task_ids:
+        db.flush()
+    return pulled_task_ids
+
+
+def _parse_google_timestamp(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
 
 
 def disconnect_calendar(db: Session, user_id: int, settings: Settings | None = None) -> bool:

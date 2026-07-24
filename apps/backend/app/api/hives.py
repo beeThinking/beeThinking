@@ -39,7 +39,11 @@ from app.services.hive_lifecycle import (
     requeen_hive,
 )
 from app.crud import hive as hive_crud
+from app.crud import weight_reading as weight_reading_crud
+from app.crud.hive_analytics import get_hive_analytics
 from app.crud.ownership import user_can_admin_apiary, user_can_write_apiary
+from app.schemas.hive_analytics import AnalyticsGrouping, HiveAnalyticsResponse
+from app.schemas.weight_reading import WeightReadingCreate, WeightReadingResponse
 from datetime import date
 
 router = APIRouter()
@@ -304,6 +308,64 @@ def get_hive_history(
     if not hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
     return get_lifecycle_timeline(db, hive_id, current_user.id)
+
+
+@router.get("/{hive_id}/analytics", response_model=HiveAnalyticsResponse)
+def get_hive_analytics_endpoint(
+    hive_id: int,
+    grouping: AnalyticsGrouping = AnalyticsGrouping.month,
+    from_date: Optional[date] = None,
+    to_date: Optional[date] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Per-colony analytics (#42): KPI counters + chart grouped by Jahr/Monat/Woche/Tag."""
+    analytics = get_hive_analytics(
+        db, hive_id=hive_id, owner_id=current_user.id, grouping=grouping, from_date=from_date, to_date=to_date
+    )
+    if not analytics:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return analytics
+
+
+@router.get("/{hive_id}/weight-readings", response_model=list[WeightReadingResponse])
+def list_weight_readings(
+    hive_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Stockwaage (#46) weight time series for a hive. Returns empty until a future
+    vendor-integration ticket provides an ingestion mechanism."""
+    if not hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return weight_reading_crud.get_readings(db, hive_id=hive_id)
+
+
+@router.post("/{hive_id}/weight-readings", response_model=WeightReadingResponse, status_code=status.HTTP_201_CREATED)
+def create_weight_reading(
+    hive_id: int,
+    payload: WeightReadingCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not db_hive or not user_can_write_apiary(db, db_hive.apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    return weight_reading_crud.create_reading(db, hive_id=hive_id, payload=payload)
+
+
+@router.delete("/{hive_id}/weight-readings/{reading_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_weight_reading(
+    hive_id: int,
+    reading_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_hive = hive_crud.get_hive(db, hive_id=hive_id, owner_id=current_user.id)
+    if not db_hive or not user_can_write_apiary(db, db_hive.apiary_id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hive not found")
+    if not weight_reading_crud.delete_reading(db, hive_id=hive_id, reading_id=reading_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reading not found")
 
 
 @router.post("/{hive_id}/archive", response_model=HiveResponse)

@@ -2,17 +2,21 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.crud.ownership import validate_optional_refs
+from app.crud.ownership import filter_by_hive_or_apiary_visibility, validate_optional_refs
 from app.models.harvest import Harvest
+from app.models.hive import Hive
 from app.schemas.harvest import HarvestCreate, HarvestUpdate
 
 
 def get_harvests(db: Session, owner_id: int) -> list[Harvest]:
-    return db.query(Harvest).filter(Harvest.owner_id == owner_id).order_by(Harvest.harvest_date.desc()).all()
+    query = db.query(Harvest).outerjoin(Hive, Hive.id == Harvest.hive_id)
+    query = filter_by_hive_or_apiary_visibility(query, db, owner_id, Harvest.apiary_id, Hive.apiary_id)
+    return query.order_by(Harvest.harvest_date.desc()).all()
 
 
 def get_harvest(db: Session, harvest_id: int, owner_id: int) -> Optional[Harvest]:
-    return db.query(Harvest).filter(Harvest.id == harvest_id, Harvest.owner_id == owner_id).first()
+    query = db.query(Harvest).outerjoin(Hive, Hive.id == Harvest.hive_id).filter(Harvest.id == harvest_id)
+    return filter_by_hive_or_apiary_visibility(query, db, owner_id, Harvest.apiary_id, Hive.apiary_id).first()
 
 
 def create_harvest(db: Session, harvest: HarvestCreate, owner_id: int, performed_by_user_id: int | None = None) -> Optional[Harvest]:

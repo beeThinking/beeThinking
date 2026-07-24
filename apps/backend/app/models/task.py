@@ -36,6 +36,7 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     hive_id = Column(Integer, ForeignKey("hives.id"), nullable=True)
     apiary_id = Column(Integer, ForeignKey("apiaries.id"), nullable=True)
     title = Column(String, nullable=False)
@@ -47,10 +48,14 @@ class Task(Base):
     priority = Column(Enum(TaskPriority), default=TaskPriority.medium, nullable=False)
     status = Column(Enum(TaskStatus), default=TaskStatus.open, nullable=False)
     source = Column(Enum(TaskSource), default=TaskSource.manual, nullable=False)
+    recurrence_rule = Column(String, nullable=True)
+    delegated_at = Column(DateTime(timezone=True), nullable=True)
+    delegation_seen_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
-    owner = relationship("User", back_populates="tasks")
+    owner = relationship("User", foreign_keys=[owner_id], back_populates="tasks")
+    assignee = relationship("User", foreign_keys=[assignee_id], back_populates="assigned_tasks")
     hive = relationship("Hive", back_populates="tasks")
     apiary = relationship("Apiary", back_populates="tasks")

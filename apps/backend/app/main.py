@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api import apiaries, auth, batches, cashbook, content, dashboard, feedings, google_calendar, harvests, hives, honeybook, inspection_criteria, inspections, inventory, office, photos, queens, reports, sales, tasks, traceability, treatments, users, varroa_checks, breeding_selection, zuchtreihen
+from app.api import apiaries, auth, batches, cashbook, content, dashboard, feed_calculator, feedings, google_calendar, harvests, hive_selection, hives, honey_price_calculator, honeybook, inspection_criteria, inspections, inventory, map as map_api, office, photos, push_notifications, queens, reports, sales, tasks, traceability, treatments, users, varroa_checks, breeding_selection, zuchtreihen
+from app.services.scheduler import start_scheduler, stop_scheduler
 
 settings = get_settings()
 
@@ -49,6 +50,21 @@ app.include_router(honeybook.router, prefix="/api/honeybook", tags=["Honeybook"]
 app.include_router(traceability.router, prefix="/api/traceability", tags=["Traceability"])
 app.include_router(zuchtreihen.router, prefix="/api/zuchtreihen", tags=["Zuchtreihen"])
 app.include_router(breeding_selection.router, prefix="/api/breeding-selection", tags=["Zucht-Selektion"])
+app.include_router(hive_selection.router, prefix="/api/hive-selection", tags=["Bienenvolk-Selektion"])
+app.include_router(push_notifications.router, prefix="/api/push", tags=["Push Notifications"])
+app.include_router(map_api.router, prefix="/api/map", tags=["Map"])
+app.include_router(feed_calculator.router, prefix="/api/feed-calculator", tags=["Futtermengen-Rechner"])
+app.include_router(honey_price_calculator.router, prefix="/api/honey-price-calculator", tags=["Honigpreis-Rechner"])
+
+
+@app.on_event("startup")
+def on_startup():
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    stop_scheduler()
 
 
 @app.get("/")

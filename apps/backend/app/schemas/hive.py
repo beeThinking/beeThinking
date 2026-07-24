@@ -18,6 +18,7 @@ class HiveBase(BaseModel):
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: int
     is_breeding_candidate: bool = False
+    scale_enabled: bool = False
 
 
 class HiveCreate(HiveBase):
@@ -36,6 +37,7 @@ class HiveUpdate(BaseModel):
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: Optional[int] = None
     is_breeding_candidate: Optional[bool] = None
+    scale_enabled: Optional[bool] = None
 
 
 class HiveResponse(HiveBase):

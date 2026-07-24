@@ -3,14 +3,17 @@ from datetime import date
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.crud.ownership import user_can_access_apiary
+from app.crud.ownership import user_can_access_apiary, visible_apiary_ids_subquery
 from app.crud.office import get_partner
 from app.models.cashbook import CashbookDirection, CashbookEntry, CashbookReceipt, CashbookReceiptSuggestion
 from app.schemas.cashbook import CashbookEntryCreate, CashbookEntryUpdate
 
 
 def list_entries(db: Session, user_id: int, from_date: date | None = None, to_date: date | None = None) -> list[CashbookEntry]:
-    query = db.query(CashbookEntry).filter(CashbookEntry.owner_id == user_id)
+    visible_ids = visible_apiary_ids_subquery(db, user_id)
+    query = db.query(CashbookEntry).filter(
+        (CashbookEntry.owner_id == user_id) | (CashbookEntry.apiary_id.in_(visible_ids))
+    )
     if from_date:
         query = query.filter(CashbookEntry.booking_date >= from_date)
     if to_date:
@@ -31,8 +34,16 @@ def create_entry(db: Session, entry: CashbookEntryCreate, user_id: int) -> Cashb
     return db_entry
 
 
+def get_entry(db: Session, entry_id: int, user_id: int) -> CashbookEntry | None:
+    visible_ids = visible_apiary_ids_subquery(db, user_id)
+    return db.query(CashbookEntry).filter(
+        CashbookEntry.id == entry_id,
+        (CashbookEntry.owner_id == user_id) | (CashbookEntry.apiary_id.in_(visible_ids)),
+    ).first()
+
+
 def update_entry(db: Session, entry_id: int, update: CashbookEntryUpdate, user_id: int) -> CashbookEntry | None:
-    db_entry = db.query(CashbookEntry).filter(CashbookEntry.id == entry_id, CashbookEntry.owner_id == user_id).first()
+    db_entry = get_entry(db, entry_id, user_id)
     if not db_entry:
         return None
     data = update.model_dump(exclude_unset=True)
@@ -48,7 +59,7 @@ def update_entry(db: Session, entry_id: int, update: CashbookEntryUpdate, user_i
 
 
 def delete_entry(db: Session, entry_id: int, user_id: int) -> bool:
-    db_entry = db.query(CashbookEntry).filter(CashbookEntry.id == entry_id, CashbookEntry.owner_id == user_id).first()
+    db_entry = get_entry(db, entry_id, user_id)
     if not db_entry:
         return False
     db.delete(db_entry)
@@ -57,7 +68,10 @@ def delete_entry(db: Session, entry_id: int, user_id: int) -> bool:
 
 
 def summary(db: Session, user_id: int, from_date: date | None = None, to_date: date | None = None) -> tuple[float, float]:
-    query = db.query(CashbookEntry.direction, func.sum(CashbookEntry.amount_net)).filter(CashbookEntry.owner_id == user_id)
+    visible_ids = visible_apiary_ids_subquery(db, user_id)
+    query = db.query(CashbookEntry.direction, func.sum(CashbookEntry.amount_net)).filter(
+        (CashbookEntry.owner_id == user_id) | (CashbookEntry.apiary_id.in_(visible_ids))
+    )
     if from_date:
         query = query.filter(CashbookEntry.booking_date >= from_date)
     if to_date:

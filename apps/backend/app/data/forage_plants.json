@@ -1,0 +1,110 @@
+[
+  {
+    "id": "weide",
+    "name_de": "Weide",
+    "name_latin": "Salix",
+    "bloom_start_month": 3,
+    "bloom_end_month": 4,
+    "forage_value": "high",
+    "notes": "Wichtige erste Pollen- und Nektarquelle im Frühjahr."
+  },
+  {
+    "id": "obstbaeume",
+    "name_de": "Obstbäume (Apfel, Kirsche, Birne)",
+    "name_latin": "Malus, Prunus, Pyrus",
+    "bloom_start_month": 4,
+    "bloom_end_month": 5,
+    "forage_value": "high",
+    "notes": "Massentracht in Obstbauregionen."
+  },
+  {
+    "id": "raps",
+    "name_de": "Raps",
+    "name_latin": "Brassica napus",
+    "bloom_start_month": 4,
+    "bloom_end_month": 5,
+    "forage_value": "high",
+    "notes": "Ergiebige Massentracht, kristallisiert schnell im Glas."
+  },
+  {
+    "id": "loewenzahn",
+    "name_de": "Löwenzahn",
+    "name_latin": "Taraxacum officinale",
+    "bloom_start_month": 4,
+    "bloom_end_month": 5,
+    "forage_value": "medium",
+    "notes": "Verlässliche Frühtracht auf Wiesen."
+  },
+  {
+    "id": "kastanie",
+    "name_de": "Rosskastanie",
+    "name_latin": "Aesculus hippocastanum",
+    "bloom_start_month": 5,
+    "bloom_end_month": 5,
+    "forage_value": "medium",
+    "notes": "Wichtige Pollenquelle in Stadtnähe."
+  },
+  {
+    "id": "robinie",
+    "name_de": "Robinie",
+    "name_latin": "Robinia pseudoacacia",
+    "bloom_start_month": 5,
+    "bloom_end_month": 6,
+    "forage_value": "high",
+    "notes": "Ergiebige, milde Honigsorte, wetterabhängig."
+  },
+  {
+    "id": "linde",
+    "name_de": "Linde",
+    "name_latin": "Tilia",
+    "bloom_start_month": 6,
+    "bloom_end_month": 7,
+    "forage_value": "high",
+    "notes": "Charakteristischer Lindenhonig, starker Duft."
+  },
+  {
+    "id": "klee",
+    "name_de": "Weißklee",
+    "name_latin": "Trifolium repens",
+    "bloom_start_month": 5,
+    "bloom_end_month": 9,
+    "forage_value": "medium",
+    "notes": "Lange Blühdauer auf Wiesen und Weiden."
+  },
+  {
+    "id": "phacelia",
+    "name_de": "Phacelia (Bienenfreund)",
+    "name_latin": "Phacelia tanacetifolia",
+    "bloom_start_month": 6,
+    "bloom_end_month": 8,
+    "forage_value": "high",
+    "notes": "Häufig als Zwischenfrucht/Blühstreifen angebaut."
+  },
+  {
+    "id": "sonnenblume",
+    "name_de": "Sonnenblume",
+    "name_latin": "Helianthus annuus",
+    "bloom_start_month": 7,
+    "bloom_end_month": 8,
+    "forage_value": "medium",
+    "notes": "Späte Sommertracht, ergiebiger Pollenspender."
+  },
+  {
+    "id": "heide",
+    "name_de": "Heidekraut (Besenheide)",
+    "name_latin": "Calluna vulgaris",
+    "bloom_start_month": 8,
+    "bloom_end_month": 9,
+    "forage_value": "high",
+    "notes": "Späte, thixotrope Spättracht in Heidegebieten."
+  },
+  {
+    "id": "efeu",
+    "name_de": "Efeu",
+    "name_latin": "Hedera helix",
+    "bloom_start_month": 9,
+    "bloom_end_month": 10,
+    "forage_value": "medium",
+    "notes": "Wichtige letzte Tracht vor dem Winter."
+  }
+]

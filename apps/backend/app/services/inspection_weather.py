@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import requests
 
+from app.models.apiary import Apiary
 from app.models.hive import Hive
 
 
@@ -18,12 +19,32 @@ class InspectionWeatherSnapshot:
     weather_fetched_at: datetime
 
 
+@dataclass(frozen=True)
+class DailyForecastEntry:
+    date: date
+    weather_code: int | None
+    temperature_min: float | None
+    temperature_max: float | None
+    precipitation_sum: float | None
+
+
+@dataclass(frozen=True)
+class ApiaryWeatherForecast:
+    current: InspectionWeatherSnapshot | None
+    daily: list[DailyForecastEntry]
+
+
+class WeatherUnavailableError(RuntimeError):
+    pass
+
+
 def fetch_inspection_weather(hive: Hive) -> InspectionWeatherSnapshot | None:
     apiary = hive.apiary
     if not apiary or apiary.latitude is None or apiary.longitude is None:
         return None
 
-    response = requests.get(
+    try:
+        response = requests.get(
         "https://api.open-meteo.com/v1/forecast",
         params={
             "latitude": apiary.latitude,
@@ -40,9 +61,11 @@ def fetch_inspection_weather(hive: Hive) -> InspectionWeatherSnapshot | None:
             "timezone": "auto",
         },
         timeout=8,
-    )
-    response.raise_for_status()
-    current = response.json().get("current", {})
+        )
+        response.raise_for_status()
+        current = response.json().get("current", {})
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        raise WeatherUnavailableError("Weather provider is unavailable") from exc
 
     temperature = _number(current.get("temperature_2m"))
     humidity = _number(current.get("relative_humidity_2m"))
@@ -125,3 +148,88 @@ def _int(value) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def fetch_apiary_weather_forecast(apiary: Apiary, forecast_days: int = 3) -> ApiaryWeatherForecast | None:
+    """Current weather + N-day forecast for a Stand's location (#41 map view).
+
+    Extends the existing Open-Meteo current-weather integration with the
+    `daily` forecast parameters instead of introducing a second provider.
+    """
+    if apiary.latitude is None or apiary.longitude is None:
+        return None
+
+    try:
+        response = requests.get(
+        "https://api.open-meteo.com/v1/forecast",
+        params={
+            "latitude": apiary.latitude,
+            "longitude": apiary.longitude,
+            "current": ",".join(
+                [
+                    "temperature_2m",
+                    "relative_humidity_2m",
+                    "precipitation",
+                    "weather_code",
+                    "wind_speed_10m",
+                ]
+            ),
+            "daily": ",".join(
+                [
+                    "weather_code",
+                    "temperature_2m_min",
+                    "temperature_2m_max",
+                    "precipitation_sum",
+                ]
+            ),
+            "forecast_days": forecast_days,
+            "timezone": "auto",
+        },
+        timeout=8,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        raise WeatherUnavailableError("Weather provider is unavailable") from exc
+    current = payload.get("current", {})
+
+    temperature = _number(current.get("temperature_2m"))
+    humidity = _number(current.get("relative_humidity_2m"))
+    precipitation = _number(current.get("precipitation"))
+    wind_speed = _number(current.get("wind_speed_10m"))
+    weather_code = _int(current.get("weather_code"))
+    description = weather_code_label(weather_code)
+
+    current_snapshot = InspectionWeatherSnapshot(
+        weather=_summary(description, temperature, humidity, wind_speed, precipitation),
+        weather_temperature=temperature,
+        weather_humidity=humidity,
+        weather_wind_speed=wind_speed,
+        weather_precipitation=precipitation,
+        weather_code=weather_code,
+        weather_source="open-meteo",
+        weather_fetched_at=datetime.now(timezone.utc),
+    )
+
+    daily = payload.get("daily", {})
+    dates = daily.get("time", [])
+    codes = daily.get("weather_code", [])
+    mins = daily.get("temperature_2m_min", [])
+    maxs = daily.get("temperature_2m_max", [])
+    precipitation_sums = daily.get("precipitation_sum", [])
+
+    try:
+        daily_entries = [
+            DailyForecastEntry(
+                date=date.fromisoformat(day),
+                weather_code=_int(codes[index]) if index < len(codes) else None,
+                temperature_min=_number(mins[index]) if index < len(mins) else None,
+                temperature_max=_number(maxs[index]) if index < len(maxs) else None,
+                precipitation_sum=_number(precipitation_sums[index]) if index < len(precipitation_sums) else None,
+            )
+            for index, day in enumerate(dates)
+        ]
+    except (TypeError, ValueError) as exc:
+        raise WeatherUnavailableError("Weather provider is unavailable") from exc
+
+    return ApiaryWeatherForecast(current=current_snapshot, daily=daily_entries)

@@ -19,4 +19,5 @@ class GoogleCalendarSyncResponse(BaseModel):
     created: int
     updated: int
     deleted: int
+    pulled: int = 0
     synced_at: datetime

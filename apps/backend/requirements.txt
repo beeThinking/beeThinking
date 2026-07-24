@@ -28,3 +28,9 @@ httpx>=0.24.0
 
 psycopg2-binary>=2.9.9
 segno>=1.6
+python-dateutil>=2.9.0
+
+# M8: web push (VAPID) + in-process scheduler
+py-vapid>=1.9.0
+pywebpush>=1.14.0
+apscheduler>=3.10.4

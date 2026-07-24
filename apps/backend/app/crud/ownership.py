@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session
 
 from app.models.apiary import Apiary
 from app.models.apiary_member import ApiaryMember, ApiaryMemberRole
@@ -53,6 +53,43 @@ def user_owns_inspection(db: Session, inspection_id: int, owner_id: int) -> bool
         .first()
     )
     return inspection is not None and user_can_write_apiary(db, inspection.hive.apiary_id, owner_id)
+
+
+def visible_apiary_ids_subquery(db: Session, user_id: int):
+    """Subquery of apiary IDs the user can see: owned apiaries plus accepted ApiaryMember rows.
+
+    Used to scope Task/Feeding/Harvest/CashbookEntry queries to the #37 membership model
+    instead of the previous owner_id-only filtering, so any team member with ApiaryMember
+    access to an apiary can see all records within it.
+    """
+    return (
+        db.query(Apiary.id)
+        .outerjoin(ApiaryMember, ApiaryMember.apiary_id == Apiary.id)
+        .filter(
+            (Apiary.owner_id == user_id)
+            | ((ApiaryMember.user_id == user_id) & (ApiaryMember.accepted_at.is_not(None)))
+        )
+        .distinct()
+        .subquery()
+    )
+
+
+def filter_by_hive_or_apiary_visibility(
+    query: Query,
+    db: Session,
+    user_id: int,
+    apiary_id_column,
+    hive_apiary_id_column,
+) -> Query:
+    """Restrict `query` to rows visible via either a direct apiary_id or a joined hive's apiary_id.
+
+    Feeding/Harvest rows may reference a hive_id, an apiary_id, or both; a record is visible
+    if either reference resolves to an apiary the user can access.
+    """
+    visible_ids = visible_apiary_ids_subquery(db, user_id)
+    return query.filter(
+        (apiary_id_column.in_(visible_ids)) | (hive_apiary_id_column.in_(visible_ids))
+    )
 
 
 def validate_optional_refs(
