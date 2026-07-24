@@ -71,6 +71,7 @@ class CashbookEntry(Base):
     description = Column(Text, nullable=True)
     payment_method = Column(String, nullable=True)
     receipt_id = Column(Integer, ForeignKey("cashbook_receipts.id"), nullable=True)
+    sale_id = Column(Integer, ForeignKey("sales.id", use_alter=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

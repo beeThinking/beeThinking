@@ -69,6 +69,41 @@ def test_office_partner_document_and_exports(authenticated_client):
 
 @pytest.mark.unit
 @pytest.mark.api
+def test_customer_label_sheet_pdf(authenticated_client):
+    client, _ = authenticated_client
+
+    client.post(
+        "/api/office/partners",
+        json={"partner_type": "customer", "name": "Hofladen Mitte", "email": "hof@example.com", "phone": "0123456789"},
+    )
+    client.post(
+        "/api/office/partners",
+        json={"partner_type": "supplier", "name": "Wachs GmbH"},
+    )
+
+    response = client.get("/api/office/partners/customers.pdf")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.content.startswith(b"%PDF")
+
+
+@pytest.mark.unit
+@pytest.mark.api
+def test_customer_label_sheet_without_customers_returns_404(authenticated_client):
+    client, _ = authenticated_client
+
+    assert client.get("/api/office/partners/customers.pdf").status_code == 404
+
+
+@pytest.mark.unit
+@pytest.mark.api
+def test_customer_label_sheet_requires_authentication(client):
+    assert client.get("/api/office/partners/customers.pdf").status_code == 401
+
+
+@pytest.mark.unit
+@pytest.mark.api
 def test_receipt_upload_persists_object_and_returns_preview(authenticated_client, db, monkeypatch):
     from app.api import cashbook as cashbook_api
 

@@ -45,6 +45,24 @@ def list_partners(
     return office_crud.list_partners(db, current_user.id, partner_type=partner_type)
 
 
+@router.get("/partners/customers.pdf")
+def get_customer_label_sheet(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    from app.services.qr_labels import customer_label_sheet_pdf
+
+    customers = office_crud.list_partners(db, current_user.id, partner_type="customer")
+    if not customers:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No customers found")
+    pdf = customer_label_sheet_pdf(customers)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="kundenliste-qr.pdf"'},
+    )
+
+
 @router.post("/partners", response_model=OfficePartnerResponse, status_code=status.HTTP_201_CREATED)
 def create_partner(
     partner: OfficePartnerCreate,
