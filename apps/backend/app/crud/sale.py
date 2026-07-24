@@ -139,7 +139,7 @@ def create_sale(db: Session, sale: SaleCreate, owner_id: int) -> Sale:
         title=f"Sale #{db_sale.id}",
         partner_id=sale.partner_id,
         amount_gross=amount_gross,
-        tax_rate=vat_rate,
+        tax_rate=vat_rate * 100,
         tax_amount=tax_amount,
         amount_net=amount_net,
         receipt_id=receipt.id,

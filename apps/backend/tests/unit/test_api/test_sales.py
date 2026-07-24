@@ -56,6 +56,7 @@ class TestCreateSale:
         assert entries[0]["category"] == "honey_sales"
         assert entries[0]["direction"] == "income"
         assert entries[0]["amount_gross"] == pytest.approx(24.0)
+        assert entries[0]["tax_rate"] == pytest.approx(7.0)
 
     def test_create_sale_defaults_standard_vat_for_non_honey_article(self, authenticated_client):
         client, _ = authenticated_client
