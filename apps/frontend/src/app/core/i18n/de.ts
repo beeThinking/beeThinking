@@ -992,4 +992,9 @@ export const de: Record<TranslationKey, string> = {
   'settings.push.permissionDenied': 'Die Benachrichtigungsberechtigung wurde nicht erteilt.',
   'settings.push.error.load': 'Benachrichtigungseinstellungen konnten nicht geladen werden.',
   'settings.push.error.save': 'Benachrichtigungseinstellung konnte nicht gespeichert werden.',
+  'settings.export.title': 'Deine Daten',
+  'settings.export.help': 'Lade ein ZIP-Archiv mit deinen BeeThinking-Kontodaten herunter.',
+  'settings.export.download': 'Meine Daten exportieren',
+  'settings.export.downloading': 'Export wird erstellt...',
+  'settings.export.error': 'Dein Kontoexport konnte nicht heruntergeladen werden.',
 };

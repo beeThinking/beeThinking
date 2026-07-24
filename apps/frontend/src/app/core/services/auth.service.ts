@@ -1,6 +1,6 @@
 import { computed, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, shareReplay, tap, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { LoginRequest, Token, UserResponse, RegisterRequest } from '../models/auth.models';
 
@@ -9,9 +9,12 @@ import { LoginRequest, Token, UserResponse, RegisterRequest } from '../models/au
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'access_token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
   private readonly storage = this.getStorage();
+  private refreshInFlight$: Observable<Token> | null = null;
+  private unauthorizedHandled = false;
 
   readonly isAuthenticated = signal<boolean>(this.hasToken());
   readonly currentUser = signal<UserResponse | null>(null);
@@ -34,8 +37,7 @@ export class AuthService {
 
     return this.apiService.post<Token>('/api/auth/login', body.toString()).pipe(
       tap(response => {
-        this.storage?.setItem(this.TOKEN_KEY, response.access_token);
-        this.isAuthenticated.set(true);
+        this.storeTokens(response);
         this.loadCurrentUser().subscribe({ error: () => undefined });
       })
     );
@@ -46,18 +48,19 @@ export class AuthService {
   }
 
   logout(): void {
-    this.storage?.removeItem(this.TOKEN_KEY);
-    this.isAuthenticated.set(false);
-    this.currentUser.set(null);
+    const refreshToken = this.getRefreshToken();
+    this.clearSession();
+    if (refreshToken) {
+      this.apiService.post<void>('/api/auth/logout', { refresh_token: refreshToken }).subscribe({ error: () => undefined });
+    }
     this.router.navigate(['/login']);
   }
 
   handleUnauthorized(returnUrl: string): void {
-    this.storage?.removeItem(this.TOKEN_KEY);
-    this.isAuthenticated.set(false);
-    this.currentUser.set(null);
+    this.clearSession();
 
-    if (this.router.url.startsWith('/login')) return;
+    if (this.unauthorizedHandled || this.router.url.startsWith('/login')) return;
+    this.unauthorizedHandled = true;
 
     this.router.navigate(['/login'], {
       queryParams: { returnUrl: returnUrl || '/dashboard' }
@@ -68,6 +71,34 @@ export class AuthService {
     return this.storage?.getItem(this.TOKEN_KEY) ?? null;
   }
 
+  refreshTokens(): Observable<Token> {
+    if (this.refreshInFlight$) return this.refreshInFlight$;
+
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.handleUnauthorized(this.router.url);
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    this.refreshInFlight$ = this.apiService.post<Token>('/api/auth/refresh', { refresh_token: refreshToken }).pipe(
+      tap({
+        next: response => this.storeTokens(response),
+        error: () => this.handleUnauthorized(this.router.url)
+      }),
+      finalize(() => (this.refreshInFlight$ = null)),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+    return this.refreshInFlight$;
+  }
+
+  getRefreshToken(): string | null {
+    return this.storage?.getItem(this.REFRESH_TOKEN_KEY) ?? null;
+  }
+
+  downloadAccountExport(): Observable<Blob> {
+    return this.apiService.getBlob('/api/users/me/export');
+  }
+
   loadCurrentUser(): Observable<UserResponse> {
     return this.apiService.get<UserResponse>('/api/users/me').pipe(
       tap(user => this.currentUser.set(user))
@@ -76,6 +107,20 @@ export class AuthService {
 
   private hasToken(): boolean {
     return !!this.getToken();
+  }
+
+  private storeTokens(response: Token): void {
+    this.storage?.setItem(this.TOKEN_KEY, response.access_token);
+    this.storage?.setItem(this.REFRESH_TOKEN_KEY, response.refresh_token);
+    this.unauthorizedHandled = false;
+    this.isAuthenticated.set(true);
+  }
+
+  private clearSession(): void {
+    this.storage?.removeItem(this.TOKEN_KEY);
+    this.storage?.removeItem(this.REFRESH_TOKEN_KEY);
+    this.isAuthenticated.set(false);
+    this.currentUser.set(null);
   }
 
   private getStorage(): Storage | null {

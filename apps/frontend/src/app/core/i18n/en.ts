@@ -990,6 +990,11 @@ export const en = {
   'settings.push.permissionDenied': 'Notification permission was not granted.',
   'settings.push.error.load': 'Notification settings could not be loaded.',
   'settings.push.error.save': 'Notification setting could not be saved.',
+  'settings.export.title': 'Your data',
+  'settings.export.help': 'Download a ZIP archive containing your BeeThinking account data.',
+  'settings.export.download': 'Export my data',
+  'settings.export.downloading': 'Preparing export...',
+  'settings.export.error': 'Your account export could not be downloaded.',
 } as const;
 
 export type TranslationKey = keyof typeof en;

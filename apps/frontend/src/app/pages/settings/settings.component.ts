@@ -4,6 +4,7 @@ import { PushSubscriptionResponse, VapidPublicKeyResponse } from '../../core/mod
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -16,12 +17,14 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 export class SettingsComponent {
   private readonly push = inject(PushNotificationService);
   private readonly translation = inject(TranslationService);
+  private readonly auth = inject(AuthService);
 
   protected readonly vapid = signal<VapidPublicKeyResponse | null>(null);
   protected readonly subscriptions = signal<PushSubscriptionResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly working = signal(false);
   protected readonly message = signal('');
+  protected readonly exportWorking = signal(false);
 
   constructor() {
     this.load();
@@ -46,6 +49,29 @@ export class SettingsComponent {
       return;
     }
     await this.subscribe();
+  }
+
+  protected downloadAccountExport(): void {
+    if (this.exportWorking()) return;
+    this.exportWorking.set(true);
+    this.message.set('');
+    this.auth.downloadAccountExport().subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'beethinking-account-export.zip';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        this.exportWorking.set(false);
+      },
+      error: () => {
+        this.message.set(this.translation.t('settings.export.error'));
+        this.exportWorking.set(false);
+      }
+    });
   }
 
   private load(): void {

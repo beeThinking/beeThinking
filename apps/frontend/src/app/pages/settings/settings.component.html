@@ -14,4 +14,14 @@
       {{ enabled ? ('settings.push.disable' | translate) : ('settings.push.enable' | translate) }}
     </button>
   </section>
+
+  <section class="settings-panel">
+    <div>
+      <h2>{{ 'settings.export.title' | translate }}</h2>
+      <p>{{ 'settings.export.help' | translate }}</p>
+    </div>
+    <button type="button" class="push-button" [disabled]="exportWorking()" (click)="downloadAccountExport()">
+      {{ exportWorking() ? ('settings.export.downloading' | translate) : ('settings.export.download' | translate) }}
+    </button>
+  </section>
 </div>
