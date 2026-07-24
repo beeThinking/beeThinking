@@ -35,3 +35,4 @@ class User(Base):
     google_calendar_connection = relationship("GoogleCalendarConnection", cascade="all, delete-orphan", uselist=False)
     google_calendar_events = relationship("GoogleCalendarEvent", cascade="all, delete-orphan")
     google_oauth_states = relationship("GoogleOAuthState", cascade="all, delete-orphan")
+    zuchtreihen = relationship("Zuchtreihe", back_populates="owner", cascade="all, delete-orphan")

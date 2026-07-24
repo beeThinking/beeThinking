@@ -23,6 +23,7 @@ class TaskSource(str, enum.Enum):
     manual = "manual"
     inspection = "inspection"
     system = "system"
+    breeding = "breeding"
 
 
 class TaskKind(str, enum.Enum):

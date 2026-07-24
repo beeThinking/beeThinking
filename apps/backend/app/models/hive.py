@@ -46,6 +46,7 @@ class Hive(Base):
     sort_order = Column(Integer, default=0, nullable=False)
     status = Column(Enum(HiveStatus), default=HiveStatus.active, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    is_breeding_candidate = Column(Boolean, default=False, nullable=False)
     archived_at = Column(Date, nullable=True)
     merged_into_hive_id = Column(Integer, ForeignKey("hives.id"), nullable=True)
     notes = Column(String, nullable=True)
@@ -66,3 +67,4 @@ class Hive(Base):
     merged_into_hive = relationship("Hive", remote_side=[id])
     events = relationship("HiveEvent", back_populates="hive", cascade="all, delete-orphan")
     varroa_checks = relationship("VarroaCheck", back_populates="hive", cascade="all, delete-orphan")
+    breeding_series = relationship("Zuchtreihe", back_populates="herkunftsvolk")

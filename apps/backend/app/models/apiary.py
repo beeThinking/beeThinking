@@ -26,3 +26,4 @@ class Apiary(Base):
     feedings = relationship("Feeding", back_populates="apiary")
     members = relationship("ApiaryMember", back_populates="apiary", cascade="all, delete-orphan")
     cashbook_entries = relationship("CashbookEntry", back_populates="apiary")
+    zuchtreihen = relationship("Zuchtreihe", back_populates="apiary")

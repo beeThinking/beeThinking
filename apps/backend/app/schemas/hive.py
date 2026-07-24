@@ -17,6 +17,7 @@ class HiveBase(BaseModel):
     sort_order: int = Field(0, ge=0)
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: int
+    is_breeding_candidate: bool = False
 
 
 class HiveCreate(HiveBase):
@@ -34,6 +35,7 @@ class HiveUpdate(BaseModel):
     sort_order: Optional[int] = Field(None, ge=0)
     notes: Optional[str] = Field(None, max_length=1000)
     apiary_id: Optional[int] = None
+    is_breeding_candidate: Optional[bool] = None
 
 
 class HiveResponse(HiveBase):

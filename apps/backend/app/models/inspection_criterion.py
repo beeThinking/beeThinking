@@ -30,6 +30,7 @@ class InspectionCriterion(Base):
     section = Column(String(50), nullable=False, default=CriterionSection.verschiedenes.value)
     value_type = Column(String(20), nullable=False, default=CriterionValueType.stars.value)
     options = Column(JSON, nullable=True)
+    option_scores = Column(JSON, nullable=True)
     field_key = Column(String(50), nullable=True)
     sort_order = Column(Integer, nullable=False, default=0)
     is_active = Column(Boolean, nullable=False, default=True)
