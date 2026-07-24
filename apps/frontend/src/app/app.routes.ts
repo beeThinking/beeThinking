@@ -206,5 +206,20 @@ export const routes: Routes = [
     path: 'traceability',
     loadComponent: () => import('./pages/traceability/traceability.component').then(m => m.TraceabilityComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'zuchtreihen',
+    loadComponent: () => import('./pages/zuchtreihen/zuchtreihen.component').then(m => m.ZuchtreihenComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'zuchtreihen/:id',
+    loadComponent: () => import('./pages/zuchtreihe-detail/zuchtreihe-detail.component').then(m => m.ZuchtreiheDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'zucht-selektion',
+    loadComponent: () => import('./pages/zucht-selektion/zucht-selektion.component').then(m => m.ZuchtSelektionComponent),
+    canActivate: [authGuard]
   }
 ];

@@ -47,6 +47,22 @@
             <li><a routerLink="/batches" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.batches' | translate }}</a></li>
           </ul>
         </li>
+        <li class="nav-group" [class.open]="breedingMenuOpen()">
+          <button
+            type="button"
+            class="nav-link nav-more-button"
+            [class.active]="breedingMenuActive()"
+            [attr.aria-expanded]="breedingMenuOpen()"
+            aria-haspopup="menu"
+            (click)="toggleBreedingMenu($event)">
+            Zucht
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="submenu" role="menu">
+            <li><a routerLink="/zuchtreihen" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Zuchtreihen</a></li>
+            <li><a routerLink="/zucht-selektion" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Zucht-Selektion</a></li>
+          </ul>
+        </li>
         <li class="nav-group" [class.open]="moreOpen()">
           <button
             type="button"

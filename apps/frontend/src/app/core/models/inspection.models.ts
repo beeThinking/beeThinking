@@ -78,6 +78,7 @@ export interface InspectionCriterion {
   section: CriterionSection;
   value_type: CriterionValueType;
   options: string[] | null;
+  option_scores: Record<string, number> | null;
   field_key: string | null;
   sort_order: number;
   is_active: boolean;
@@ -90,6 +91,7 @@ export interface InspectionCriterionCreate {
   section?: CriterionSection;
   value_type?: CriterionValueType;
   options?: string[] | null;
+  option_scores?: Record<string, number> | null;
   sort_order?: number;
   is_active?: boolean;
 }
@@ -99,6 +101,7 @@ export interface InspectionCriterionUpdate {
   section?: CriterionSection;
   value_type?: CriterionValueType;
   options?: string[] | null;
+  option_scores?: Record<string, number> | null;
   sort_order?: number;
   is_active?: boolean;
 }

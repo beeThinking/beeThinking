@@ -31,6 +31,7 @@ export interface Hive {
   notes: string | null;
   owner_id: number;
   apiary_id: number;
+  is_breeding_candidate: boolean;
   created_at: string;
   updated_at: string | null;
 }
@@ -69,6 +70,7 @@ export interface HiveCreate {
   tags?: string[] | null;
   sort_order?: number;
   notes?: string;
+  is_breeding_candidate?: boolean;
 }
 
 export interface HiveUpdate {
@@ -82,6 +84,7 @@ export interface HiveUpdate {
   tags?: string[] | null;
   sort_order?: number;
   notes?: string;
+  is_breeding_candidate?: boolean;
 }
 
 export interface HiveMoveRequest {
@@ -109,7 +112,42 @@ export interface HiveRequeenRequest {
   note?: string;
 }
 
-export interface Queen {
+export interface QueenBreedingFields {
+  rasse: string | null;
+  linie: string | null;
+  lebensnummer: string | null;
+  paartyp: string | null;
+
+  zuchtbuchnummer_land: string | null;
+  zuchtbuchnummer_lv: string | null;
+  zuchtbuchnummer_zuechter: string | null;
+  zuchtbuchnummer_nr: string | null;
+  zuchtbuchnummer_jahr: number | null;
+
+  zuchtbuchnummer_mutter_land: string | null;
+  zuchtbuchnummer_mutter_lv: string | null;
+  zuchtbuchnummer_mutter_zuechter: string | null;
+  zuchtbuchnummer_mutter_nr: string | null;
+  zuchtbuchnummer_mutter_jahr: number | null;
+
+  zuchtbuchnummer_drohnen_land: string | null;
+  zuchtbuchnummer_drohnen_lv: string | null;
+  zuchtbuchnummer_drohnen_zuechter: string | null;
+  zuchtbuchnummer_drohnen_nr: string | null;
+  zuchtbuchnummer_drohnen_jahr: number | null;
+
+  pedigree_pedigree: string | null;
+  pedigree_kasten_nr: string | null;
+  pedigree_zuechter: string | null;
+  pedigree_jahr: number | null;
+
+  belegstelle_land: string | null;
+  belegstelle_verband: string | null;
+  belegstelle_nummer: string | null;
+  belegstelle_durchgang: string | null;
+}
+
+export interface Queen extends QueenBreedingFields {
   id: number;
   owner_id: number;
   hive_id: number | null;
@@ -125,7 +163,7 @@ export interface Queen {
   updated_at: string | null;
 }
 
-export interface QueenUpdate {
+export interface QueenUpdate extends Partial<QueenBreedingFields> {
   year?: number;
   name?: string | null;
   origin?: string | null;

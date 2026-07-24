@@ -57,6 +57,17 @@ import {
   TreatmentUpdate
 } from '../models/beekeeping.models';
 import { UserResponse } from '../models/auth.models';
+import {
+  BreedingCandidate,
+  BreedingStep,
+  BreedingStepCreate,
+  BreedingStepUpdate,
+  CriterionWeight,
+  CriterionWeightUpsert,
+  Zuchtreihe,
+  ZuchtreiheCreate,
+  ZuchtreiheUpdate
+} from '../models/breeding.models';
 
 @Injectable({ providedIn: 'root' })
 export class BeekeepingService {
@@ -433,5 +444,62 @@ export class BeekeepingService {
         return throwError(() => error);
       })
     );
+  }
+
+  getZuchtreihen(apiaryId?: number): Observable<Zuchtreihe[]> {
+    const query = apiaryId ? `?apiary_id=${apiaryId}` : '';
+    return this.api.get<Zuchtreihe[]>(`/api/zuchtreihen${query}`);
+  }
+
+  getZuchtreihe(id: number): Observable<Zuchtreihe> {
+    return this.api.get<Zuchtreihe>(`/api/zuchtreihen/${id}`);
+  }
+
+  createZuchtreihe(zuchtreihe: ZuchtreiheCreate): Observable<Zuchtreihe> {
+    return this.api.post<Zuchtreihe>('/api/zuchtreihen', zuchtreihe);
+  }
+
+  updateZuchtreihe(id: number, zuchtreihe: ZuchtreiheUpdate): Observable<Zuchtreihe> {
+    return this.api.put<Zuchtreihe>(`/api/zuchtreihen/${id}`, zuchtreihe);
+  }
+
+  deleteZuchtreihe(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/zuchtreihen/${id}`);
+  }
+
+  getBreedingSteps(zuchtreiheId: number): Observable<BreedingStep[]> {
+    return this.api.get<BreedingStep[]>(`/api/zuchtreihen/${zuchtreiheId}/steps`);
+  }
+
+  generateBreedingSteps(zuchtreiheId: number, umlarvenDate: string): Observable<BreedingStep[]> {
+    return this.api.post<BreedingStep[]>(`/api/zuchtreihen/${zuchtreiheId}/steps/generate`, { umlarven_date: umlarvenDate });
+  }
+
+  createBreedingStep(zuchtreiheId: number, step: BreedingStepCreate): Observable<BreedingStep> {
+    return this.api.post<BreedingStep>(`/api/zuchtreihen/${zuchtreiheId}/steps`, step);
+  }
+
+  updateBreedingStep(zuchtreiheId: number, stepId: number, step: BreedingStepUpdate): Observable<BreedingStep> {
+    return this.api.put<BreedingStep>(`/api/zuchtreihen/${zuchtreiheId}/steps/${stepId}`, step);
+  }
+
+  deleteBreedingStep(zuchtreiheId: number, stepId: number): Observable<void> {
+    return this.api.delete<void>(`/api/zuchtreihen/${zuchtreiheId}/steps/${stepId}`);
+  }
+
+  getCriterionWeights(): Observable<CriterionWeight[]> {
+    return this.api.get<CriterionWeight[]>('/api/breeding-selection/weights');
+  }
+
+  upsertCriterionWeight(payload: CriterionWeightUpsert): Observable<CriterionWeight> {
+    return this.api.put<CriterionWeight>('/api/breeding-selection/weights', payload);
+  }
+
+  deleteCriterionWeight(criterionId: number): Observable<void> {
+    return this.api.delete<void>(`/api/breeding-selection/weights/${criterionId}`);
+  }
+
+  getBreedingCandidates(): Observable<BreedingCandidate[]> {
+    return this.api.get<BreedingCandidate[]>('/api/breeding-selection/candidates');
   }
 }

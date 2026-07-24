@@ -1,0 +1,70 @@
+<div class="zuchtreihen-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'zuchtreihen.eyebrow' | translate }}</p>
+      <h1>{{ 'zuchtreihen.title' | translate }}</h1>
+    </div>
+    <button type="button" class="primary-action" (click)="openCreateForm()">{{ 'zuchtreihen.add' | translate }}</button>
+  </header>
+
+  @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+
+  @if (showForm()) {
+    <div class="sheet-overlay" role="button" tabindex="0" [attr.aria-label]="'zuchtreihen.modalClose' | translate" (click)="closeForm()" (keydown.enter)="closeForm()">
+      <section class="edit-sheet" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+        <h2>{{ editingZuchtreihe() ? ('zuchtreihen.form.edit' | translate) : ('zuchtreihen.form.create' | translate) }}</h2>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <label>{{ 'zuchtreihen.form.name' | translate }}<input formControlName="name"></label>
+          <label>{{ 'zuchtreihen.form.apiary' | translate }}
+            <select formControlName="apiary_id">
+              <option [ngValue]="null" disabled>{{ 'zuchtreihen.form.apiaryPlaceholder' | translate }}</option>
+              @for (apiary of apiaries(); track apiary.id) {
+                <option [ngValue]="apiary.id">{{ apiaryName(apiary.id) }}</option>
+              }
+            </select>
+          </label>
+          <label>{{ 'zuchtreihen.form.sourceHive' | translate }}
+            <select formControlName="herkunftsvolk_id">
+              <option [ngValue]="null">{{ 'zuchtreihen.form.noSourceHive' | translate }}</option>
+              @for (hive of hives(); track hive.id) {
+                <option [ngValue]="hive.id">{{ hive.name }}</option>
+              }
+            </select>
+          </label>
+          <label>{{ 'zuchtreihen.form.larvaeCount' | translate }}<input type="number" min="0" formControlName="anzahl_larven"></label>
+          <label>{{ 'zuchtreihen.form.acceptedCount' | translate }}<input type="number" min="0" formControlName="anzahl_angenommen"></label>
+          <label>{{ 'zuchtreihen.form.hatchedCount' | translate }}<input type="number" min="0" formControlName="anzahl_geschluepft"></label>
+          <label>{{ 'zuchtreihen.form.matedCount' | translate }}<input type="number" min="0" formControlName="anzahl_begattet"></label>
+          <label class="wide">{{ 'zuchtreihen.form.notes' | translate }}<textarea formControlName="notes"></textarea></label>
+          <div class="sheet-actions">
+            <button type="button" (click)="closeForm()">{{ 'zuchtreihen.form.cancel' | translate }}</button>
+            <button type="submit" class="primary" [disabled]="form.invalid">{{ 'zuchtreihen.form.save' | translate }}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+
+  <section class="record-list">
+    @for (zuchtreihe of zuchtreihen(); track zuchtreihe.id) {
+      <article class="record">
+        <div>
+          <h2><a [routerLink]="['/zuchtreihen', zuchtreihe.id]">{{ zuchtreihe.name }}</a></h2>
+          <p>{{ apiaryName(zuchtreihe.apiary_id) }} · {{ 'zuchtreihen.sourceHive' | translate: { name: hiveName(zuchtreihe.herkunftsvolk_id) } }}</p>
+          <div class="rates">
+            <span>{{ 'zuchtreihen.rate.accepted' | translate: { value: successRate(zuchtreihe.success_rate_angenommen) } }}</span>
+            <span>{{ 'zuchtreihen.rate.hatched' | translate: { value: successRate(zuchtreihe.success_rate_geschluepft) } }}</span>
+            <span>{{ 'zuchtreihen.rate.mated' | translate: { value: successRate(zuchtreihe.success_rate_begattet) } }}</span>
+          </div>
+        </div>
+        <div class="record-actions">
+          <a [routerLink]="['/zuchtreihen', zuchtreihe.id]" class="secondary">{{ 'zuchtreihen.breedingCalendar' | translate }}</a>
+          <button type="button" (click)="openEditForm(zuchtreihe)">{{ 'zuchtreihen.edit' | translate }}</button>
+          <button type="button" class="danger" (click)="deleteZuchtreihe(zuchtreihe)">{{ 'zuchtreihen.delete' | translate }}</button>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-panel">{{ 'zuchtreihen.empty' | translate }}</div>
+    }
+  </section>
+</div>

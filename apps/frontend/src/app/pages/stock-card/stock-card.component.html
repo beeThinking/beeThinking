@@ -61,6 +61,80 @@
 
     @if (actionMessage()) { <p class="action-message">{{ actionMessage() }}</p> }
 
+    <section class="breeding-panel">
+      <button type="button" class="breeding-toggle" (click)="showBreedingPanel() ? closeBreedingPanel() : openBreedingPanel()">
+        {{ showBreedingPanel() ? ('stockCard.breeding.toggle.hide' | translate) : ('stockCard.breeding.toggle.show' | translate) }}
+      </button>
+      @if (showBreedingPanel()) {
+        <div class="breeding-fields">
+          <label class="toggle">
+            <input type="checkbox" [ngModel]="breedingCandidate()" (ngModelChange)="breedingCandidate.set($event)">
+            {{ 'stockCard.breeding.candidate' | translate }}
+          </label>
+
+          @if (activeQueen()) {
+            <h3>{{ 'stockCard.breeding.queenTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.race' | translate }}<input [ngModel]="rasse()" (ngModelChange)="rasse.set($event)"></label>
+              <label>{{ 'stockCard.breeding.line' | translate }}<input [ngModel]="linie()" (ngModelChange)="linie.set($event)"></label>
+              <label>{{ 'stockCard.breeding.lifeNumber' | translate }}<input [ngModel]="lebensnummer()" (ngModelChange)="lebensnummer.set($event)"></label>
+              <label>{{ 'stockCard.breeding.matingType' | translate }}<input [ngModel]="paartyp()" (ngModelChange)="paartyp.set($event)"></label>
+            </div>
+
+            <h3>{{ 'stockCard.breeding.pedigreeNumberTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.country' | translate }}<input [ngModel]="zuchtbuchnummerLand()" (ngModelChange)="zuchtbuchnummerLand.set($event)"></label>
+              <label>LV<input [ngModel]="zuchtbuchnummerLv()" (ngModelChange)="zuchtbuchnummerLv.set($event)"></label>
+              <label>{{ 'stockCard.breeding.breeder' | translate }}<input [ngModel]="zuchtbuchnummerZuechter()" (ngModelChange)="zuchtbuchnummerZuechter.set($event)"></label>
+              <label>{{ 'stockCard.breeding.number' | translate }}<input [ngModel]="zuchtbuchnummerNr()" (ngModelChange)="zuchtbuchnummerNr.set($event)"></label>
+              <label>{{ 'stockCard.breeding.year' | translate }}<input type="number" [ngModel]="zuchtbuchnummerJahr()" (ngModelChange)="zuchtbuchnummerJahr.set($event === '' ? null : +$event)"></label>
+            </div>
+
+            <h3>{{ 'stockCard.breeding.pedigreeNumberMotherTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.country' | translate }}<input [ngModel]="zuchtbuchnummerMutterLand()" (ngModelChange)="zuchtbuchnummerMutterLand.set($event)"></label>
+              <label>LV<input [ngModel]="zuchtbuchnummerMutterLv()" (ngModelChange)="zuchtbuchnummerMutterLv.set($event)"></label>
+              <label>{{ 'stockCard.breeding.breeder' | translate }}<input [ngModel]="zuchtbuchnummerMutterZuechter()" (ngModelChange)="zuchtbuchnummerMutterZuechter.set($event)"></label>
+              <label>{{ 'stockCard.breeding.number' | translate }}<input [ngModel]="zuchtbuchnummerMutterNr()" (ngModelChange)="zuchtbuchnummerMutterNr.set($event)"></label>
+              <label>{{ 'stockCard.breeding.year' | translate }}<input type="number" [ngModel]="zuchtbuchnummerMutterJahr()" (ngModelChange)="zuchtbuchnummerMutterJahr.set($event === '' ? null : +$event)"></label>
+            </div>
+
+            <h3>{{ 'stockCard.breeding.pedigreeNumberDroneTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.country' | translate }}<input [ngModel]="zuchtbuchnummerDrohnenLand()" (ngModelChange)="zuchtbuchnummerDrohnenLand.set($event)"></label>
+              <label>LV<input [ngModel]="zuchtbuchnummerDrohnenLv()" (ngModelChange)="zuchtbuchnummerDrohnenLv.set($event)"></label>
+              <label>{{ 'stockCard.breeding.breeder' | translate }}<input [ngModel]="zuchtbuchnummerDrohnenZuechter()" (ngModelChange)="zuchtbuchnummerDrohnenZuechter.set($event)"></label>
+              <label>{{ 'stockCard.breeding.number' | translate }}<input [ngModel]="zuchtbuchnummerDrohnenNr()" (ngModelChange)="zuchtbuchnummerDrohnenNr.set($event)"></label>
+              <label>{{ 'stockCard.breeding.year' | translate }}<input type="number" [ngModel]="zuchtbuchnummerDrohnenJahr()" (ngModelChange)="zuchtbuchnummerDrohnenJahr.set($event === '' ? null : +$event)"></label>
+            </div>
+
+            <h3>{{ 'stockCard.breeding.pedigreeTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.pedigree' | translate }}<input [ngModel]="pedigreePedigree()" (ngModelChange)="pedigreePedigree.set($event)"></label>
+              <label>{{ 'stockCard.breeding.boxNumber' | translate }}<input [ngModel]="pedigreeKastenNr()" (ngModelChange)="pedigreeKastenNr.set($event)"></label>
+              <label>{{ 'stockCard.breeding.breeder' | translate }}<input [ngModel]="pedigreeZuechter()" (ngModelChange)="pedigreeZuechter.set($event)"></label>
+              <label>{{ 'stockCard.breeding.year' | translate }}<input type="number" [ngModel]="pedigreeJahr()" (ngModelChange)="pedigreeJahr.set($event === '' ? null : +$event)"></label>
+            </div>
+
+            <h3>{{ 'stockCard.breeding.matingStationTitle' | translate }}</h3>
+            <div class="breeding-grid">
+              <label>{{ 'stockCard.breeding.country' | translate }}<input [ngModel]="belegstelleLand()" (ngModelChange)="belegstelleLand.set($event)"></label>
+              <label>{{ 'stockCard.breeding.association' | translate }}<input [ngModel]="belegstelleVerband()" (ngModelChange)="belegstelleVerband.set($event)"></label>
+              <label>{{ 'stockCard.breeding.number' | translate }}<input [ngModel]="belegstelleNummer()" (ngModelChange)="belegstelleNummer.set($event)"></label>
+              <label>{{ 'stockCard.breeding.pass' | translate }}<input [ngModel]="belegstelleDurchgang()" (ngModelChange)="belegstelleDurchgang.set($event)"></label>
+            </div>
+          } @else {
+            <p class="hint">{{ 'stockCard.breeding.noActiveQueen' | translate }}</p>
+          }
+
+          <div class="breeding-actions">
+            <button type="button" (click)="closeBreedingPanel()">{{ 'stockCard.breeding.cancel' | translate }}</button>
+            <button type="button" class="primary" (click)="saveBreedingData()">{{ 'stockCard.breeding.save' | translate }}</button>
+          </div>
+        </div>
+      }
+    </section>
+
     <section class="filters">
       <label>Typ
         <select [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">

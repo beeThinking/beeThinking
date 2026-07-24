@@ -22,6 +22,7 @@ export class NavbarComponent {
   protected readonly menuOpen = signal(false);
   protected readonly moreOpen = signal(false);
   protected readonly inspectionMenuOpen = signal(false);
+  protected readonly breedingMenuOpen = signal(false);
 
   protected moreActive(): boolean {
     return [
@@ -45,28 +46,46 @@ export class NavbarComponent {
     ].some(path => this.router.url.startsWith(path));
   }
 
+  protected breedingMenuActive(): boolean {
+    return [
+      '/zuchtreihen',
+      '/zucht-selektion'
+    ].some(path => this.router.url.startsWith(path));
+  }
+
   protected toggleMenu(): void {
     this.menuOpen.update(v => !v);
     this.moreOpen.set(false);
     this.inspectionMenuOpen.set(false);
+    this.breedingMenuOpen.set(false);
   }
 
   protected closeMenu(): void {
     this.menuOpen.set(false);
     this.moreOpen.set(false);
     this.inspectionMenuOpen.set(false);
+    this.breedingMenuOpen.set(false);
   }
 
   protected toggleMore(event: Event): void {
     event.stopPropagation();
     this.inspectionMenuOpen.set(false);
+    this.breedingMenuOpen.set(false);
     this.moreOpen.update(v => !v);
   }
 
   protected toggleInspectionMenu(event: Event): void {
     event.stopPropagation();
     this.moreOpen.set(false);
+    this.breedingMenuOpen.set(false);
     this.inspectionMenuOpen.update(v => !v);
+  }
+
+  protected toggleBreedingMenu(event: Event): void {
+    event.stopPropagation();
+    this.moreOpen.set(false);
+    this.inspectionMenuOpen.set(false);
+    this.breedingMenuOpen.update(v => !v);
   }
 
   protected toggleLanguage(): void {

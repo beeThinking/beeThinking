@@ -67,3 +67,22 @@ h1 { color: var(--amelie-text-dark); font-size: clamp(2rem, 9vw, 3.4rem); line-h
   padding: 0 var(--space-md);
   margin-top: var(--space-xs);
 }
+
+.breeding-panel { margin-bottom: var(--space-md); }
+.breeding-toggle { width: 100%; min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; background: #fff; color: #2f6f5e; font: inherit; font-weight: 900; padding: var(--space-sm); }
+.breeding-fields { margin-top: var(--space-sm); padding: var(--space-md); border: 1px solid #e5dac8; border-radius: 8px; background: #fffaf0; display: grid; gap: var(--space-md); }
+.breeding-fields h3 { font-size: 1rem; color: #2f6f5e; margin-bottom: -0.4rem; }
+.breeding-fields .toggle { display: flex; align-items: center; gap: var(--space-xs); font-weight: 800; color: #5c4d35; min-height: 44px; }
+.breeding-grid { display: grid; gap: var(--space-sm); grid-template-columns: 1fr; }
+.breeding-grid label { display: grid; gap: 0.3rem; font-weight: 800; color: #5c4d35; }
+.breeding-grid input { min-height: 44px; border: 1px solid #d9c9ae; border-radius: 8px; padding: var(--space-xs) var(--space-sm); font: inherit; font-size: 1rem; }
+.breeding-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); }
+.breeding-actions button { min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: #fff; color: #2f6f5e; font: inherit; font-weight: 900; }
+.breeding-actions .primary { border-color: #2f6f5e; background: #2f6f5e; color: #fff; }
+
+@media (min-width: 480px) { .breeding-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .breeding-grid { grid-template-columns: repeat(3, 1fr); } }
+
+@media (hover: hover) {
+  .breeding-toggle:hover, .breeding-actions button:hover { background: #f4ead4; }
+}

@@ -1,0 +1,66 @@
+<div class="zuchtreihe-detail-page">
+  @if (zuchtreihe(); as zuchtreihe) {
+    <header class="work-header">
+      <div>
+        <a routerLink="/zuchtreihen" class="back-link">{{ 'zuchtreiheDetail.back' | translate }}</a>
+        <p class="eyebrow">{{ 'zuchtreiheDetail.eyebrow' | translate }}</p>
+        <h1>{{ zuchtreihe.name }}</h1>
+        <p>{{ apiaryName(zuchtreihe.apiary_id) }} · {{ 'zuchtreihen.sourceHive' | translate: { name: hiveName(zuchtreihe.herkunftsvolk_id) } }}</p>
+      </div>
+    </header>
+
+    @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+
+    <section class="counters">
+      <div><span>{{ 'zuchtreiheDetail.counter.larvae' | translate }}</span><strong>{{ zuchtreihe.anzahl_larven ?? '–' }}</strong></div>
+      <div><span>{{ 'zuchtreiheDetail.counter.accepted' | translate }}</span><strong>{{ zuchtreihe.anzahl_angenommen ?? '–' }} ({{ successRate(zuchtreihe.success_rate_angenommen) }})</strong></div>
+      <div><span>{{ 'zuchtreiheDetail.counter.hatched' | translate }}</span><strong>{{ zuchtreihe.anzahl_geschluepft ?? '–' }} ({{ successRate(zuchtreihe.success_rate_geschluepft) }})</strong></div>
+      <div><span>{{ 'zuchtreiheDetail.counter.mated' | translate }}</span><strong>{{ zuchtreihe.anzahl_begattet ?? '–' }} ({{ successRate(zuchtreihe.success_rate_begattet) }})</strong></div>
+    </section>
+
+    <section class="steps-section">
+      <h2>{{ 'zuchtreiheDetail.stepsTitle' | translate }}</h2>
+      @if (sortedSteps().length === 0) {
+        <div class="generate-row">
+          <label>{{ 'zuchtreiheDetail.grafting.date' | translate }}
+            <input type="date" [ngModel]="umlarvenDate()" (ngModelChange)="umlarvenDate.set($event)">
+          </label>
+          <button type="button" class="primary-action" [disabled]="!umlarvenDate() || generating()" (click)="generateSteps()">
+            {{ 'zuchtreiheDetail.generate' | translate }}
+          </button>
+        </div>
+      } @else {
+        <ul class="step-list">
+          @for (step of sortedSteps(); track step.id) {
+            <li class="step">
+              <div>
+                <strong>{{ stepLabel(step.name) }}</strong>
+                <time>{{ step.date }}</time>
+                @if (step.notes) { <p>{{ step.notes }}</p> }
+              </div>
+              <button type="button" (click)="openStepEdit(step)">{{ 'zuchtreiheDetail.step.edit' | translate }}</button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (editingStepId()) {
+      <div class="sheet-overlay" role="button" tabindex="0" [attr.aria-label]="'zuchtreihen.modalClose' | translate" (click)="closeStepEdit()" (keydown.enter)="closeStepEdit()">
+        <section class="edit-sheet" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+          <h2>{{ 'zuchtreiheDetail.step.editTitle' | translate }}</h2>
+          <div class="edit-grid">
+            <label>{{ 'zuchtreiheDetail.step.date' | translate }}<input type="date" [ngModel]="editDate()" (ngModelChange)="editDate.set($event)"></label>
+            <label class="wide">{{ 'zuchtreiheDetail.step.notes' | translate }}<textarea rows="4" [ngModel]="editNotes()" (ngModelChange)="editNotes.set($event)"></textarea></label>
+          </div>
+          <div class="sheet-actions">
+            <button type="button" (click)="closeStepEdit()">{{ 'zuchtreiheDetail.step.cancel' | translate }}</button>
+            <button type="button" class="primary" (click)="saveStep()">{{ 'zuchtreiheDetail.step.save' | translate }}</button>
+          </div>
+        </section>
+      </div>
+    }
+  } @else {
+    <div class="empty-panel">{{ 'zuchtreiheDetail.loading' | translate }}</div>
+  }
+</div>

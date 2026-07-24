@@ -1,0 +1,71 @@
+<div class="zucht-selektion-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'zuchtSelektion.eyebrow' | translate }}</p>
+      <h1>{{ 'zuchtSelektion.title' | translate }}</h1>
+    </div>
+    <button type="button" class="secondary" (click)="showWeights.set(!showWeights())">
+      {{ showWeights() ? ('zuchtSelektion.hideWeights' | translate) : ('zuchtSelektion.showWeights' | translate) }}
+    </button>
+  </header>
+
+  @if (errorMessage()) { <p class="alert">{{ errorMessage() }}</p> }
+
+  @if (showWeights()) {
+    <section class="weights-panel">
+      <h2>{{ 'zuchtSelektion.weightsTitle' | translate }}</h2>
+      <p class="hint">{{ 'zuchtSelektion.weightsHint' | translate }}</p>
+      <ul class="weight-list">
+        @for (criterion of scorableCriteria(); track criterion.id) {
+          <li>
+            <div class="weight-row">
+              <span class="criterion-name">{{ criterion.name }}</span>
+              <label>{{ 'zuchtSelektion.weight' | translate }}
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  [ngModel]="weightFor(criterion.id)"
+                  (ngModelChange)="setWeight(criterion, +$event)"
+                >
+              </label>
+            </div>
+            @if (criterion.value_type === 'select' && criterion.options?.length) {
+              <div class="option-scores">
+                @for (option of criterion.options ?? []; track option) {
+                  <label>{{ option }}
+                    <input
+                      type="number"
+                      step="0.1"
+                      [ngModel]="optionScore(criterion, option)"
+                      (ngModelChange)="setOptionScore(criterion, option, +$event)"
+                    >
+                  </label>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section class="candidate-list">
+    @for (candidate of candidates(); track candidate.hive_id; let rank = $index) {
+      <article class="candidate">
+        <span class="rank">#{{ rank + 1 }}</span>
+        <div>
+          <h2>{{ candidate.hive_name }}</h2>
+          @if (candidate.latest_inspection_date) {
+            <p>{{ 'zuchtSelektion.lastInspection' | translate: { date: (candidate.latest_inspection_date | date:'dd.MM.yyyy') ?? '' } }}</p>
+          } @else {
+            <p>{{ 'zuchtSelektion.noInspection' | translate }}</p>
+          }
+        </div>
+        <strong class="score">{{ candidate.score | number:'1.1-2' }}</strong>
+      </article>
+    } @empty {
+      <div class="empty-panel">{{ 'zuchtSelektion.empty' | translate }}</div>
+    }
+  </section>
+</div>
