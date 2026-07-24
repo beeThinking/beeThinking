@@ -32,6 +32,7 @@ export interface Hive {
   owner_id: number;
   apiary_id: number;
   is_breeding_candidate: boolean;
+  scale_enabled: boolean;
   created_at: string;
   updated_at: string | null;
 }
@@ -71,6 +72,7 @@ export interface HiveCreate {
   sort_order?: number;
   notes?: string;
   is_breeding_candidate?: boolean;
+  scale_enabled?: boolean;
 }
 
 export interface HiveUpdate {
@@ -85,6 +87,7 @@ export interface HiveUpdate {
   sort_order?: number;
   notes?: string;
   is_breeding_candidate?: boolean;
+  scale_enabled?: boolean;
 }
 
 export interface HiveMoveRequest {

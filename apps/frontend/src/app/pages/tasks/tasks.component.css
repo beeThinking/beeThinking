@@ -6,7 +6,14 @@ button, .primary-action, .secondary { border: 0; border-radius: 8px; font-weight
 .primary-action { background: #2f6f5e; color: #fff; padding: 0.8rem 1rem; }
 .secondary { background: #e6ddce; color: var(--amelie-text-dark); padding: 0.8rem 1rem; }
 .alert { background: #fff3f0; border: 1px solid #dfb6ad; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }
-.segmented { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; background: #d9cdbb; border-radius: 8px; padding: 2px; margin-bottom: var(--space-md); overflow-x: auto; }
+.delegated-panel { background: #eef4ea; border: 1px solid #c9d8bc; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); display: grid; gap: var(--space-sm); }
+.delegated-panel h2 { font-size: 1rem; }
+.delegated-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap; background: #fff; border-radius: 8px; padding: var(--space-sm); min-height: 44px; }
+.delegated-row div { display: flex; flex-direction: column; gap: var(--space-xs); }
+.delegated-row button { background: #2f6f5e; color: #fff; padding: 0.6rem 0.9rem; min-height: 44px; }
+.seen-badge { color: #4c7a63; font-weight: 800; }
+.assignee-line, .recurrence-line { color: #6b604f; }
+.segmented { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-xs); background: #d9cdbb; border-radius: 8px; padding: var(--space-xs); margin-bottom: var(--space-md); overflow-x: auto; }
 .segmented button { background: #fffaf0; color: #66583f; padding: 0.65rem 0.5rem; white-space: nowrap; }
 .segmented button.active { background: #233b4a; color: #fff; }
 .editor { display: grid; grid-template-columns: 1fr; gap: var(--space-sm); background: #fffaf0; border: 1px solid #e3d7c4; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }

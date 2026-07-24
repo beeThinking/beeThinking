@@ -1,0 +1,17 @@
+<div class="settings-page">
+  <header class="work-header">
+    <p class="eyebrow">{{ 'settings.eyebrow' | translate }}</p>
+    <h1>{{ 'settings.title' | translate }}</h1>
+  </header>
+
+  <section class="settings-panel">
+    <div>
+      <h2>{{ 'settings.push.title' | translate }}</h2>
+      <p>{{ 'settings.push.help' | translate }}</p>
+    </div>
+    @if (message()) { <p class="message">{{ message() }}</p> }
+    <button type="button" class="push-button" [class.enabled]="enabled" [disabled]="loading() || working()" (click)="toggle()">
+      {{ enabled ? ('settings.push.disable' | translate) : ('settings.push.enable' | translate) }}
+    </button>
+  </section>
+</div>

@@ -20,6 +20,70 @@
       <div><span>Schlagworte</span><strong>{{ hive.tags?.join(', ') || '–' }}</strong></div>
     </section>
 
+    <section class="analytics-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">{{ 'hiveAnalytics.eyebrow' | translate }}</p>
+          <h2>{{ 'hiveAnalytics.title' | translate }}</h2>
+        </div>
+        <div class="analytics-controls">
+          <select [value]="analyticsGrouping()" (change)="setAnalyticsGrouping($any($event.target).value)">
+            @for (grouping of ['year', 'month', 'week', 'day']; track grouping) {
+              <option [value]="grouping">{{ analyticsGroupingLabel($any(grouping)) }}</option>
+            }
+          </select>
+          <input type="date" [value]="analyticsFromDate()" [attr.aria-label]="'hiveAnalytics.from' | translate" (change)="analyticsFromDate.set($any($event.target).value); applyAnalyticsRange()">
+          <input type="date" [value]="analyticsToDate()" [attr.aria-label]="'hiveAnalytics.to' | translate" (change)="analyticsToDate.set($any($event.target).value); applyAnalyticsRange()">
+        </div>
+      </div>
+      @if (analytics(); as analytics) {
+        <div class="kpi-grid">
+          <div><span>{{ 'hiveAnalytics.harvestKg' | translate }}</span><strong>{{ analytics.kpi.total_harvest_kg }} kg</strong></div>
+          <div><span>{{ 'hiveAnalytics.feedingLabel' | translate }}</span><strong>{{ analytics.kpi.total_feeding_kg_or_l }} kg/l</strong></div>
+          <div><span>{{ 'hiveAnalytics.inspections' | translate }}</span><strong>{{ analytics.kpi.inspection_count }}</strong></div>
+          <div><span>{{ 'hiveAnalytics.treatments' | translate }}</span><strong>{{ analytics.kpi.treatment_count }}</strong></div>
+          <div><span>{{ 'hiveAnalytics.events' | translate }}</span><strong>{{ analytics.kpi.event_count }}</strong></div>
+        </div>
+        <app-hive-analytics-chart [points]="analytics.chart" />
+      } @else if (analyticsLoading()) {
+        <p class="hint">{{ 'hiveAnalytics.loading' | translate }}</p>
+      }
+    </section>
+
+    <section class="scale-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">{{ 'stockCard.scale.eyebrow' | translate }}</p>
+          <h2>{{ 'stockCard.scale.title' | translate }}</h2>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [checked]="hive.scale_enabled" (change)="toggleScale($any($event.target).checked)">
+          {{ 'stockCard.scale.enabled' | translate }}
+        </label>
+      </div>
+      @if (hive.scale_enabled) {
+        @if (weightReadings().length) {
+          <div class="weight-placeholder" [attr.aria-label]="'stockCard.scale.chartPlaceholder' | translate">
+            <span>{{ 'stockCard.scale.chartPlaceholder' | translate }}</span>
+          </div>
+          <div class="weight-table-wrap">
+            <table>
+              <thead><tr><th>{{ 'stockCard.scale.date' | translate }}</th><th>{{ 'stockCard.scale.weight' | translate }}</th></tr></thead>
+              <tbody>
+                @for (reading of weightReadings(); track reading.id) {
+                  <tr><td>{{ reading.timestamp | date:'dd.MM.yyyy HH:mm' }}</td><td>{{ reading.weight_kg }} kg</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="weight-placeholder"><span>{{ 'stockCard.scale.empty' | translate }}</span></div>
+        }
+      } @else {
+        <p class="hint">{{ 'stockCard.scale.disabledHint' | translate }}</p>
+      }
+    </section>
+
     @if (activeQueen(); as queen) {
       <section class="queen-panel">
         <div class="queen-heading">

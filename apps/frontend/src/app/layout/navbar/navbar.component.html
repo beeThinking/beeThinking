@@ -61,6 +61,7 @@
           <ul class="submenu" role="menu">
             <li><a routerLink="/zuchtreihen" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Zuchtreihen</a></li>
             <li><a routerLink="/zucht-selektion" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">Zucht-Selektion</a></li>
+            <li><a routerLink="/hive-selection" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.hiveSelection' | translate }}</a></li>
           </ul>
         </li>
         <li class="nav-group" [class.open]="moreOpen()">
@@ -86,6 +87,9 @@
               <li><a routerLink="/admin/cms" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">CMS</a></li>
             }
             <li><a routerLink="/appointments" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.appointments' | translate }}</a></li>
+            <li><a routerLink="/map" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.map' | translate }}</a></li>
+            <li><a routerLink="/honey-price-calculator" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.honeyPriceCalculator' | translate }}</a></li>
+            <li><a routerLink="/settings" routerLinkActive="active" class="submenu-link" role="menuitem" (click)="closeMenu()">{{ 'nav.settings' | translate }}</a></li>
           </ul>
         </li>
         <li>

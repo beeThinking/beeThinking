@@ -1,0 +1,8 @@
+<div class="chart-wrap">
+  @if (loadError) {
+    <p class="chart-error">{{ loadError }}</p>
+  } @else if (!points.length) {
+    <p class="chart-empty">{{ 'hiveAnalytics.chartEmpty' | translate }}</p>
+  }
+  <canvas #canvas [class.hidden]="loadError || !points.length"></canvas>
+</div>

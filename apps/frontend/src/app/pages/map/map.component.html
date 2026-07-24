@@ -1,0 +1,52 @@
+<div class="map-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'mapPage.eyebrow' | translate }}</p>
+      <h1>{{ 'mapPage.title' | translate }}</h1>
+    </div>
+    <div class="map-controls">
+      <label>{{ 'mapPage.radius' | translate }}
+        <select [ngModel]="radiusKm()" (ngModelChange)="setRadius($event)">
+          @for (radius of [1, 2, 3, 4, 5, 6, 7, 8]; track radius) {
+            <option [ngValue]="radius">{{ radius }} km</option>
+          }
+        </select>
+      </label>
+      <button type="button" [class.active]="forageVisible()" (click)="toggleForage()">{{ 'mapPage.forageToggle' | translate }}</button>
+    </div>
+  </header>
+
+  @if (loadError()) {
+    <div class="alert">{{ loadError() }}</div>
+  }
+
+  <div #mapContainer class="map-canvas"></div>
+
+  @if (loading()) {
+    <p class="hint">{{ 'mapPage.loading' | translate }}</p>
+  }
+
+  @if (selectedWeather(); as weather) {
+    <section class="weather-panel">
+      <h2>{{ 'mapPage.weatherTitle' | translate }}</h2>
+      @if (weather.current; as current) {
+        <div class="weather-current">
+          <strong>{{ current.weather }}</strong>
+          @if (current.weather_temperature !== null) { <span>{{ current.weather_temperature }} °C</span> }
+          @if (current.weather_wind_speed !== null) { <span>{{ current.weather_wind_speed }} km/h</span> }
+        </div>
+      } @else {
+        <p class="hint">{{ 'mapPage.weatherUnavailable' | translate }}</p>
+      }
+      <div class="forecast-list">
+        @for (day of weather.daily; track day.date) {
+          <div>
+            <strong>{{ day.date | date:'dd.MM.' }}</strong>
+            <span>{{ day.temperature_min ?? '–' }}–{{ day.temperature_max ?? '–' }} °C</span>
+            <span>{{ day.precipitation_sum ?? 0 }} mm</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

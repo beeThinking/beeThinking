@@ -27,6 +27,7 @@ describe('StockCardComponent', () => {
     owner_id: 1,
     apiary_id: 1,
     is_breeding_candidate: false,
+    scale_enabled: false,
     created_at: '2026-01-01T00:00:00Z',
     updated_at: null
   };
@@ -81,7 +82,16 @@ describe('StockCardComponent', () => {
     getQueens: vi.fn().mockReturnValue(of([queen])),
     updateHive: vi.fn().mockReturnValue(of({ ...hive, is_breeding_candidate: true })),
     updateQueen: vi.fn().mockReturnValue(of({ ...queen, rasse: 'Carnica' })),
-    getHiveQrSvg: vi.fn().mockReturnValue(of(new Blob()))
+    getHiveQrSvg: vi.fn().mockReturnValue(of(new Blob())),
+    getHiveAnalytics: vi.fn().mockReturnValue(of({
+      hive_id: 7,
+      from_date: null,
+      to_date: null,
+      grouping: 'month',
+      kpi: { total_harvest_kg: 0, total_feeding_kg_or_l: 0, inspection_count: 0, treatment_count: 0, event_count: 0 },
+      chart: []
+    })),
+    getWeightReadings: vi.fn().mockReturnValue(of([]))
   };
 
   const paramMap = convertToParamMap({ hiveId: '7' });
@@ -93,6 +103,15 @@ describe('StockCardComponent', () => {
     hiveServiceMock.getQueens.mockReturnValue(of([queen]));
     hiveServiceMock.updateHive.mockReturnValue(of({ ...hive, is_breeding_candidate: true }));
     hiveServiceMock.updateQueen.mockReturnValue(of({ ...queen, rasse: 'Carnica' }));
+    hiveServiceMock.getHiveAnalytics.mockReturnValue(of({
+      hive_id: 7,
+      from_date: null,
+      to_date: null,
+      grouping: 'month',
+      kpi: { total_harvest_kg: 0, total_feeding_kg_or_l: 0, inspection_count: 0, treatment_count: 0, event_count: 0 },
+      chart: []
+    }));
+    hiveServiceMock.getWeightReadings.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [StockCardComponent],
@@ -106,6 +125,8 @@ describe('StockCardComponent', () => {
   it('should create', () => {
     const fixture = TestBed.createComponent(StockCardComponent);
     expect(fixture.componentInstance).toBeTruthy();
+    expect(hiveServiceMock.getHiveAnalytics).toHaveBeenCalledWith(7, 'month', undefined, undefined);
+    expect(hiveServiceMock.getWeightReadings).toHaveBeenCalledWith(7);
   });
 
   it('should open the breeding panel with the active queen data prefilled', () => {
@@ -138,5 +159,14 @@ describe('StockCardComponent', () => {
 
     expect(hiveServiceMock.updateHive).toHaveBeenCalledWith(7, { is_breeding_candidate: true });
     expect(hiveServiceMock.updateQueen).toHaveBeenCalledWith(3, expect.objectContaining({ rasse: 'Carnica' }));
+  });
+
+  it('should save the hive scale setting', () => {
+    const fixture = TestBed.createComponent(StockCardComponent);
+    const component = fixture.componentInstance as unknown as { toggleScale(value: boolean): void };
+
+    component.toggleScale(true);
+
+    expect(hiveServiceMock.updateHive).toHaveBeenCalledWith(7, { scale_enabled: true });
   });
 });

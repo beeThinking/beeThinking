@@ -251,7 +251,8 @@ export class AppointmentsComponent {
           this.message.set(this.translation.t('appointments.google.synced', {
             created: result.created,
             updated: result.updated,
-            deleted: result.deleted
+            deleted: result.deleted,
+            pulled: result.pulled
           }));
         }
         this.googleLoading.set(false);

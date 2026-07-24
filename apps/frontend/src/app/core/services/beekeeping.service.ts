@@ -49,6 +49,7 @@ import {
   SaleReportRow,
   Task,
   TaskCreate,
+  TaskOccurrence,
   TaskStatus,
   TaskUpdate,
   TraceabilityResponse,
@@ -96,6 +97,23 @@ export class BeekeepingService {
 
   deleteTask(id: number): Observable<void> {
     return this.api.delete<void>(`/api/tasks/${id}`);
+  }
+
+  getTaskOccurrences(rangeStart?: string, rangeEnd?: string, status?: TaskStatus): Observable<TaskOccurrence[]> {
+    const params = new URLSearchParams();
+    if (rangeStart) params.set('range_start', rangeStart);
+    if (rangeEnd) params.set('range_end', rangeEnd);
+    if (status) params.set('task_status', status);
+    const query = params.toString();
+    return this.api.get<TaskOccurrence[]>(`/api/tasks/occurrences${query ? `?${query}` : ''}`);
+  }
+
+  delegateTask(id: number, assigneeId: number): Observable<Task> {
+    return this.api.post<Task>(`/api/tasks/${id}/delegate`, { assignee_id: assigneeId });
+  }
+
+  acknowledgeTaskDelegation(id: number): Observable<Task> {
+    return this.api.post<Task>(`/api/tasks/${id}/delegation-seen`, {});
   }
 
   getTreatments(): Observable<Treatment[]> {

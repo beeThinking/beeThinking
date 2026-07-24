@@ -1,0 +1,48 @@
+.work-page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-lg) var(--page-px) var(--space-2xl); }
+.work-header { display: grid; gap: var(--space-sm); margin-bottom: var(--space-md); }
+.eyebrow { color: #2f6f5e; font-weight: 900; text-transform: uppercase; }
+h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); line-height: 1.05; }
+.hint { color: #6b604f; }
+.alert { background: #fff3f0; border: 1px solid #dfb6ad; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); }
+.filter-panel, .results-panel { background: #fff; border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); margin-bottom: var(--space-md); display: grid; gap: var(--space-md); }
+.criteria-grid { display: grid; gap: var(--space-sm); }
+.criterion-row { display: grid; gap: var(--space-sm); align-items: center; background: #fffaf0; border-radius: 8px; padding: var(--space-sm); }
+.criterion-name { font-weight: 900; color: #5c4d35; }
+.criterion-row label, .tags-row label { display: grid; gap: 0.3rem; font-weight: 800; color: #5c4d35; }
+.criterion-row input, .tags-row input, .edit-grid input, .edit-grid textarea { min-height: 44px; border: 1px solid #cdbfaa; border-radius: 8px; padding: 0.6rem; font: inherit; font-size: 1rem; background: #fff; color: var(--amelie-text-dark); }
+.tags-row { display: grid; gap: var(--space-sm); }
+.tags-row .toggle { display: flex; align-items: center; gap: var(--space-xs); min-height: 44px; }
+.primary-action, .secondary { border: 0; border-radius: 8px; font-weight: 800; cursor: pointer; min-height: 44px; }
+.primary-action { background: #2f6f5e; color: #fff; padding: 0 var(--space-md); }
+.primary-action:disabled { opacity: 0.5; cursor: not-allowed; }
+.results-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-sm); align-items: center; }
+.results-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.results-actions button { min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; padding: 0 var(--space-sm); background: #fff; color: #2f6f5e; font: inherit; font-weight: 900; }
+.candidate-list { display: grid; gap: var(--space-sm); }
+.candidate-row { border: 1px solid #e5dac8; border-radius: 8px; padding: var(--space-md); background: #fffaf0; }
+.candidate-row.selected { border-color: #2f6f5e; background: #edf6f0; }
+.select-box { display: flex; align-items: center; gap: var(--space-sm); min-height: 44px; font-weight: 900; }
+.candidate-meta { color: #6b604f; }
+.average-list { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-xs); color: #6b604f; }
+.average-list li { list-style: none; background: #fff; border-radius: 6px; padding: 0.2rem 0.5rem; }
+.sheet-overlay { position: fixed; inset: 0; z-index: 500; display: flex; align-items: flex-end; background: rgba(36, 29, 18, 0.58); }
+.edit-sheet { width: 100%; max-height: 92dvh; overflow-y: auto; padding: var(--space-lg) var(--page-px) max(var(--space-lg), env(safe-area-inset-bottom)); border-radius: 16px 16px 0 0; background: #fffdf8; -webkit-overflow-scrolling: touch; }
+.edit-grid { display: grid; gap: var(--space-sm); }
+.edit-grid label { display: grid; gap: var(--space-xs); color: #6b604f; font-weight: 800; }
+.edit-grid .wide { grid-column: 1 / -1; }
+.sheet-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin-top: var(--space-lg); }
+.sheet-actions button { min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; padding: 0 var(--space-sm); background: #fff; color: #2f6f5e; font: inherit; font-weight: 900; }
+.sheet-actions .primary-action { border-color: #2f6f5e; }
+
+@media (min-width: 480px) { .criterion-row { grid-template-columns: 1fr repeat(2, 8rem); } }
+@media (min-width: 768px) {
+  h1 { font-size: 2.2rem; }
+  .tags-row { grid-template-columns: 1fr auto; align-items: end; }
+  .edit-grid { grid-template-columns: repeat(2, 1fr); }
+  .sheet-overlay { align-items: center; justify-content: center; padding: var(--space-lg); }
+  .edit-sheet { max-width: 32rem; border-radius: 16px; padding: var(--space-xl); }
+}
+
+@media (hover: hover) {
+  .results-actions button:hover, .sheet-actions button:hover { background: #f4ead4; }
+}

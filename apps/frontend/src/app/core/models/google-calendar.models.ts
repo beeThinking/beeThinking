@@ -10,5 +10,6 @@ export interface GoogleCalendarSyncResult {
   created: number;
   updated: number;
   deleted: number;
+  pulled: number;
   synced_at: string;
 }

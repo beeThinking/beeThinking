@@ -221,5 +221,29 @@ export const routes: Routes = [
     path: 'zucht-selektion',
     loadComponent: () => import('./pages/zucht-selektion/zucht-selektion.component').then(m => m.ZuchtSelektionComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'hive-selection',
+    loadComponent: () => import('./pages/hive-selection/hive-selection.component').then(m => m.HiveSelectionComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'map',
+    loadComponent: () => import('./pages/map/map.component').then(m => m.MapComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'feed-calculator',
+    loadComponent: () => import('./pages/feed-calculator/feed-calculator.component').then(m => m.FeedCalculatorComponent)
+  },
+  {
+    path: 'honey-price-calculator',
+    loadComponent: () => import('./pages/honey-price-calculator/honey-price-calculator.component').then(m => m.HoneyPriceCalculatorComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
+    canActivate: [authGuard]
   }
 ];

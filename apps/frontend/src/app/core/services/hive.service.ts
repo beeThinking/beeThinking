@@ -17,6 +17,8 @@ import {
   VarroaCheckCreate
 } from '../models/hive.models';
 import { StockCard, TimelineEvent, VarroaAssistant, VarroaTreatmentType } from '../models/beekeeping.models';
+import { AnalyticsGrouping, HiveAnalyticsResponse } from '../models/hive-analytics.models';
+import { WeightReading, WeightReadingCreate } from '../models/weight-reading.models';
 
 @Injectable({
   providedIn: 'root'
@@ -118,5 +120,20 @@ export class HiveService {
 
   getQrLabelSheet(): Observable<Blob> {
     return this.api.getBlob('/api/hives/qr-labels.pdf');
+  }
+
+  getHiveAnalytics(id: number, grouping: AnalyticsGrouping = 'month', fromDate?: string, toDate?: string): Observable<HiveAnalyticsResponse> {
+    const params = new URLSearchParams({ grouping });
+    if (fromDate) params.set('from_date', fromDate);
+    if (toDate) params.set('to_date', toDate);
+    return this.api.get<HiveAnalyticsResponse>(`/api/hives/${id}/analytics?${params.toString()}`);
+  }
+
+  getWeightReadings(id: number): Observable<WeightReading[]> {
+    return this.api.get<WeightReading[]>(`/api/hives/${id}/weight-readings`);
+  }
+
+  createWeightReading(id: number, payload: WeightReadingCreate): Observable<WeightReading> {
+    return this.api.post<WeightReading>(`/api/hives/${id}/weight-readings`, payload);
   }
 }

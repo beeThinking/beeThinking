@@ -64,6 +64,7 @@ export interface Task {
   owner_id: number;
   hive_id: number | null;
   apiary_id: number | null;
+  assignee_id: number | null;
   title: string;
   description: string | null;
   due_date: string | null;
@@ -73,6 +74,9 @@ export interface Task {
   priority: TaskPriority;
   status: TaskStatus;
   source: TaskSource;
+  recurrence_rule: string | null;
+  delegated_at: string | null;
+  delegation_seen_at: string | null;
   created_at: string;
   updated_at: string | null;
   completed_at: string | null;
@@ -81,6 +85,7 @@ export interface Task {
 export interface TaskCreate {
   hive_id?: number | null;
   apiary_id?: number | null;
+  assignee_id?: number | null;
   title: string;
   description?: string;
   due_date?: string;
@@ -90,14 +95,25 @@ export interface TaskCreate {
   priority?: TaskPriority;
   status?: TaskStatus;
   source?: TaskSource;
+  recurrence_rule?: string | null;
 }
 
-export type TaskUpdate = Partial<Omit<TaskCreate, 'description' | 'due_date' | 'start_at' | 'end_at'>> & {
+export type TaskUpdate = Partial<Omit<TaskCreate, 'description' | 'due_date' | 'start_at' | 'end_at' | 'recurrence_rule'>> & {
   description?: string | null;
   due_date?: string | null;
   start_at?: string | null;
   end_at?: string | null;
+  recurrence_rule?: string | null;
 };
+
+export interface TaskOccurrence {
+  task: Task;
+  occurrence_date: string;
+}
+
+export interface TaskDelegateRequest {
+  assignee_id: number;
+}
 
 export interface Treatment {
   id: number;

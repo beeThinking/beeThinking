@@ -6,14 +6,18 @@ import { FormsModule } from '@angular/forms';
 
 import { TimelineEvent } from '../../core/models/beekeeping.models';
 import { Hive, Queen, QueenUpdate } from '../../core/models/hive.models';
+import { AnalyticsGrouping, HiveAnalyticsResponse } from '../../core/models/hive-analytics.models';
+import { WeightReading } from '../../core/models/weight-reading.models';
 import { HiveService } from '../../core/services/hive.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { TranslationKey } from '../../core/i18n/en';
+import { HiveAnalyticsChartComponent } from '../../shared/components/hive-analytics-chart.component';
 
 @Component({
   selector: 'app-stock-card',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, TranslatePipe],
+  imports: [DatePipe, FormsModule, RouterLink, TranslatePipe, HiveAnalyticsChartComponent],
   templateUrl: './stock-card.component.html',
   styleUrl: './stock-card.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -76,6 +80,12 @@ export class StockCardComponent {
   protected readonly belegstelleNummer = signal('');
   protected readonly belegstelleDurchgang = signal('');
   protected readonly breedingCandidate = signal(false);
+  protected readonly analyticsGrouping = signal<AnalyticsGrouping>('month');
+  protected readonly analyticsFromDate = signal('');
+  protected readonly analyticsToDate = signal('');
+  protected readonly analytics = signal<HiveAnalyticsResponse | null>(null);
+  protected readonly analyticsLoading = signal(false);
+  protected readonly weightReadings = signal<WeightReading[]>([]);
   private touchStartX = 0;
   protected readonly qrUrl = computed(() => `${location.origin}${this.stockCard()?.qr_url ?? `/stock-card/${this.hiveId}`}`);
   protected readonly eventTypes = computed(() => {
@@ -92,6 +102,42 @@ export class StockCardComponent {
       return true;
     });
   });
+
+  constructor() {
+    this.loadAnalytics();
+    this.loadWeightReadings();
+  }
+
+  protected setAnalyticsGrouping(grouping: AnalyticsGrouping): void {
+    this.analyticsGrouping.set(grouping);
+    this.loadAnalytics();
+  }
+
+  protected applyAnalyticsRange(): void {
+    this.loadAnalytics();
+  }
+
+  protected analyticsGroupingLabel(grouping: AnalyticsGrouping): string {
+    const key = ({
+      year: 'hiveAnalytics.grouping.year',
+      month: 'hiveAnalytics.grouping.month',
+      week: 'hiveAnalytics.grouping.week',
+      day: 'hiveAnalytics.grouping.day'
+    } satisfies Record<AnalyticsGrouping, TranslationKey>)[grouping];
+    return this.translation.t(key);
+  }
+
+  protected toggleScale(enabled: boolean): void {
+    const hive = this.hive();
+    if (!hive) return;
+    this.hiveService.updateHive(hive.id, { scale_enabled: enabled }).subscribe({
+      next: updated => {
+        this.localHive.set(updated);
+        this.actionMessage.set(this.translation.t('stockCard.scale.saved'));
+      },
+      error: () => this.actionMessage.set(this.translation.t('stockCard.scale.error.save'))
+    });
+  }
 
   protected eventMeta(event: TimelineEvent): string {
     if (event.type === 'harvest') return `${event.amount_kg ?? 0} kg`;
@@ -289,5 +335,31 @@ export class StockCardComponent {
       });
     }
     this.showBreedingPanel.set(false);
+  }
+
+  private loadAnalytics(): void {
+    this.analyticsLoading.set(true);
+    this.hiveService.getHiveAnalytics(
+      this.hiveId,
+      this.analyticsGrouping(),
+      this.analyticsFromDate() || undefined,
+      this.analyticsToDate() || undefined
+    ).subscribe({
+      next: analytics => {
+        this.analytics.set(analytics);
+        this.analyticsLoading.set(false);
+      },
+      error: () => {
+        this.analyticsLoading.set(false);
+        this.actionMessage.set(this.translation.t('hiveAnalytics.error.load'));
+      }
+    });
+  }
+
+  private loadWeightReadings(): void {
+    this.hiveService.getWeightReadings(this.hiveId).subscribe({
+      next: readings => this.weightReadings.set(readings),
+      error: () => this.weightReadings.set([])
+    });
   }
 }

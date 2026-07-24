@@ -11,6 +11,25 @@
     <div class="alert">{{ errorMessage() }}</div>
   }
 
+  @if (delegatedToMe().length) {
+    <section class="delegated-panel">
+      <h2>{{ 'tasks.delegated.title' | translate }}</h2>
+      @for (task of delegatedToMe(); track task.id) {
+        <article class="delegated-row">
+          <div>
+            <strong>{{ task.title }}</strong>
+            <span>{{ hiveName(task.hive_id) }}</span>
+          </div>
+          @if (!task.delegation_seen_at) {
+            <button type="button" (click)="acknowledgeDelegation(task)">{{ 'tasks.delegated.acknowledge' | translate }}</button>
+          } @else {
+            <span class="seen-badge">{{ 'tasks.delegated.seen' | translate }}</span>
+          }
+        </article>
+      }
+    </section>
+  }
+
   <nav class="segmented" [attr.aria-label]="'tasks.filterLabel' | translate">
     @for (item of views; track item.id) {
       <button [class.active]="view() === item.id" (click)="setView(item.id)">
@@ -46,6 +65,21 @@
           }
         </select>
       </label>
+      <label>{{ 'tasks.form.assignee' | translate }}
+        <select formControlName="assignee_id">
+          <option [ngValue]="null">{{ 'tasks.form.noAssignee' | translate }}</option>
+          @for (user of assignableUsers(); track user.id) {
+            <option [ngValue]="user.id">{{ user.username }}</option>
+          }
+        </select>
+      </label>
+      <label>{{ 'tasks.form.recurrence' | translate }}
+        <select formControlName="recurrence">
+          @for (option of recurrenceOptions; track option) {
+            <option [value]="option">{{ recurrenceOptionLabel(option) }}</option>
+          }
+        </select>
+      </label>
       <label class="wide">{{ 'tasks.form.description' | translate }} <textarea formControlName="description" rows="3"></textarea></label>
       <div class="form-actions">
         <button type="button" class="secondary" (click)="closeForm()">{{ 'tasks.form.cancel' | translate }}</button>
@@ -60,6 +94,8 @@
         <div>
           <h2>{{ task.title }}</h2>
           <p>{{ hiveName(task.hive_id) }} · {{ priorityLabel(task.priority) }} · {{ task.source }}</p>
+          @if (task.assignee_id) { <p class="assignee-line">{{ 'tasks.form.assignee' | translate }}: {{ assigneeName(task.assignee_id) }}</p> }
+          @if (task.recurrence_rule) { <p class="recurrence-line">{{ 'tasks.recurrenceLabel' | translate }}: {{ recurrenceLabel(task) }}</p> }
           @if (task.description) { <small>{{ task.description }}</small> }
         </div>
         <div class="task-meta">

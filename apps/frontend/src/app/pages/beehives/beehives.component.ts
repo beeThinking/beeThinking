@@ -53,12 +53,13 @@ export class BeehivesComponent {
     established_at: [''],
     tags: [''],
     notes: [''],
-    is_breeding_candidate: [false]
+    is_breeding_candidate: [false],
+    scale_enabled: [false]
   });
 
   protected openCreateForm(): void {
     this.editingHive.set(null);
-    this.form.reset({ type: 'langstroth', colony_kind: 'wirtschaftsvolk', status: 'active', is_breeding_candidate: false });
+    this.form.reset({ type: 'langstroth', colony_kind: 'wirtschaftsvolk', status: 'active', is_breeding_candidate: false, scale_enabled: false });
     this.showForm.set(true);
   }
 
@@ -74,7 +75,8 @@ export class BeehivesComponent {
       established_at: hive.established_at ?? '',
       tags: hive.tags?.join(', ') ?? '',
       notes: hive.notes ?? '',
-      is_breeding_candidate: hive.is_breeding_candidate
+      is_breeding_candidate: hive.is_breeding_candidate,
+      scale_enabled: hive.scale_enabled
     });
     this.showForm.set(true);
   }
@@ -102,7 +104,8 @@ export class BeehivesComponent {
         established_at: values.established_at || null,
         tags: this.parseTags(values.tags),
         notes: values.notes || undefined,
-        is_breeding_candidate: values.is_breeding_candidate ?? undefined
+        is_breeding_candidate: values.is_breeding_candidate ?? undefined,
+        scale_enabled: values.scale_enabled ?? undefined
       };
       this.hiveService.updateHive(editing.id, update).subscribe({
         next: (updated) => {
@@ -122,7 +125,8 @@ export class BeehivesComponent {
         established_at: values.established_at || null,
         tags: this.parseTags(values.tags),
         notes: values.notes || undefined,
-        is_breeding_candidate: values.is_breeding_candidate ?? undefined
+        is_breeding_candidate: values.is_breeding_candidate ?? undefined,
+        scale_enabled: values.scale_enabled ?? undefined
       };
       this.hiveService.createHive(create).subscribe({
         next: (hive) => {

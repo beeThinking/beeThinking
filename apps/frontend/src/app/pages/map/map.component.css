@@ -1,0 +1,27 @@
+.map-page { max-width: var(--content-max); margin: 0 auto; padding: var(--space-lg) var(--page-px) var(--space-2xl); }
+.work-header { display: grid; gap: var(--space-md); margin-bottom: var(--space-md); }
+.eyebrow { color: #2f6f5e; font-weight: 900; text-transform: uppercase; }
+h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); line-height: 1.05; }
+.map-controls { display: grid; gap: var(--space-sm); }
+.map-controls label { display: grid; gap: var(--space-xs); color: #5c4d35; font-weight: 800; }
+.map-controls select, .map-controls button { min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; padding: 0 var(--space-sm); background: #fff; color: #2f6f5e; font: inherit; font-weight: 800; }
+.map-controls button.active { background: #2f6f5e; color: #fff; }
+.map-canvas { min-height: 22rem; border: 1px solid #e5dac8; border-radius: 8px; overflow: hidden; }
+.alert, .weather-panel { margin-top: var(--space-md); border-radius: 8px; padding: var(--space-md); }
+.alert { background: #fff3f0; border: 1px solid #dfb6ad; }
+.hint { color: #6b604f; margin-top: var(--space-sm); }
+.weather-panel { display: grid; gap: var(--space-sm); background: #fff; border: 1px solid #e5dac8; }
+.weather-panel h2 { font-size: clamp(1.2rem, 4vw, 1.6rem); }
+.weather-current, .forecast-list { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.weather-current span, .forecast-list div { padding: var(--space-sm); border-radius: 8px; background: #faf5e8; color: #5c4d35; }
+.forecast-list div { display: grid; gap: var(--space-xs); min-width: 7rem; }
+:host ::ng-deep .map-apiary-marker { display: grid; place-items: center; border-radius: 999px; background: rgba(47, 111, 94, 0.2); }
+:host ::ng-deep .map-apiary-marker span { display: block; width: 14px; height: 14px; border: 3px solid #fff; border-radius: 999px; background: #2f6f5e; box-shadow: 0 4px 14px rgba(58, 47, 26, 0.35); }
+
+@media (min-width: 768px) {
+  .work-header { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .map-controls { grid-template-columns: 10rem auto; }
+  .map-canvas { min-height: 32rem; }
+}
+
+@media (hover: hover) { .map-controls button:hover { background: #f4ead4; } .map-controls button.active:hover { background: #245749; } }

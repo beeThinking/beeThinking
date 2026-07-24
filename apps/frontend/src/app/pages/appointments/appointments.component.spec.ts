@@ -15,6 +15,7 @@ describe('AppointmentsComponent', () => {
     owner_id: 2,
     hive_id: null,
     apiary_id: null,
+    assignee_id: null,
     title: 'Summer inspection',
     description: 'Bring smoker',
     due_date: '2099-07-20',
@@ -24,6 +25,9 @@ describe('AppointmentsComponent', () => {
     priority: 'high',
     status: 'open',
     source: 'manual',
+    recurrence_rule: null,
+    delegated_at: null,
+    delegation_seen_at: null,
     created_at: '2026-07-13T10:00:00Z',
     updated_at: null,
     completed_at: null

@@ -1,0 +1,108 @@
+<div class="work-page">
+  <header class="work-header">
+    <div>
+      <p class="eyebrow">{{ 'hiveSelection.eyebrow' | translate }}</p>
+      <h1>{{ 'hiveSelection.title' | translate }}</h1>
+      <p class="hint">{{ 'hiveSelection.hint' | translate }}</p>
+    </div>
+  </header>
+
+  @if (message()) {
+    <div class="alert">{{ message() }}</div>
+  }
+
+  <section class="filter-panel">
+    <h2>{{ 'hiveSelection.criteriaTitle' | translate }}</h2>
+    @if (averagedCriteria().length) {
+      <div class="criteria-grid">
+        @for (criterion of averagedCriteria(); track criterion.id) {
+          <div class="criterion-row">
+            <span class="criterion-name">{{ criterion.name }}</span>
+            <label>{{ 'hiveSelection.min' | translate }}
+              <input type="number" step="0.1" (change)="setMin(criterion.id, $any($event.target).value)">
+            </label>
+            <label>{{ 'hiveSelection.max' | translate }}
+              <input type="number" step="0.1" (change)="setMax(criterion.id, $any($event.target).value)">
+            </label>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="hint">{{ 'hiveSelection.noCriteria' | translate }}</p>
+    }
+
+    <div class="tags-row">
+      <label class="wide">{{ 'hiveSelection.tags' | translate }}
+        <input [ngModel]="tagsInput()" (ngModelChange)="tagsInput.set($event)" [placeholder]="'hiveSelection.tagsPlaceholder' | translate">
+      </label>
+      <label class="toggle">
+        <input type="checkbox" [ngModel]="matchAllTags()" (ngModelChange)="matchAllTags.set($event)">
+        {{ 'hiveSelection.matchAllTags' | translate }}
+      </label>
+    </div>
+
+    <button type="button" class="primary-action" [disabled]="loading()" (click)="search()">
+      {{ loading() ? ('hiveSelection.searching' | translate) : ('hiveSelection.search' | translate) }}
+    </button>
+  </section>
+
+  @if (candidates().length) {
+    <section class="results-panel">
+      <div class="results-header">
+        <h2>{{ 'hiveSelection.resultsTitle' | translate: { count: candidates().length } }}</h2>
+        <div class="results-actions">
+          <button type="button" (click)="selectAll()">{{ 'hiveSelection.selectAll' | translate }}</button>
+          <button type="button" (click)="clearSelection()">{{ 'hiveSelection.clearSelection' | translate }}</button>
+          <button type="button" class="primary-action" [disabled]="!selectedHiveIds().size" (click)="openBatchForm()">
+            {{ 'hiveSelection.generateTasks' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="candidate-list">
+        @for (candidate of candidates(); track candidate.hive_id) {
+          <article class="candidate-row" [class.selected]="isSelected(candidate.hive_id)">
+            <label class="select-box">
+              <input type="checkbox" [checked]="isSelected(candidate.hive_id)" (change)="toggleSelection(candidate.hive_id)">
+              <strong>{{ candidate.hive_name }}</strong>
+            </label>
+            <p class="candidate-meta">
+              {{ 'hiveSelection.inspectionCount' | translate: { count: candidate.inspection_count } }}
+              @if (candidate.tags.length) { · {{ candidate.tags.join(', ') }} }
+            </p>
+            @if (averageEntries(candidate).length) {
+              <ul class="average-list">
+                @for (entry of averageEntries(candidate); track entry.criterionId) {
+                  <li>{{ criterionName(entry.criterionId) }}: {{ entry.average | number:'1.1-2' }}</li>
+                }
+              </ul>
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (showBatchForm()) {
+    <div class="sheet-overlay" role="button" tabindex="0" [attr.aria-label]="'hiveSelection.batch.close' | translate" (click)="closeBatchForm()" (keydown.enter)="closeBatchForm()">
+      <section class="edit-sheet" role="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+        <h2>{{ 'hiveSelection.batch.title' | translate }}</h2>
+        <div class="edit-grid">
+          <label class="wide">{{ 'hiveSelection.batch.taskTitle' | translate }}
+            <input [ngModel]="batchTitle()" (ngModelChange)="batchTitle.set($event)">
+          </label>
+          <label>{{ 'hiveSelection.batch.due' | translate }}
+            <input type="date" [ngModel]="batchDueDate()" (ngModelChange)="batchDueDate.set($event)">
+          </label>
+          <label class="wide">{{ 'hiveSelection.batch.description' | translate }}
+            <textarea rows="3" [ngModel]="batchDescription()" (ngModelChange)="batchDescription.set($event)"></textarea>
+          </label>
+        </div>
+        <div class="sheet-actions">
+          <button type="button" (click)="closeBatchForm()">{{ 'hiveSelection.batch.cancel' | translate }}</button>
+          <button type="button" class="primary-action" [disabled]="!batchTitle().trim()" (click)="createBatchTasks()">{{ 'hiveSelection.batch.save' | translate }}</button>
+        </div>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,70 @@
+<div class="calc-page">
+  <header class="work-header">
+    <p class="eyebrow">{{ 'honeyPriceCalculator.eyebrow' | translate }}</p>
+    <h1>{{ 'honeyPriceCalculator.title' | translate }}</h1>
+    <p class="hint">{{ 'honeyPriceCalculator.hint' | translate }}</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert">{{ errorMessage() }}</div>
+  }
+
+  <form class="calc-form" [formGroup]="form" (ngSubmit)="calculate()">
+    <label>{{ 'honeyPriceCalculator.apiary' | translate }}
+      <select formControlName="apiary_id">
+        <option [ngValue]="null">{{ 'honeyPriceCalculator.selectApiary' | translate }}</option>
+        @for (apiary of apiaries(); track apiary.id) {
+          <option [ngValue]="apiary.id">{{ apiaryTitle(apiary) }}</option>
+        }
+      </select>
+    </label>
+    <label>{{ 'honeyPriceCalculator.from' | translate }}
+      <input type="date" formControlName="from_date">
+    </label>
+    <label>{{ 'honeyPriceCalculator.to' | translate }}
+      <input type="date" formControlName="to_date">
+    </label>
+    <label>{{ 'honeyPriceCalculator.margin' | translate }}
+      <input type="number" min="0" max="500" formControlName="target_margin_percent">
+    </label>
+    <button type="submit" class="primary-action" [disabled]="form.invalid || loading()">
+      {{ loading() ? ('honeyPriceCalculator.calculating' | translate) : ('honeyPriceCalculator.calculate' | translate) }}
+    </button>
+  </form>
+
+  @if (result(); as result) {
+    <section class="result-panel">
+      <div class="result-row">
+        <span>{{ 'honeyPriceCalculator.totalCosts' | translate }}</span>
+        <strong>{{ result.total_relevant_costs }} €</strong>
+      </div>
+      <div class="result-row">
+        <span>{{ 'honeyPriceCalculator.totalHarvest' | translate }}</span>
+        <strong>{{ result.total_harvested_kg }} kg</strong>
+      </div>
+      <div class="result-row">
+        <span>{{ 'honeyPriceCalculator.colonyCount' | translate }}</span>
+        <strong>{{ result.colony_count }}</strong>
+      </div>
+      @if (result.cost_per_kg !== null) {
+        <div class="result-row">
+          <span>{{ 'honeyPriceCalculator.costPerKg' | translate }}</span>
+          <strong>{{ result.cost_per_kg }} €/kg</strong>
+        </div>
+      }
+      @if (result.cost_per_colony !== null) {
+        <div class="result-row">
+          <span>{{ 'honeyPriceCalculator.costPerColony' | translate }}</span>
+          <strong>{{ result.cost_per_colony }} €</strong>
+        </div>
+      }
+      @if (result.suggested_price_per_kg !== null) {
+        <div class="result-row highlight">
+          <span>{{ 'honeyPriceCalculator.suggestedPrice' | translate }}</span>
+          <strong>{{ result.suggested_price_per_kg }} €/kg</strong>
+        </div>
+      }
+      <p class="formula-note">{{ result.simplification_note }}</p>
+    </section>
+  }
+</div>

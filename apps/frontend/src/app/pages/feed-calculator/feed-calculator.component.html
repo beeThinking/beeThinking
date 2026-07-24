@@ -1,0 +1,48 @@
+<div class="calc-page">
+  <header class="work-header">
+    <p class="eyebrow">{{ 'feedCalculator.eyebrow' | translate }}</p>
+    <h1>{{ 'feedCalculator.title' | translate }}</h1>
+    <p class="hint">{{ 'feedCalculator.hint' | translate }}</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert">{{ errorMessage() }}</div>
+  }
+
+  <form class="calc-form" [formGroup]="form" (ngSubmit)="calculate()">
+    <label>{{ 'feedCalculator.colonyCount' | translate }}
+      <input type="number" min="1" max="1000" formControlName="colony_count">
+    </label>
+    <label>{{ 'feedCalculator.colonyStrength' | translate }}
+      <select formControlName="colony_strength">
+        @for (strength of strengths; track strength) {
+          <option [value]="strength">{{ strengthLabel(strength) }}</option>
+        }
+      </select>
+    </label>
+    <label>{{ 'feedCalculator.season' | translate }}
+      <select formControlName="season">
+        @for (season of seasons; track season) {
+          <option [value]="season">{{ seasonLabel(season) }}</option>
+        }
+      </select>
+    </label>
+    <button type="submit" class="primary-action" [disabled]="form.invalid || loading()">
+      {{ loading() ? ('feedCalculator.calculating' | translate) : ('feedCalculator.calculate' | translate) }}
+    </button>
+  </form>
+
+  @if (result(); as result) {
+    <section class="result-panel">
+      <div class="result-row">
+        <span>{{ 'feedCalculator.perColony' | translate }}</span>
+        <strong>{{ result.kg_sugar_per_colony }} kg</strong>
+      </div>
+      <div class="result-row">
+        <span>{{ 'feedCalculator.total' | translate }}</span>
+        <strong>{{ result.total_kg_sugar }} kg</strong>
+      </div>
+      <p class="formula-note">{{ result.formula_note }}</p>
+    </section>
+  }
+</div>

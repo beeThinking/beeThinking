@@ -1,0 +1,9 @@
+.chart-wrap { position: relative; min-height: 14rem; }
+canvas { width: 100%; min-height: 14rem; }
+.chart-error, .chart-empty { color: #6b604f; padding: var(--space-md); text-align: center; }
+.hidden { display: none; }
+
+@media (min-width: 768px) {
+  .chart-wrap { min-height: 18rem; }
+  canvas { min-height: 18rem; }
+}

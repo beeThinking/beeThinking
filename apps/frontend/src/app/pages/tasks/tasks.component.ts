@@ -5,12 +5,21 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BeekeepingService } from '../../core/services/beekeeping.service';
 import { HiveService } from '../../core/services/hive.service';
 import { ApiaryService } from '../../core/services/apiary.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Task, TaskPriority, TaskStatus } from '../../core/models/beekeeping.models';
+import { ApiaryMember } from '../../core/models/apiary.models';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { TranslationKey } from '../../core/i18n/en';
 
 type TaskView = 'today' | 'overdue' | 'week' | 'open' | 'done';
+export type RecurrenceOption = 'none' | 'daily' | 'weekly' | 'monthly';
+
+const RECURRENCE_RULES: Record<Exclude<RecurrenceOption, 'none'>, string> = {
+  daily: 'FREQ=DAILY',
+  weekly: 'FREQ=WEEKLY',
+  monthly: 'FREQ=MONTHLY'
+};
 
 @Component({
   selector: 'app-tasks',
@@ -24,6 +33,7 @@ export class TasksComponent {
   private readonly beekeeping = inject(BeekeepingService);
   private readonly hiveService = inject(HiveService);
   private readonly apiaryService = inject(ApiaryService);
+  private readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly translation = inject(TranslationService);
 
@@ -32,10 +42,19 @@ export class TasksComponent {
   protected readonly tasks = computed(() => this.localTasks() ?? this.remoteTasks());
   protected readonly hives = toSignal(this.hiveService.getHives(), { initialValue: [] });
   protected readonly apiaries = toSignal(this.apiaryService.getApiaries(), { initialValue: [] });
+  private readonly members = signal<ApiaryMember[]>([]);
+  protected readonly assignableUsers = computed(() => {
+    const seen = new Map<number, ApiaryMember['user']>();
+    for (const member of this.members()) {
+      seen.set(member.user.id, member.user);
+    }
+    return Array.from(seen.values());
+  });
   protected readonly view = signal<TaskView>('today');
   protected readonly showForm = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly priorities: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
+  protected readonly recurrenceOptions: RecurrenceOption[] = ['none', 'daily', 'weekly', 'monthly'];
   protected readonly views: { id: TaskView; labelKey: TranslationKey }[] = [
     { id: 'today', labelKey: 'tasks.view.today' },
     { id: 'overdue', labelKey: 'tasks.view.overdue' },
@@ -44,13 +63,21 @@ export class TasksComponent {
     { id: 'done', labelKey: 'tasks.view.done' }
   ];
 
+  protected readonly delegatedToMe = computed(() => {
+    const currentUserId = this.authService.currentUser()?.id;
+    if (!currentUserId) return [];
+    return this.tasks().filter(task => task.assignee_id === currentUserId && task.status === 'open');
+  });
+
   protected readonly form = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
     due_date: [''],
     priority: ['medium' as TaskPriority],
     hive_id: [null as number | null],
-    apiary_id: [null as number | null]
+    apiary_id: [null as number | null],
+    assignee_id: [null as number | null],
+    recurrence: ['none' as RecurrenceOption]
   });
 
   protected readonly visibleTasks = computed(() => {
@@ -68,30 +95,37 @@ export class TasksComponent {
     });
   });
 
+  constructor() {
+    this.loadMembers();
+  }
+
   protected setView(view: TaskView): void {
     this.view.set(view);
   }
 
   protected openForm(): void {
-    this.form.reset({ priority: 'medium' as TaskPriority });
+    this.form.reset({ priority: 'medium' as TaskPriority, recurrence: 'none' as RecurrenceOption });
     this.showForm.set(true);
   }
 
   protected closeForm(): void {
     this.showForm.set(false);
-    this.form.reset({ priority: 'medium' as TaskPriority });
+    this.form.reset({ priority: 'medium' as TaskPriority, recurrence: 'none' as RecurrenceOption });
   }
 
   protected createTask(): void {
     if (this.form.invalid) return;
     const value = this.form.value;
+    const recurrence = (value.recurrence ?? 'none') as RecurrenceOption;
     this.beekeeping.createTask({
       title: value.title!,
       description: value.description || undefined,
       due_date: value.due_date || undefined,
       priority: value.priority as TaskPriority,
       hive_id: value.hive_id ? Number(value.hive_id) : null,
-      apiary_id: value.apiary_id ? Number(value.apiary_id) : null
+      apiary_id: value.apiary_id ? Number(value.apiary_id) : null,
+      assignee_id: value.assignee_id ? Number(value.assignee_id) : null,
+      recurrence_rule: recurrence === 'none' ? null : RECURRENCE_RULES[recurrence]
     }).subscribe({
       next: task => {
         this.localTasks.update(list => [task, ...(list ?? this.remoteTasks())]);
@@ -123,6 +157,13 @@ export class TasksComponent {
     });
   }
 
+  protected acknowledgeDelegation(task: Task): void {
+    this.beekeeping.acknowledgeTaskDelegation(task.id).subscribe({
+      next: updated => this.replaceTask(updated),
+      error: () => this.errorMessage.set(this.translation.t('tasks.error.update'))
+    });
+  }
+
   protected hiveName(id: number | null): string {
     if (!id) return this.translation.t('tasks.form.noHive');
     return this.hives().find(h => h.id === id)?.name ?? this.translation.t('common.hiveRef', { id });
@@ -130,6 +171,21 @@ export class TasksComponent {
 
   protected apiaryTitle(apiary: { stock_number: string; name: string | null }): string {
     return apiary.name?.trim() || apiary.stock_number;
+  }
+
+  protected assigneeName(id: number | null): string {
+    if (!id) return this.translation.t('tasks.form.noAssignee');
+    return this.assignableUsers().find(user => user.id === id)?.username ?? this.translation.t('tasks.form.noAssignee');
+  }
+
+  protected recurrenceLabel(task: Task): string {
+    if (!task.recurrence_rule) return '';
+    const key = ({
+      'FREQ=DAILY': 'tasks.recurrence.daily',
+      'FREQ=WEEKLY': 'tasks.recurrence.weekly',
+      'FREQ=MONTHLY': 'tasks.recurrence.monthly'
+    } as Record<string, TranslationKey>)[task.recurrence_rule];
+    return key ? this.translation.t(key) : task.recurrence_rule;
   }
 
   protected priorityLabel(priority: TaskPriority): string {
@@ -140,6 +196,27 @@ export class TasksComponent {
       urgent: 'tasks.priority.urgent'
     } satisfies Record<TaskPriority, TranslationKey>)[priority];
     return this.translation.t(key);
+  }
+
+  protected recurrenceOptionLabel(option: RecurrenceOption): string {
+    const key = ({
+      none: 'tasks.recurrence.none',
+      daily: 'tasks.recurrence.daily',
+      weekly: 'tasks.recurrence.weekly',
+      monthly: 'tasks.recurrence.monthly'
+    } satisfies Record<RecurrenceOption, TranslationKey>)[option];
+    return this.translation.t(key);
+  }
+
+  private loadMembers(): void {
+    this.apiaryService.getApiaries().subscribe(apiaries => {
+      apiaries.forEach(apiary => {
+        this.apiaryService.getMembers(apiary.id).subscribe({
+          next: members => this.members.update(list => [...list, ...members]),
+          error: () => undefined
+        });
+      });
+    });
   }
 
   private replaceTask(updated: Task): void {

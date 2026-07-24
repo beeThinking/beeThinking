@@ -10,6 +10,19 @@ h1 { color: var(--amelie-text-dark); font-size: clamp(2rem, 9vw, 3.4rem); line-h
 .stock-facts, .queen-facts { display: grid; gap: var(--space-sm); margin-bottom: var(--space-md); }
 .stock-facts div, .queen-panel { padding: var(--space-md); border: 1px solid #e5dac8; border-radius: 8px; background: #fff; }
 .stock-facts span, .queen-facts small { display: block; color: #6b604f; }
+.analytics-panel, .scale-panel { display: grid; gap: var(--space-md); padding: var(--space-md); margin-bottom: var(--space-md); border: 1px solid #e5dac8; border-radius: 8px; background: #fff; }
+.panel-heading { display: grid; gap: var(--space-sm); }
+.panel-heading h2 { font-size: clamp(1.2rem, 4vw, 1.6rem); }
+.analytics-controls { display: grid; gap: var(--space-sm); }
+.analytics-controls select, .analytics-controls input { min-height: 44px; border: 1px solid #d9c9ae; border-radius: 8px; padding: var(--space-xs) var(--space-sm); font: inherit; font-size: 1rem; }
+.kpi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); }
+.kpi-grid div { display: grid; gap: var(--space-xs); padding: var(--space-sm); border-radius: 8px; background: #faf5e8; }
+.kpi-grid span { color: #6b604f; font-size: 0.85rem; }
+.toggle { display: flex; align-items: center; gap: var(--space-xs); min-height: 44px; font-weight: 800; color: #5c4d35; }
+.weight-placeholder { display: grid; min-height: 10rem; place-items: center; border: 1px dashed #cdbb96; border-radius: 8px; background: repeating-linear-gradient(0deg, #faf5e8, #faf5e8 2rem, #fff 2rem, #fff 2.1rem); color: #6b604f; text-align: center; padding: var(--space-md); }
+.weight-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.weight-table-wrap table { width: 100%; border-collapse: collapse; }
+.weight-table-wrap th, .weight-table-wrap td { padding: var(--space-sm); border-bottom: 1px solid #e5dac8; text-align: left; }
 .queen-panel { display: grid; gap: var(--space-md); border-top: 5px solid #d1a632; }
 .queen-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
 .queen-heading button, .event-actions button, .sheet-actions button { min-height: 44px; border: 1px solid #cdbb96; border-radius: 8px; padding: var(--space-xs) var(--space-sm); background: #fff; color: #2f6f5e; font: inherit; font-weight: 900; }
@@ -44,6 +57,9 @@ h1 { color: var(--amelie-text-dark); font-size: clamp(2rem, 9vw, 3.4rem); line-h
   .filters { grid-template-columns: repeat(3, 1fr); }
   .stock-facts { grid-template-columns: repeat(3, 1fr); }
   .queen-facts { grid-template-columns: repeat(4, 1fr); }
+  .panel-heading { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .analytics-controls { grid-template-columns: repeat(3, minmax(8rem, 1fr)); }
+  .kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .event { grid-template-columns: 7rem 1fr; }
   .sheet-overlay { align-items: center; justify-content: center; padding: var(--space-lg); }

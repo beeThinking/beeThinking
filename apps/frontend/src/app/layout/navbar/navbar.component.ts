@@ -32,7 +32,10 @@ export class NavbarComponent {
       '/admin/cms',
       '/appointments',
       '/honeybook',
-      '/traceability'
+      '/traceability',
+      '/map',
+      '/honey-price-calculator',
+      '/settings'
     ].some(path => this.router.url.startsWith(path));
   }
 
@@ -49,7 +52,8 @@ export class NavbarComponent {
   protected breedingMenuActive(): boolean {
     return [
       '/zuchtreihen',
-      '/zucht-selektion'
+      '/zucht-selektion',
+      '/hive-selection'
     ].some(path => this.router.url.startsWith(path));
   }
 
