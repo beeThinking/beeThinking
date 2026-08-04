@@ -61,6 +61,26 @@ npm test
 npm run lint
 ```
 
+### Mobile
+
+Mobile development is iOS-first with Flutter `3.24.5`; Android is planned, while Web and Docker targets are out of scope. Xcode is required to run or build the app.
+
+```bash
+flutter --directory apps/mobile pub get
+flutter --directory apps/mobile run
+```
+
+Debug builds default to `http://localhost:8000`. Set another backend with `--dart-define=API_BASE_URL=https://api.example.com`; non-debug builds require this definition. API base URLs are configuration, not secret storage. Authentication tokens must remain in platform secure storage—never commit, log, or persist them in source, environment files, or plain-text preferences.
+
+Run checks from `apps/mobile`:
+
+```bash
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://api.example.com
+```
+
 ## Commit Convention
 
 Use Conventional Commits:

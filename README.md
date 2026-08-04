@@ -21,7 +21,8 @@ See [ROADMAP.md](ROADMAP.md) for the development plan.
 beeThinking/
 ├── apps/
 │   ├── backend/    # REST API — FastAPI, SQLAlchemy, JWT (Python 3.11+)
-│   └── frontend/   # SPA — Angular 21
+│   ├── frontend/   # SPA — Angular 21
+│   └── mobile/     # iOS-first client — Flutter (Android later)
 └── docker-compose.yml
 ```
 
@@ -76,12 +77,26 @@ npm install
 npm start                   # http://localhost:4200
 ```
 
+### Mobile (local)
+
+The Flutter client currently targets iOS. Android support is planned; Flutter Web is not supported. Install Flutter `3.24.5` and Xcode, then run:
+
+```bash
+flutter --directory apps/mobile pub get
+flutter --directory apps/mobile run
+```
+
+Debug builds use `http://localhost:8000` by default. Override the API endpoint at build time with `--dart-define=API_BASE_URL=https://api.example.com`; non-debug builds require it. See the [mobile README](apps/mobile/README.md) for configuration details.
+
+The mobile app runs outside Docker and is not part of either Compose stack.
+
 ## Apps
 
 | App | Readme |
 |-----|--------|
 | Backend | [apps/backend/README.md](apps/backend/README.md) |
 | Frontend | [apps/frontend/README.md](apps/frontend/README.md) |
+| Mobile | [apps/mobile/README.md](apps/mobile/README.md) |
 
 ## Login
 
@@ -117,4 +132,10 @@ DATABASE_URL=sqlite:////private/tmp/beethinking_backend_unit.db SECRET_KEY=test-
 cd ../frontend
 npm test -- --watch=false
 npm run build
+
+cd ../mobile
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://api.example.com
 ```

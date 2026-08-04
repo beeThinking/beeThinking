@@ -10,8 +10,9 @@ BeeThinking is a beekeeping management application. It consists of:
 
 - **Backend** (`apps/backend/`) — REST API built with FastAPI, SQLAlchemy, and JWT authentication
 - **Frontend** (`apps/frontend/`) — Single-page application built with Angular 21
+- **Mobile** (`apps/mobile/`) — iOS-first Flutter client; Android is planned
 
-The full stack can be started with `docker-compose up` from the repository root.
+The backend and frontend stack can be started with `docker-compose up` from the repository root. Mobile is not a Docker or Flutter Web target.
 
 ---
 
@@ -34,14 +35,21 @@ beeThinking/
 │   │   │   └── integration/  # End-to-end API tests
 │   │   ├── requirements.txt
 │   │   └── .env.example
-│   └── frontend/         # Angular 21
-│       └── src/app/
-│           ├── core/     # Guards, interceptors, services, models
-│           ├── layout/   # Navbar, footer
-│           ├── pages/    # Feature pages (dashboard, beehives, login, register, …)
-│           └── shared/   # Reusable components
+│   ├── frontend/         # Angular 21
+│   │   └── src/app/
+│   │       ├── core/     # Guards, interceptors, services, models
+│   │       ├── layout/   # Navbar, footer
+│   │       ├── pages/    # Feature pages (dashboard, beehives, login, register, …)
+│   │       └── shared/   # Reusable components
+│   └── mobile/           # Flutter 3.24.5 / iOS
+│       ├── lib/src/
+│       │   ├── auth/     # Authentication API, state, repository, secure tokens
+│       │   ├── config/   # Compile-time application configuration
+│       │   └── screens/  # Application screens
+│       ├── ios/          # Native iOS runner
+│       └── test/         # Unit and widget tests
 ├── .github/
-│   ├── workflows/        # CI: backend.yml (pytest), frontend.yml (lint+test+build)
+│   ├── workflows/        # CI: backend, frontend, and mobile validation
 │   ├── ISSUE_TEMPLATE/   # Bug report and feature request forms
 │   └── pull_request_template.md
 ├── CONTRIBUTING.md
@@ -80,6 +88,16 @@ beeThinking/
 | HTTP | Angular `HttpClient` + auth interceptor |
 | Routing | Angular Router + auth guard |
 
+### Mobile
+| Concern | Library / tool |
+|---|---|
+| Framework | Flutter 3.24.5 (stable) |
+| Language | Dart 3.5+ |
+| Target | iOS first; Android later |
+| HTTP | `http` |
+| Token storage | `flutter_secure_storage` |
+| Tests | `flutter_test` |
+
 ---
 
 ## Development Commands
@@ -106,6 +124,19 @@ npm test                       # Vitest unit tests
 npm run lint                   # ESLint
 npm run build                  # production build → dist/bee-thinking/
 ```
+
+### Mobile
+```bash
+flutter --directory apps/mobile pub get
+flutter --directory apps/mobile run
+cd apps/mobile
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://api.example.com
+```
+
+Debug builds default to `http://localhost:8000`. Override with `--dart-define=API_BASE_URL=...`; non-debug builds require the value and release builds require HTTPS.
 
 ### Full stack
 ```bash
@@ -155,6 +186,13 @@ Rules:
 - **Scrollable containers** — add `-webkit-overflow-scrolling: touch` and `scrollbar-width: none` for horizontal scroll areas (e.g. hive tab bar).
 - Do **not** import `CommonModule` — use Angular 17+ built-in control flow (`@if`, `@for`, `@switch`) instead.
 - `ChangeDetectionStrategy.OnPush` is mandatory on every component.
+
+### Mobile (Flutter)
+- Keep the current `lib/src/auth`, `lib/src/config`, and `lib/src/screens` boundaries.
+- Target iOS first. Android support is later; do not add Flutter Web or Docker integration.
+- Configure the backend only through the `API_BASE_URL` Dart definition. Do not hardcode environment-specific production endpoints.
+- Store authentication tokens only through platform secure storage. Never place tokens in source, Dart definitions, logs, environment files, or plain-text preferences.
+- Run formatting, analysis, tests, and an iOS no-codesign build for mobile changes.
 
 ---
 
